@@ -1,4 +1,5 @@
 🎲 Plataforma Web de Apostas em Eventos Futuros
+
 🌟 Descrição Geral
 Bem-vindo ao nosso projeto de Plataforma Web de Apostas! Este sistema permite aos usuários criar e aceitar apostas sobre diversos eventos futuros, como resultados de jogos esportivos, eleições ou eventos extraordinários como catástrofes. A plataforma simula o controle financeiro, oferecendo uma experiência interativa e divertida para todos os usuários.
 
