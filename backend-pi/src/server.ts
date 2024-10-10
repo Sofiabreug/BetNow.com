@@ -1,23 +1,27 @@
 import express from "express";
-import {Request, Response, Router} from "express";
+import { Request, Response, Router } from "express";
 import { AccountsHandler } from "./accounts/accounts";
 
 const port = 3000; 
 const server = express();
 const routes = Router();
 
-// definir as rotas. 
-// a rota tem um verbo/método http (GET, POST, PUT, DELETE)
-routes.get('/', (req: Request, res: Response)=>{
-    res.statusCode = 403;
-    res.send('Acesso não permitido.');
+// Definir as rotas
+// A rota tem um verbo/método HTTP (GET, POST, PUT, DELETE)
+routes.get('/', (req: Request, res: Response) => {
+    res.status(403).send('Acesso não permitido.'); // Mudei para res.status(403)
 });
 
-// vamos organizar as rotas em outro local 
-routes.put('/signUp', AccountsHandler.createAccountRoute);
+// Exemplo de rota para criação de conta
+routes.put('/signUp', AccountsHandler.createAccountRoute); // Supondo que você tenha essa função
 
+// Rota de login
+routes.post('/login', AccountsHandler.loginHandler); // Adicionando a rota de login
+
+server.use(express.json()); // Para lidar com JSON no corpo da requisição
 server.use(routes);
 
-server.listen(port, ()=>{
-    console.log(`Server is running on: ${port}`);
-})
+// Iniciar o servidor
+server.listen(port, () => {
+    console.log(`Server is running on: http://localhost:${port}`);
+});

@@ -1,50 +1,83 @@
-import {Request, RequestHandler, Response} from "express";
-
+import { Request, Response, RequestHandler } from "express";
+import OracleDB from "oracledb";
 
 export namespace AccountsHandler {
-    
   
     export type UserAccount = {
-        name:string;
-        email:string;
-        password:string; 
-        birthdate:string; 
+        id: number | undefined;
+        completeName: string;
+        email: string;
+        password: string | undefined; 
     };
 
-    // Array que representa uma coleção de contas. 
-    let accountsDatabase: UserAccount[] = [];
+    async function login(email: string, password: string): Promise<UserAccount | undefined> {
+        let connection = await OracleDB.getConnection({
+            user: "ADMIN",
+            password: "1234",
+            connectString: "minha string de conexão"
+        });
 
-   
+        let results = await connection.execute(
+            'SELECT * FROM ACCOUNTS WHERE email = :email AND password = :password',
+            [email, password],
+        );
 
-    export function saveNewAccount(ua: UserAccount) : number{
-        accountsDatabase.push(ua);
-        return accountsDatabase.length;
-    }
-
- 
-  
-    export const createAccountRoute: RequestHandler = (req: Request, res: Response) => {
-       
-        const pName = req.get('name');
-        const pEmail = req.get('email');
-        const pPassword = req.get('password');
-        const pBirthdate = req.get('birthdate');
-        
-        if(pName && pEmail && pPassword && pBirthdate){
-         
-            const newAccount: UserAccount = {
-                name: pName,
-                email: pEmail, 
-                password: pPassword,
-                birthdate: pBirthdate
+        if (results.rows && results.rows.length > 0)
+        {
+            const row = results.rows[0] as { ID: number; COMPLETE_NAME: string; EMAIL: string }; 
+            
+            return {
+                id: row.ID,                       
+                completeName: row.COMPLETE_NAME,  
+                email: row.EMAIL,                 
+                password: undefined               
             }
-            const ID = saveNewAccount(newAccount);
-            res.statusCode = 200; 
-            res.send(`Nova conta adicionada. Código: ${ID}`);
-        }else{
-            res.statusCode = 400;
-            res.send("Parâmetros inválidos ou faltantes.");
+        }
+        else {
+            return undefined; 
         }
     }
 
+    export const createAccountRoute: RequestHandler = async (req: Request, res: Response) => {
+        const completeName = req.get('completeName');
+        const email = req.get('email');
+        const password = req.get('password');
+
+        if (completeName && email && password) {
+            let connection = await OracleDB.getConnection({
+                user: "ADMIN",
+                password: "1234",
+                connectString: "minha string de conexão"
+            });
+
+            
+            await connection.execute(
+                'INSERT INTO ACCOUNTS (completeName, email, password) VALUES (:completeName, :email, :password)',
+                [completeName, email, password]
+            );
+
+            // Comitar a transação
+            await connection.commit();
+            res.status(201).send('Conta criada com sucesso.'); 
+            res.status(400).send('Requisição inválida - Parâmetros faltando.'); 
+        }
+    }
+
+    export const loginHandler: RequestHandler = async (req: Request, res: Response) => {
+        const pEmail = req.get('email');
+        const pPassword = req.get('password');
+
+        if (pEmail && pPassword) {
+            const user = await login(pEmail, pPassword); 
+            
+            if (user) {
+                res.status(200).json(user); 
+            } else {
+                res.status(401).send('Credenciais inválidas.'); 
+            }
+        } else {
+            res.status(400).send('Requisição inválida - Parâmetros faltando.'); 
+        }
+    }
 }
+
