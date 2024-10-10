@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 🎲 Plataforma Web de Apostas em Eventos Futuros
 
 🌟 Descrição Geral
@@ -69,7 +68,6 @@ Integrar frontend e backend, ajustar serviços conforme necessário e realizar t
 📝 Nota Importante
 Este modelo de desenvolvimento linear é adotado para fins educacionais, ajudando os alunos a aprender todos os processos de desenvolvimento de software web. Em ambientes profissionais, o desenvolvimento pode ser mais dinâmico e adaptável.
 
-=======
 # Template para criar backends usando express
 
 Este é um projeto apenas de "esqueleto" para você criar seu backend em TypeScript usando express.
@@ -108,4 +106,3 @@ npm run dev
 ```
 
 Voilà!
->>>>>>> 5a8ef63 (Inclusao do arquivo Readme)
