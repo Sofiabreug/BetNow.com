@@ -18,6 +18,9 @@ routes.put('/signUp', AccountsHandler.createAccountRoute); // Supondo que você 
 // Rota de login
 routes.post('/login', AccountsHandler.loginHandler); // Adicionando a rota de login
 
+//Rota de Criação de evento
+routes.post('/AddNewEvent', AccountsHandler.AddNewEvent); // Adicionando a rota de evento
+
 server.use(express.json()); // Para lidar com JSON no corpo da requisição
 server.use(routes);
 

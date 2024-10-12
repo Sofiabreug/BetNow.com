@@ -10,12 +10,17 @@ export namespace AccountsHandler {
         password: string | undefined; 
     };
 
-    async function login(email: string, password: string): Promise<UserAccount | undefined> {
-        let connection = await OracleDB.getConnection({
+    async function connectionOracle(){
+        return await OracleDB.getConnection({
             user: "ADMIN",
             password: "1234",
             connectString: "minha string de conexão"
         });
+    }
+
+    async function login(email: string, password: string): Promise<UserAccount | undefined> {
+        const connection = await connectionOracle();
+    
 
         let results = await connection.execute(
             'SELECT * FROM ACCOUNTS WHERE email = :email AND password = :password',
@@ -44,12 +49,7 @@ export namespace AccountsHandler {
         const password = req.get('password');
 
         if (completeName && email && password) {
-            let connection = await OracleDB.getConnection({
-                user: "ADMIN",
-                password: "1234",
-                connectString: "minha string de conexão"
-            });
-
+            const connection = await connectionOracle();
             
             await connection.execute(
                 'INSERT INTO ACCOUNTS (completeName, email, password) VALUES (:completeName, :email, :password)',
@@ -78,6 +78,47 @@ export namespace AccountsHandler {
         } else {
             res.status(400).send('Requisição inválida - Parâmetros faltando.'); 
         }
+    }
+    export const AddNewEvent: RequestHandler = async (req: Request, res: Response): Promise <void> => {
+        const title = req.get('title');
+        const description = req.get('description');
+        const ticketValue = req.get('ticketValue');
+        const startDate = req.get('startDate');
+        const endDate = req.get('endDate');
+        const eventDate = req.get('eventDate');
+        let status = 'pendente';
+
+        if (!title || title.length > 50) {
+            res.status(400).send('O título deve possuir até 50 caracteres.');
+        }
+        if (!description || description.length > 150) {
+            res.status(400).send('A descrição deve possuir até 150 caracteres.');
+        }
+        if (!ticketValue) {
+            res.status(400).send('O valor de cada cota é obrigatório');
+        }
+        if (Number (ticketValue) < 1) {
+            res.status(400).send('O valor de cada cota deve ser R$1,00 ou mais' );
+        }
+        if (!startDate) {
+            res.status(400).send('A data de inicio é obrigatória.');
+        }
+        if (!endDate) {
+            res.status(400).send('A data final é obrigatória.');
+        }
+        if (!eventDate) {
+            res.status(400).send('A data do evento é obrigatória.');
+        }
+
+        const connection = await connectionOracle();
+        await connection.execute(
+            'INSERT INTO EVENTS (title, description, ticketValue, startDate, endDate, eventDate, status) VALUES (:title, :description, :ticketValue, :startDate, :endDate, :eventDate, :status)',
+            [title, description, ticketValue, startDate, endDate, eventDate, status]
+        );
+
+        // Comitar a transação
+        await connection.commit();
+        res.status(201).send('Evento criado com sucesso.'); 
     }
 }
 
