@@ -13,13 +13,15 @@ routes.get('/', (req: Request, res: Response) => {
 });
 
 // Exemplo de rota para criação de conta
-routes.put('/signUp', AccountsHandler.createAccountRoute); // Supondo que você tenha essa função
+routes.post('/signUp', AccountsHandler.createAccountRoute); // Supondo que você tenha essa função
 
 // Rota de login
 routes.post('/login', AccountsHandler.loginHandler); // Adicionando a rota de login
 
 //Rota de Criação de evento
 routes.post('/AddNewEvent', AccountsHandler.AddNewEvent); // Adicionando a rota de evento
+//Rota de Avaliar evento
+routes.put('/evaluateEvent', AccountsHandler.evaluateEvent);
 
 server.use(express.json()); // Para lidar com JSON no corpo da requisição
 server.use(routes);

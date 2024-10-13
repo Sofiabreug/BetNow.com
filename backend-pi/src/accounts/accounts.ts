@@ -120,5 +120,59 @@ export namespace AccountsHandler {
         await connection.commit();
         res.status(201).send('Evento criado com sucesso.'); 
     }
+    export const evaluateEvent: RequestHandler = async (req: Request, res: Response):Promise <void> => {
+        const eventId = req.get('eventId');
+        const newStatus = req.get('status'); 
+    
+        
+        if (!eventId) {
+            res.status(400).send('O ID do evento é obrigatório.');
+        }
+        if (!newStatus) {
+           res.status(400).send('O novo status é obrigatório.');
+        }
+    
+        const connection = await connectionOracle();
+    
+
+        await connection.execute(
+            'UPDATE EVENTS SET status = :newStatus WHERE id = :eventId',
+            [newStatus, eventId]
+        );
+    
+        // Comitar a transação
+        await connection.commit();
+        res.status(200).send('Status do evento atualizado com sucesso.');
+    };
+    export const getEvents: RequestHandler = async (req: Request, res: Response): Promise<void> => {
+        const filter = req.get('filter'); // Pode ser 'pending', 'upcoming', 'past'
+    
+        const connection = await connectionOracle();
+    
+        let results;
+    
+        // Executando a consulta com base no filtro recebido
+        if (filter === 'pending') {
+            results = await connection.execute(
+                "SELECT * FROM EVENTS WHERE status = 'pendente'"
+            );
+        } else if (filter === 'upcoming') {
+            results = await connection.execute(
+                "SELECT * FROM EVENTS WHERE eventDate > SYSDATE"
+            );
+        } else if (filter === 'past') {
+            results = await connection.execute(
+                "SELECT * FROM EVENTS WHERE eventDate < SYSDATE"
+            );
+        } else {
+            results = await connection.execute('SELECT * FROM EVENTS'); // Caso nenhum filtro seja fornecido
+        }
+    
+        if (results.rows && results.rows.length > 0) {
+            res.status(200).json(results.rows);
+        } else {
+            res.status(404).send('Nenhum evento encontrado.'); 
+        }
+    };
 }
 
