@@ -79,6 +79,7 @@ export namespace AccountsHandler {
             res.status(400).send('Requisição inválida - Parâmetros faltando.'); 
         }
     }
+
     export const AddNewEvent: RequestHandler = async (req: Request, res: Response): Promise <void> => {
         const title = req.get('title');
         const description = req.get('description');
@@ -120,6 +121,7 @@ export namespace AccountsHandler {
         await connection.commit();
         res.status(201).send('Evento criado com sucesso.'); 
     }
+
     export const evaluateEvent: RequestHandler = async (req: Request, res: Response):Promise <void> => {
         const eventId = req.get('eventId');
         const newStatus = req.get('status'); 
@@ -144,6 +146,7 @@ export namespace AccountsHandler {
         await connection.commit();
         res.status(200).send('Status do evento atualizado com sucesso.');
     };
+
     export const getEvents: RequestHandler = async (req: Request, res: Response): Promise<void> => {
         const filter = req.get('filter'); // Pode ser 'pending', 'upcoming', 'past'
     
@@ -174,5 +177,57 @@ export namespace AccountsHandler {
             res.status(404).send('Nenhum evento encontrado.'); 
         }
     };
+
+    export const deleteEvent: RequestHandler = async (req: Request, res: Response): Promise<void> => {
+        const eventId = req.get('eventId');
+    
+        if (!eventId) {
+            res.status(400).send('O ID do evento é obrigatório.');
+            return;
+        }
+    
+        const connection = await connectionOracle();
+    
+        // Fazendo a exclusão lógica, alterando o status do evento para 'removido'
+        await connection.execute(
+            'UPDATE EVENTS SET status = :status WHERE id = :eventId',
+            ['removido', eventId]
+        );
+    
+        // Comitar a transação
+        await connection.commit();
+        res.status(200).send(`Evento com ID ${eventId} foi removido logicamente.`);
+    };
+
+    export const addFunds: RequestHandler = async (req: Request, res: Response): Promise<void> => {
+        const userId = req.get('userId');
+        const amount = req.body.amount;
+    
+        if (!userId || !amount || amount <= 0) {
+            res.status(400).send('O ID do usuário e um valor positivo são obrigatórios.');
+            return;
+        }
+    
+        const connection = await connectionOracle();
+    
+        try {
+            // Atualizando o saldo da carteira do usuário
+            await connection.execute(
+                'UPDATE USERS SET wallet = wallet + :amount WHERE id = :userId',
+                [amount, userId]
+            );
+    
+            // Comitar a transação
+            await connection.commit();
+    
+            res.status(200).send(`Valor de R$ ${amount} foi adicionado à carteira do usuário com ID ${userId}.`);
+        } catch (error) {
+            console.error('Erro ao adicionar fundos:', error);
+            res.status(500).send('Erro ao adicionar fundos.');
+        } finally {
+            await connection.close();
+        }
+    };
+
 }
 

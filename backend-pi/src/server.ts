@@ -20,8 +20,15 @@ routes.post('/login', AccountsHandler.loginHandler); // Adicionando a rota de lo
 
 //Rota de Criação de evento
 routes.post('/AddNewEvent', AccountsHandler.AddNewEvent); // Adicionando a rota de evento
+
 //Rota de Avaliar evento
 routes.put('/evaluateEvent', AccountsHandler.evaluateEvent);
+
+//Rota para deletar evento
+routes.delete('/deleteEvent', AccountsHandler.deleteEvent);
+
+//Rota para adicionar fundos à carteira do usuário 
+routes.post('/addFunds', AccountsHandler.addFunds);
 
 server.use(express.json()); // Para lidar com JSON no corpo da requisição
 server.use(routes);
