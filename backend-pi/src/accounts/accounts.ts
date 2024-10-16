@@ -56,7 +56,7 @@ export namespace AccountsHandler {
                 [completeName, email, password]
             );
 
-            // Comitar a transação
+            
             await connection.commit();
             res.status(201).send('Conta criada com sucesso.'); 
             res.status(400).send('Requisição inválida - Parâmetros faltando.'); 
@@ -115,8 +115,6 @@ export namespace AccountsHandler {
             'INSERT INTO EVENTS (title, description, ticketValue, startDate, endDate, eventDate, status) VALUES (:title, :description, :ticketValue, :startDate, :endDate, :eventDate, :status)',
             [title, description, ticketValue, startDate, endDate, eventDate, status]
         );
-
-        // Comitar a transação
         await connection.commit();
         res.status(201).send('Evento criado com sucesso.'); 
     }
@@ -139,19 +137,16 @@ export namespace AccountsHandler {
             'UPDATE EVENTS SET status = :newStatus WHERE id = :eventId',
             [newStatus, eventId]
         );
-    
-        // Comitar a transação
         await connection.commit();
         res.status(200).send('Status do evento atualizado com sucesso.');
     };
     export const getEvents: RequestHandler = async (req: Request, res: Response): Promise<void> => {
-        const filter = req.get('filter'); // Pode ser 'pending', 'upcoming', 'past'
+        const filter = req.get('filter'); 
     
         const connection = await connectionOracle();
     
         let results;
     
-        // Executando a consulta com base no filtro recebido
         if (filter === 'pending') {
             results = await connection.execute(
                 "SELECT * FROM EVENTS WHERE status = 'pendente'"
@@ -165,7 +160,7 @@ export namespace AccountsHandler {
                 "SELECT * FROM EVENTS WHERE eventDate < SYSDATE"
             );
         } else {
-            results = await connection.execute('SELECT * FROM EVENTS'); // Caso nenhum filtro seja fornecido
+            results = await connection.execute('SELECT * FROM EVENTS'); 
         }
     
         if (results.rows && results.rows.length > 0) {
@@ -174,5 +169,54 @@ export namespace AccountsHandler {
             res.status(404).send('Nenhum evento encontrado.'); 
         }
     };
+   
+
+    export const withdrawFounds: RequestHandler = async (req: Request, res: Response):Promise <void> => {
+        const accountId = req.get('accountId'); 
+        const withdrawalValue = req.get('withdrawalValue'); 
+
+       
+        if (!accountId || !withdrawalValue) {
+            res.status(400).send('É necessário fornecer o ID da conta e o valor do saque.');
+        }
+
+        const connection = await connectionOracle();
+
+       
+        const result = await connection.execute(
+            'SELECT balance FROM ACCOUNTS WHERE id = :accountId', 
+            [accountId]
+        );
+        const rows = result.rows as Array<{ balance: number }> ;
+        
+        if (result.rows && result.rows.length > 0) {
+            const currentBalance = rows[0].balance; 
+
+            if (currentBalance >= Number(withdrawalValue)) {
+                
+                const newBalance = currentBalance - Number(withdrawalValue);
+
+               
+                await connection.execute(
+                    'UPDATE ACCOUNTS SET balance = :newBalance WHERE id = :accountId', 
+                    [newBalance, accountId]
+                );
+
+                await connection.commit();
+
+                
+                res.status(200).send(`Saque de R$${withdrawalValue} realizado com sucesso. Saldo atual: R$${newBalance}.`);
+            } else {
+               
+                res.status(400).send('Saldo insuficiente para o saque.');
+            }
+        } else {
+           
+            res.status(404).send('Conta não encontrada.');
+        }
+
+        await connection.close();
+    };
 }
+
 
