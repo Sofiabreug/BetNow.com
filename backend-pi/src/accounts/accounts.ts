@@ -13,9 +13,9 @@ export namespace AccountsHandler {
 
     async function connectionOracle(){
         return await OracleDB.getConnection({
-            user: "ADMIN",
-            password: "1234",
-            connectString: "minha string de conexão"
+            user: process.env.ORACLE_USER,
+            password: process.env.ORACLE_PASSWORD,
+            connectString: process.env.ORACLE_CONN_STR
         });
     }
 
