@@ -1,5 +1,7 @@
-import { Request, Response, RequestHandler } from "express";
+import {Request, RequestHandler, Response} from "express";
 import OracleDB from "oracledb";
+import dotenv from 'dotenv'; 
+dotenv.config();
 
 export namespace EventsHandler {
 
@@ -104,7 +106,7 @@ export namespace EventsHandler {
         }
     };
 
-    export const betOnEvent: RequestHandler = async (req: Request, res: Response): Promise<void> => { 
+    export const betOnEvent: RequestHandler= async(req: Request, res: Response): Promise<void> => { 
         const accountId = req.get('accountId'); 
         const eventId = req.get('eventId'); 
         const betValue = req.get('betValue'); 
@@ -217,7 +219,6 @@ export namespace EventsHandler {
 
         const connection = await connectionOracle();
 
-       
         const result = await connection.execute(
             'SELECT balance FROM ACCOUNTS WHERE id = :accountId', 
             [accountId]
@@ -347,7 +348,7 @@ export namespace EventsHandler {
             }
         } 
     
-        // Comitar a transação
+        
         await connection.commit();    
         res.status(200).send('Evento encerrado com sucesso e fundos distribuídos.');
     };

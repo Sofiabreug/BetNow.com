@@ -1,6 +1,7 @@
-import { Request, Response, RequestHandler } from "express";
+import {Request, RequestHandler, Response} from "express";
 import OracleDB from "oracledb";
-
+import dotenv from 'dotenv'; 
+dotenv.config();
 export namespace AccountsHandler {
   
     export type UserAccount = {
