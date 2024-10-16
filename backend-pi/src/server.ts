@@ -18,18 +18,14 @@ routes.post('/signUp', AccountsHandler.createAccountRoute);
 routes.post('/login', AccountsHandler.loginHandler); 
 
 //Rota de Criação de evento
-<<<<<<< HEAD
-routes.post('/AddNewEvent', AccountsHandler.AddNewEvent); // Adicionando a rota de evento
-
-=======
 routes.post('/AddNewEvent', AccountsHandler.AddNewEvent); 
->>>>>>> c70fa5bda2f6835bec1f8ee5e509dd2660d56f64
+
 //Rota de Avaliar evento
 routes.put('/evaluateEvent', AccountsHandler.evaluateEvent);
+
 //Rota de Sacar fundos
 routes.put('/withdraw', AccountsHandler.withdrawFounds); 
 
-<<<<<<< HEAD
 //Rota para deletar evento
 routes.delete('/deleteEvent', AccountsHandler.deleteEvent);
 
@@ -37,9 +33,7 @@ routes.delete('/deleteEvent', AccountsHandler.deleteEvent);
 routes.post('/addFunds', AccountsHandler.addFunds);
 
 server.use(express.json()); // Para lidar com JSON no corpo da requisição
-=======
 server.use(express.json()); 
->>>>>>> c70fa5bda2f6835bec1f8ee5e509dd2660d56f64
 server.use(routes);
 
 

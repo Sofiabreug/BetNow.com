@@ -172,7 +172,6 @@ export namespace AccountsHandler {
             res.status(404).send('Nenhum evento encontrado.'); 
         }
     };
-<<<<<<< HEAD
 
     export const deleteEvent: RequestHandler = async (req: Request, res: Response): Promise<void> => {
         const eventId = req.get('eventId');
@@ -225,7 +224,6 @@ export namespace AccountsHandler {
         }
     };
 
-=======
    
 
     export const withdrawFounds: RequestHandler = async (req: Request, res: Response):Promise <void> => {
@@ -274,7 +272,6 @@ export namespace AccountsHandler {
 
         await connection.close();
     };
->>>>>>> c70fa5bda2f6835bec1f8ee5e509dd2660d56f64
 }
 
 
