@@ -7,9 +7,9 @@ export namespace EventsHandler {
 
     async function connectionOracle(){
         return await OracleDB.getConnection({
-            user: "",
-            password: "",
-            connectString: ""
+            user: process.env.ORACLE_USER,
+            password: process.env.ORACLE_PASSWORD,
+            connectString: process.env.ORACLE_CONN_STR
         });
     }
 
