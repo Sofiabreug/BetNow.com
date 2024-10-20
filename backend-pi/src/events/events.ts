@@ -1,11 +1,11 @@
-import {Request, RequestHandler, Response} from "express";
+import { Request, RequestHandler, Response } from "express";
 import OracleDB from "oracledb";
 import dotenv from 'dotenv'; 
 dotenv.config();
 
 export namespace EventsHandler {
 
-    async function connectionOracle(){
+    async function connectionOracle() {
         return await OracleDB.getConnection({
             user: process.env.ORACLE_USER,
             password: process.env.ORACLE_PASSWORD,
@@ -13,7 +13,7 @@ export namespace EventsHandler {
         });
     }
 
-    export const AddNewEvent: RequestHandler = async (req: Request, res: Response): Promise <void> => {
+    export const AddNewEvent: RequestHandler = async (req: Request, res: Response): Promise<void> => {
         const title = req.get('title');
         const description = req.get('description');
         const ticketValue = req.get('ticketValue');
@@ -24,24 +24,31 @@ export namespace EventsHandler {
 
         if (!title || title.length > 50) {
             res.status(400).send('O título deve possuir até 50 caracteres.');
+            return;
         }
         if (!description || description.length > 150) {
             res.status(400).send('A descrição deve possuir até 150 caracteres.');
+            return;
         }
         if (!ticketValue) {
             res.status(400).send('O valor de cada cota é obrigatório');
+            return;
         }
-        if (Number (ticketValue) < 1) {
-            res.status(400).send('O valor de cada cota deve ser R$1,00 ou mais' );
+        if (Number(ticketValue) < 1) {
+            res.status(400).send('O valor de cada cota deve ser R$1,00 ou mais');
+            return;
         }
         if (!startDate) {
             res.status(400).send('A data de inicio é obrigatória.');
+            return;
         }
         if (!endDate) {
             res.status(400).send('A data final é obrigatória.');
+            return;
         }
         if (!eventDate) {
             res.status(400).send('A data do evento é obrigatória.');
+            return;
         }
 
         const connection = await connectionOracle();
@@ -50,24 +57,23 @@ export namespace EventsHandler {
             [title, description, ticketValue, startDate, endDate, eventDate, status]
         );
         await connection.commit();
-        res.status(201).send('Evento criado com sucesso.'); 
+        res.status(201).send('Evento criado com sucesso.');
     }
 
-    export const evaluateEvent: RequestHandler = async (req: Request, res: Response):Promise <void> => {
+    export const evaluateEvent: RequestHandler = async (req: Request, res: Response): Promise<void> => {
         const eventId = req.get('eventId');
-        const newStatus = req.get('status'); 
-    
-        
+        const newStatus = req.get('status');
+
         if (!eventId) {
             res.status(400).send('O ID do evento é obrigatório.');
+            return;
         }
         if (!newStatus) {
-           res.status(400).send('O novo status é obrigatório.');
+            res.status(400).send('O novo status é obrigatório.');
+            return;
         }
-    
-        const connection = await connectionOracle();
-    
 
+        const connection = await connectionOracle();
         await connection.execute(
             'UPDATE EVENTS SET status = :newStatus WHERE id = :eventId',
             [newStatus, eventId]
@@ -78,11 +84,10 @@ export namespace EventsHandler {
 
     export const getEvents: RequestHandler = async (req: Request, res: Response): Promise<void> => {
         const filter = req.get('filter'); 
-    
+
         const connection = await connectionOracle();
-    
         let results;
-    
+
         if (filter === 'pending') {
             results = await connection.execute(
                 "SELECT * FROM EVENTS WHERE status = 'pendente'"
@@ -98,7 +103,7 @@ export namespace EventsHandler {
         } else {
             results = await connection.execute('SELECT * FROM EVENTS'); 
         }
-    
+
         if (results.rows && results.rows.length > 0) {
             res.status(200).json(results.rows);
         } else {
@@ -106,31 +111,31 @@ export namespace EventsHandler {
         }
     };
 
-    export const betOnEvent: RequestHandler= async(req: Request, res: Response): Promise<void> => { 
-        const accountId = req.get('accountId'); 
+    export const betOnEvent: RequestHandler = async (req: Request, res: Response): Promise<void> => { 
+        const token = req.get('token'); 
         const eventId = req.get('eventId'); 
         const betValue = req.get('betValue'); 
 
-        if (!accountId || !eventId || !betValue) { 
-            res.status(400).send('ID da conta, ID do evento e valor da aposta são obrigatórios.'); 
+        if (!token || !eventId || !betValue) { 
+            res.status(400).send('Token da conta, ID do evento e valor da aposta são obrigatórios.'); 
             return; 
         } 
         
         const connection = await connectionOracle(); 
         
-        // Verificar saldo da conta 
         const result = await connection.execute( 
-            'SELECT balance FROM ACCOUNTS WHERE id = :accountId', 
-            [accountId] 
+            'SELECT id, balance FROM ACCOUNTS WHERE token = :token', 
+            [token] 
         ); 
         
-        const rows = result.rows as Array<{ balance: number }>; 
+        const rows = result.rows as Array<{ id: number, balance: number }>; 
         
         if (rows.length === 0) { 
             res.status(404).send('Conta não encontrada.'); 
             return; 
         } 
         
+        const accountId = rows[0].id; 
         const currentBalance = rows[0].balance; 
         
         if (currentBalance < Number(betValue)) { 
@@ -138,13 +143,11 @@ export namespace EventsHandler {
             return; 
         } 
         
-        // Inserir a aposta no evento 
         await connection.execute( 
             'INSERT INTO BETS (accountId, eventId, betValue) VALUES (:accountId, :eventId, :betValue)', 
             [accountId, eventId, betValue] 
         ); 
-            
-        // Atualizar saldo da conta 
+        
         const newBalance = currentBalance - Number(betValue); 
         await connection.execute( 
             'UPDATE ACCOUNTS SET balance = :newBalance WHERE id = :accountId', 
@@ -159,95 +162,92 @@ export namespace EventsHandler {
 
     export const deleteEvent: RequestHandler = async (req: Request, res: Response): Promise<void> => {
         const eventId = req.get('eventId');
-    
+
         if (!eventId) {
             res.status(400).send('O ID do evento é obrigatório.');
             return;
         }
-    
+
         const connection = await connectionOracle();
-    
-        // Fazendo a exclusão lógica, alterando o status do evento para 'removido'
         await connection.execute(
             'UPDATE EVENTS SET status = :status WHERE id = :eventId',
             ['removido', eventId]
         );
-    
-        // Comitar a transação
+
         await connection.commit();
         res.status(200).send(`Evento com ID ${eventId} foi removido logicamente.`);
     };  
 
     export const addFunds: RequestHandler = async (req: Request, res: Response): Promise<void> => {
-        const userId = req.get('userId');
-        const amount = req.body.amount;
-    
-        if (!userId || !amount || amount <= 0) {
-            res.status(400).send('O ID do usuário e um valor positivo são obrigatórios.');
+        const token = req.get('token'); 
+        const amount = req.get('amount');
+
+        if (!token || !amount || Number(amount) <= 0) {
+            res.status(400).send('O token e um valor positivo são obrigatórios.');
             return;
         }
-    
+
         const connection = await connectionOracle();
-    
-        try {
-            // Atualizando o saldo da carteira do usuário
-            await connection.execute(
-                'UPDATE USERS SET wallet = wallet + :amount WHERE id = :userId',
-                [amount, userId]
-            );
-    
-            // Comitar a transação
-            await connection.commit();
-    
-            res.status(200).send(`Valor de R$ ${amount} foi adicionado à carteira do usuário com ID ${userId}.`);
-        } catch (error) {
-            console.error('Erro ao adicionar fundos:', error);
-            res.status(500).send('Erro ao adicionar fundos.');
-        } finally {
-            await connection.close();
+        
+        const result = await connection.execute(
+            'SELECT id FROM ACCOUNTS WHERE token = :token',
+            [token]
+        );
+
+        const rows = result.rows as Array<{ id: number }>;
+
+        if (rows.length === 0) {
+            res.status(404).send('Conta não encontrada.');
+            return;
         }
+
+        const accountId = rows[0].id;
+
+        await connection.execute(
+            'UPDATE ACCOUNTS SET balance = balance + :amount WHERE id = :accountId',
+            [amount, accountId]
+        );
+
+        await connection.commit();
+        res.status(200).send(`Valor de R$ ${amount} foi adicionado à carteira da conta.`);
+        await connection.close();
     };
 
-    export const withdrawFounds: RequestHandler = async (req: Request, res: Response):Promise <void> => {
-        const accountId = req.get('accountId'); 
-        const withdrawalValue = req.get('withdrawalValue'); 
+    export const withdrawFunds: RequestHandler = async (req: Request, res: Response): Promise<void> => {
+        const token = req.get('token'); 
+        const withdrawalValue = req.get('withdrawalValue');
 
-       
-        if (!accountId || !withdrawalValue) {
-            res.status(400).send('É necessário fornecer o ID da conta e o valor do saque.');
+        if (!token || !withdrawalValue) {
+            res.status(400).send('É necessário fornecer o token e o valor do saque.');
+            return;
         }
 
         const connection = await connectionOracle();
-
-        const result = await connection.execute(
-            'SELECT balance FROM ACCOUNTS WHERE id = :accountId', 
-            [accountId]
-        );
-        const rows = result.rows as Array<{ balance: number }> ;
         
-        if (result.rows && result.rows.length > 0) {
-            const currentBalance = rows[0].balance; 
+        const result = await connection.execute(
+            'SELECT id, balance FROM ACCOUNTS WHERE token = :token',
+            [token]
+        );
+        const rows = result.rows as Array<{ id: number, balance: number }>;
+
+        if (rows.length > 0) {
+            const accountId = rows[0].id;
+            const currentBalance = rows[0].balance;
 
             if (currentBalance >= Number(withdrawalValue)) {
-                
                 const newBalance = currentBalance - Number(withdrawalValue);
 
-               
                 await connection.execute(
-                    'UPDATE ACCOUNTS SET balance = :newBalance WHERE id = :accountId', 
+                    'UPDATE ACCOUNTS SET balance = :newBalance WHERE id = :accountId',
                     [newBalance, accountId]
                 );
 
                 await connection.commit();
-
-                
                 res.status(200).send(`Saque de R$${withdrawalValue} realizado com sucesso. Saldo atual: R$${newBalance}.`);
             } else {
-               
                 res.status(400).send('Saldo insuficiente para o saque.');
             }
         } else {
-           
             res.status(404).send('Conta não encontrada.');
         }
 
@@ -256,24 +256,22 @@ export namespace EventsHandler {
 
     export const searchEvent: RequestHandler = async (req: Request, res: Response): Promise<void> => {
         const keyword = req.get('keyword'); 
-    
+
         if (!keyword) {
             res.status(400).send('A palavra-chave é obrigatória.');
             return;
         }
-    
+
         const connection = await connectionOracle();
-    
-        // Executando a busca pelo título ou descrição
         const results = await connection.execute(
-            `SELECT * FROM EVENTS WHERE title = :keyword OR description = :keyword`,
-            [keyword]
+            'SELECT * FROM EVENTS WHERE title LIKE :keyword OR description LIKE :keyword',
+            [`%${keyword}%`]
         );
-    
+
         if (results.rows && results.rows.length > 0) {
             res.status(200).json(results.rows);
         } else {
-            res.status(404).send('Nenhum evento relacionado.');
+            res.status(404).send('Nenhum evento encontrado com essa palavra-chave.'); 
         }
     };
 
@@ -347,11 +345,7 @@ export namespace EventsHandler {
                 }
             }
         } 
-    
-        
         await connection.commit();    
         res.status(200).send('Evento encerrado com sucesso e fundos distribuídos.');
     };
-    
-    
 }
