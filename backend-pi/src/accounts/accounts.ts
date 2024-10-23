@@ -3,12 +3,19 @@ import OracleDB from "oracledb";
 import dotenv from 'dotenv'; 
 dotenv.config();
 
+OracleDB.outFormat = OracleDB.OUT_FORMAT_OBJECT; // Definindo o formato de saída como objeto
+
 export namespace AccountsHandler {
 
     export type UserAccount = {
+        id: string;
         token: string;
         completeName: string;
         email: string;
+        password: string;
+        confirmPass: string;
+        birthDate: string;
+        balance: number;
     };
 
     async function connectionOracle() {
@@ -19,78 +26,100 @@ export namespace AccountsHandler {
         });
     }
 
-    async function login(email: string, password: string): Promise<UserAccount | undefined> {
+    async function saveAccount(newAccount: UserAccount) {
         const connection = await connectionOracle();
-        let results = await connection.execute(
-            'SELECT token, completeName, email FROM ACCOUNTS WHERE email = :email AND password = :password',
-            [email, password],
+
+        // Inserindo na tabela e gerando o ID com a sequência
+        await connection.execute(
+            `INSERT INTO ACCOUNTS (id, completeName, email, password, token, birthDate, balance) 
+             VALUES (SEQ_ACCOUNTS.NEXTVAL, :completeName, :email, :password, DBMS_RANDOM.STRING('x', 32), :birthDate, :balance)`,
+            {
+                completeName: newAccount.completeName,
+                email: newAccount.email,
+                password: newAccount.password,
+                birthDate: newAccount.birthDate,
+                balance: newAccount.balance
+            }
         );
 
-        if (results.rows && results.rows.length > 0) {
-            const row = results.rows[0] as { TOKEN: string; COMPLETE_NAME: string; EMAIL: string }; 
-            
-            return {
-                token: row.TOKEN,
-                completeName: row.COMPLETE_NAME,
-                email: row.EMAIL
-            };
-        } else {
-            return undefined; 
-        }
+        await connection.commit();
     }
 
-    export const createAccountRoute: RequestHandler = async (req: Request, res: Response) => {
-        const completeName = req.get('completeName');
+    // Função para criar nova conta
+    export const createAccount: RequestHandler = async (req: Request, res: Response): Promise<void> => {
+        const pcompleteName = req.get('completeName');
+        const pemail = req.get('email');
+        const ppassword = req.get('password');
+        const pconfirmPass = req.get('confirmPass');
+        const pbirthDate = req.get('birthDate');
+        const pbalance = Number(req.get('balance'));
+
+        // Verificação de parâmetros
+        if (!pcompleteName || !pemail || !ppassword || !pconfirmPass || !pbirthDate) {
+            res.status(400).send('Requisição inválida - Parâmetros faltando.');
+            return;
+        }
+
+        // Verificando se o e-mail já existe
+        const emailExists = await verifyAccount(pemail);
+        if (emailExists) {
+            res.status(409).send('E-mail já cadastrado.');
+            return;
+        }
+
+        // Criando novo objeto de conta
+        const newAccount: UserAccount = {
+            id: '', // Será gerado automaticamente
+            token: '', // Será gerado na função saveAccount
+            completeName: pcompleteName,
+            email: pemail,
+            password: ppassword,
+            confirmPass: pconfirmPass,
+            birthDate: pbirthDate,
+            balance: pbalance
+        };
+
+        // Salvando nova conta
+        await saveAccount(newAccount);
+
+        // Retornando sucesso
+        res.status(201).send( 'Conta criada com sucesso.' );
+    };
+    export const loginHandler: RequestHandler = async (req: Request, res: Response): Promise<void> => {
         const email = req.get('email');
         const password = req.get('password');
     
-        if (completeName && email && password) {
-            const connection = await connectionOracle();
-    
-            // Inserindo a nova conta e gerando o token diretamente no comando
-            await connection.execute(
-                `INSERT INTO ACCOUNTS (completeName, email, password, token) 
-                 VALUES (:completeName, :email, :password, DBMS_RANDOM.STRING('x', 32))`,
-                [completeName, email, password]
-            );
-    
-            // Comitando a transação
-            await connection.commit();
-    
-            // Selecionando o token gerado para retornar ao usuário
-            const result = await connection.execute(
-                `SELECT token FROM ACCOUNTS WHERE email = :email`,
-                [email]
-            );
-    
-            if (result.rows && result.rows.length > 0) {
-                const row = result.rows[0] as { TOKEN: string }; 
-                const token = row.TOKEN; 
-               
-                
-                res.status(201).json({ message: 'Conta criada com sucesso.', token });
-            } else {
-                res.status(404).send('Erro ao recuperar o token.'); // Caso não encontre o token
-            }
-        } else {
+        // Verificação de parâmetros
+        if (!email || !password) {
             res.status(400).send('Requisição inválida - Parâmetros faltando.');
+        } else {
+            const connection = await connectionOracle();
+            const result = await connection.execute(
+                'SELECT * FROM ACCOUNTS WHERE email = :email AND password = :password',
+                { email, password }
+            );
+    
+            if (result.rows && result.rows.length === 0) {
+                res.status(401).send('E-mail ou senha incorretos.');
+            } else {
+                // Sucesso no login
+                res.status(200).send('Login bem-sucedido.');
+            }
         }
     };
+    
+    async function verifyAccount(email: string): Promise<boolean> {
+        const connection = await connectionOracle();
+        const result = await connection.execute(
+            'SELECT email FROM ACCOUNTS WHERE email = :email',
+            { email }
+        );
 
-    export const loginHandler: RequestHandler = async (req: Request, res: Response) => {
-        const email = req.get('email');
-        const password = req.get('password');
-
-        if (email && password) {
-            const user = await login(email, password);
-
-            if (user) {
-                res.status(200).json(user);
-            } else {
-                res.status(401).send('Credenciais inválidas.');
-            }
+        if (result.rows && result.rows.length > 0) {
+            return true; 
         } else {
-            res.status(400).send('Requisição inválida - Parâmetros faltando.');
+            return false; 
         }
     }
+
 }
