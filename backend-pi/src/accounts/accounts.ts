@@ -1,52 +1,63 @@
-import { Request, RequestHandler, Response } from "express";
 import OracleDB from "oracledb";
 import dotenv from 'dotenv'; 
-dotenv.config();
+dotenv.config(); // Carrega as variáveis do arquivo .env
 
 OracleDB.outFormat = OracleDB.OUT_FORMAT_OBJECT; // Definindo o formato de saída como objeto
 
 export namespace AccountsHandler {
 
-    export type UserAccount = {
-        id: string;
-        token: string;
-        completeName: string;
-        email: string;
-        password: string;
-        confirmPass: string;
-        birthDate: string;
-        balance: number;
-    };
+    // Função para estabelecer a conexão com o banco Oracle
+    export async function connectionOracle() {
+        console.log('Tentando conectar ao banco Oracle...');
+        console.log("Usuário Oracle:", process.env.ORACLE_USER);
+        console.log("String de conexão Oracle:", process.env.ORACLE_CONN_STR);
 
-    async function connectionOracle() {
-        return await OracleDB.getConnection({
-            user: process.env.ORACLE_USER,
-            password: process.env.ORACLE_PASSWORD,
-            connectString: process.env.ORACLE_CONN_STR
-        });
+        try {
+            const connection = await OracleDB.getConnection({
+                user: process.env.ORACLE_USER,
+                password: process.env.ORACLE_PASSWORD,
+                connectString: process.env.ORACLE_CONN_STR // String de conexão simples para Oracle
+            });
+            console.log('Conectado ao Oracle com sucesso!');
+            return connection;
+        } catch (error) {
+            console.error('Erro ao conectar ao Oracle:', error);
+            throw error;
+        }
     }
 
-    async function saveAccount(newAccount: UserAccount) {
+    // Função para inserir uma nova conta no banco de dados
+    export async function saveAccount(newAccount: any) {
         const connection = await connectionOracle();
 
-        // Inserindo na tabela e gerando o ID com a sequência
-        await connection.execute(
-            `INSERT INTO ACCOUNTS (id, completeName, email, password, token, birthDate, balance) 
-             VALUES (SEQ_ACCOUNTS.NEXTVAL, :completeName, :email, :password, DBMS_RANDOM.STRING('x', 32), :birthDate, :balance)`,
-            {
-                completeName: newAccount.completeName,
-                email: newAccount.email,
-                password: newAccount.password,
-                birthDate: newAccount.birthDate,
-                balance: newAccount.balance
-            }
-        );
+        try {
+            const result = await connection.execute(
+                `INSERT INTO ACCOUNTS (id, completeName, email, password, token, birthDate, balance) 
+                 VALUES (SEQ_ACCOUNTS.NEXTVAL, :completeName, :email, :password, DBMS_RANDOM.STRING('x', 32), TO_DATE(:birthDate, 'YYYY-MM-DD'), :balance)`,
+                {
+                    completeName: newAccount.completeName,
+                    email: newAccount.email,
+                    password: newAccount.password,
+                    birthDate: newAccount.birthDate,
+                    balance: newAccount.balance
+                }
+            );
 
-        await connection.commit();
+            await connection.commit();
+            console.log('Usuário inserido com sucesso!', result);
+        } catch (error) {
+            console.error('Erro ao inserir usuário:', error);
+            throw error;
+        } finally {
+            await connection.close();
+            console.log('Conexão fechada.');
+        }
     }
 
-    // Função para criar nova conta
-    export const createAccount: RequestHandler = async (req: Request, res: Response): Promise<void> => {
+    // Função para criar uma nova conta
+    export const createAccount = async (req: any, res: any): Promise<void> => {
+        console.log('Recebendo requisição para criar conta');
+
         const pcompleteName = req.get('completeName');
         const pemail = req.get('email');
         const ppassword = req.get('password');
@@ -54,23 +65,14 @@ export namespace AccountsHandler {
         const pbirthDate = req.get('birthDate');
         const pbalance = Number(req.get('balance'));
 
-        // Verificação de parâmetros
+        console.log('Parâmetros recebidos:', { pcompleteName, pemail, ppassword, pbirthDate, pbalance });
+
         if (!pcompleteName || !pemail || !ppassword || !pconfirmPass || !pbirthDate) {
             res.status(400).send('Requisição inválida - Parâmetros faltando.');
             return;
         }
 
-        // Verificando se o e-mail já existe
-        const emailExists = await verifyAccount(pemail);
-        if (emailExists) {
-            res.status(409).send('E-mail já cadastrado.');
-            return;
-        }
-
-        // Criando novo objeto de conta
-        const newAccount: UserAccount = {
-            id: '', // Será gerado automaticamente
-            token: '', // Será gerado na função saveAccount
+        const newAccount = {
             completeName: pcompleteName,
             email: pemail,
             password: ppassword,
@@ -79,36 +81,17 @@ export namespace AccountsHandler {
             balance: pbalance
         };
 
-        // Salvando nova conta
-        await saveAccount(newAccount);
-
-        // Retornando sucesso
-        res.status(201).send( 'Conta criada com sucesso.' );
-    };
-    export const loginHandler: RequestHandler = async (req: Request, res: Response): Promise<void> => {
-        const email = req.get('email');
-        const password = req.get('password');
-    
-        // Verificação de parâmetros
-        if (!email || !password) {
-            res.status(400).send('Requisição inválida - Parâmetros faltando.');
-        } else {
-            const connection = await connectionOracle();
-            const result = await connection.execute(
-                'SELECT * FROM ACCOUNTS WHERE email = :email AND password = :password',
-                { email, password }
-            );
-    
-            if (result.rows && result.rows.length === 0) {
-                res.status(401).send('E-mail ou senha incorretos.');
-            } else {
-                // Sucesso no login
-                res.status(200).send('Login bem-sucedido.');
-            }
+        try {
+            await saveAccount(newAccount);
+            res.status(200).send('Usuário inserido com sucesso!');
+        } catch (error) {
+            console.error('Erro ao criar conta:', error);
+            res.status(500).send('Erro ao inserir o usuário.');
         }
     };
-    
-    async function verifyAccount(email: string): Promise<boolean> {
+
+    // Verificação se o email já existe
+    export async function verifyAccount(email: string): Promise<boolean> {
         const connection = await connectionOracle();
         const result = await connection.execute(
             'SELECT email FROM ACCOUNTS WHERE email = :email',
@@ -121,5 +104,4 @@ export namespace AccountsHandler {
             return false; 
         }
     }
-
 }

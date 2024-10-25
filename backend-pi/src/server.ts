@@ -16,9 +16,6 @@ routes.get('/', (req: Request, res: Response) => {
 routes.post('/signUp', AccountsHandler.createAccount); 
 
 
-routes.post('/login', AccountsHandler.loginHandler); 
-
-
 routes.post('/AddNewEvent', EventsHandler.AddNewEvent); 
 
 
