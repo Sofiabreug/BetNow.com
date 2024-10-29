@@ -12,30 +12,29 @@ routes.get('/', (req: Request, res: Response) => {
     res.status(403).send('Acesso não permitido.'); 
 });
 
-
 routes.post('/signUp', AccountsHandler.createAccount); 
 
+routes.post('/login', AccountsHandler.loginHandler);
 
 routes.post('/AddNewEvent', EventsHandler.AddNewEvent); 
 
+routes.post('/BetOnEvents', EventsHandler.betOnEvent); 
 
 routes.put('/evaluateEvent', EventsHandler.evaluateEvent);
 
-
-routes.put('/withdraw', WalletHandler.withdrawFunds); 
-
-
 routes.delete('/deleteEvent', EventsHandler.deleteEvent);
-
-
-routes.post('/addFunds', WalletHandler.addFunds);
-
-
-routes.get('/searchEvent', EventsHandler.searchEvent);
-
 
 routes.put('/finishEvent', EventsHandler.finishEvent);
 
+routes.get('/searchEvent', EventsHandler.searchEvent);
+
+routes.get('/getEvent', EventsHandler.getEvents);
+
+routes.put('/withdraw', WalletHandler.withdrawFunds); 
+
+routes.get('/checkBalance', WalletHandler.checkBalance);
+
+routes.post('/addFunds', WalletHandler.addFunds);
 
 server.use(express.json()); 
 server.use(routes);

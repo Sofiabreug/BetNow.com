@@ -6,7 +6,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 
-OracleDB.outFormat = OracleDB.OUT_FORMAT_OBJECT; // Definindo o formato de saída como objeto
+OracleDB.outFormat = OracleDB.OUT_FORMAT_OBJECT; 
 
 
 export namespace AccountsHandler {
@@ -39,12 +39,12 @@ export namespace AccountsHandler {
         }
     }
    
-    // Função para inserir a conta no banco de dados
+    
     export async function saveAccount(newAccount: UserAccount): Promise<void> {
         const connection = await connectionOracle();
    
         try {
-            // Inserindo a nova conta
+            
             await connection.execute(
                 `INSERT INTO ACCOUNTS (accountid, completeName, email, password, token, birthDate)
                  VALUES (SEQ_ACCOUNTS.NEXTVAL, :completeName, :email, :password, DBMS_RANDOM.STRING('x', 32), TO_DATE(:birthDate, 'YYYY-MM-DD'))`,
@@ -60,17 +60,17 @@ export namespace AccountsHandler {
             console.log('Usuário inserido com sucesso!');
         } catch (error) {
             console.error('Erro ao inserir usuário:', error);
-            throw error; // Mantém a propagação do erro
+            throw error; 
         } finally {
             await connection.close();
             console.log('Conexão fechada.');
         }
     }
    
-    // Função para verificar se o e-mail já existe
+ 
     async function verifyAccount(email: string): Promise<boolean> {
         const connection = await connectionOracle();
-        let emailExists = false; // Variável para armazenar o resultado da verificação
+        let emailExists = false; 
    
         try {
             const result = await connection.execute(
@@ -78,29 +78,29 @@ export namespace AccountsHandler {
                 { email }
             );
    
-            // Atualiza a variável com base no resultado da consulta
+          
             if (result.rows && result.rows.length > 0) {
                 emailExists = true;
             }
         } catch (error) {
             console.error('Erro ao verificar o e-mail:', error);
-            throw error; // Mantém a propagação do erro
+            throw error; 
         } finally {
-            await connection.close(); // Assegura que a conexão seja fechada
+            await connection.close(); 
         }
    
-        // Retorna o resultado da verificação
+   
         return emailExists;
     }
    
-    // Função para verificar a idade do usuário
+   
     function isAgeValid(birthDate: string): boolean {
         const birth = new Date(birthDate);
         const age = new Date().getFullYear() - birth.getFullYear();
-        return age >= 18; // Verifica se a idade é maior ou igual a 18 anos
+        return age >= 18; 
     }
    
-    // Função para criar a conta
+
     export const createAccount: RequestHandler = async (req: Request, res: Response): Promise<void> => {
         console.log('Recebendo requisição para criar conta');
    
@@ -116,14 +116,13 @@ export namespace AccountsHandler {
             return;
         }
    
-        // Verifica se o e-mail já existe
+     
         const emailExists = await verifyAccount(pemail);
         if (emailExists) {
             res.status(400).send('E-mail já cadastrado.');
             return;
         }
    
-        // Verifica se a idade é válida
         if (!isAgeValid(pbirthDate)) {
             res.status(400).send('Idade deve ser maior ou igual a 18 anos.');
             return;
@@ -135,20 +134,20 @@ export namespace AccountsHandler {
             completeName: pcompleteName,
             email: pemail,
             password: ppassword,
-            confirmPass: '', // Ou adicionar a lógica para obter confirmPass se necessário
+            confirmPass: '', 
             birthDate: pbirthDate,
         };
    
         try {
-            await saveAccount(newAccount); // Chamando a função para salvar a conta
-            res.status(200).send('Usuário inserido com sucesso!'); // Mensagem de sucesso
+            await saveAccount(newAccount); 
+            res.status(200).send('Usuário inserido com sucesso!'); 
         } catch (error) {
             console.error('Erro ao criar conta:', error);
             res.status(500).send('Erro ao inserir o usuário.');
         }
     };
    
-    // Função para autenticar o usuário
+   
     export const loginHandler: RequestHandler = async (req: Request, res: Response): Promise<void> => {
         const email = req.get('email');
         const password = req.get('password');
@@ -161,16 +160,16 @@ export namespace AccountsHandler {
         const connection = await connectionOracle();
    
         try {
-            // Consulta o token do usuário com base no e-mail e senha
+            
             const result = await connection.execute(
                 `SELECT token FROM ACCOUNTS WHERE email = :email AND password = :password`,
                 { email, password }
             );
    
-            // Converte o resultado para um array de objetos com a propriedade TOKEN
+          
             const tokenRows = result.rows as Array<{ TOKEN: string }>;
    
-            // Verifica se o resultado contém dados e retorna o token
+        
             if (tokenRows.length > 0) {
                 const token = tokenRows[0].TOKEN;
                 res.status(200).send(`Login feito com sucesso. Token: ${token}`);
