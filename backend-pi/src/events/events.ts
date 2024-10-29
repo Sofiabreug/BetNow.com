@@ -90,11 +90,11 @@ export namespace EventsHandler {
                     :title,
                     :description,
                     :ticketValue,
-                    TO_DATE(:startDate),
+                    TO_DATE(:startDate, 'YYYY-MM-DD'),
                     :startTime,
-                    TO_DATE(:endDate),
+                    TO_DATE(:endDate, 'YYYY-MM-DD'),
                     :endTime,
-                    TO_DATE(:eventDate),
+                    TO_DATE(:eventDate, 'YYYY-MM-DD'),
                     :creatorToken,
                     :event_status,
                     'pendente',
@@ -125,31 +125,37 @@ export namespace EventsHandler {
     };
    
     export const getEvents: RequestHandler = async (req: Request, res: Response): Promise<void> => {
-        const filtro = req.get('filtro');
-    
+        const filter = req.get('filter'); 
         const connection = await connectionOracle();
-        let resultados;
-    
-        if (filtro === 'pendente') {
-            resultados = await connection.execute(
-                "SELECT * FROM EVENTS WHERE validation_status = 'pendente'"
-            );
-        } else if (filtro === 'futuro') {
-            resultados = await connection.execute(
-                "SELECT * FROM EVENTS WHERE eventDate > SYSDATE"
-            );
-        } else if (filtro === 'passado') {
-            resultados = await connection.execute(
-                "SELECT * FROM EVENTS WHERE eventDate < SYSDATE"
-            );
-        } else {
-            resultados = await connection.execute('SELECT * FROM EVENTS');
-        }
-    
-        if (resultados.rows && resultados.rows.length > 0) {
-            res.status(200).json(resultados.rows);
-        } else {
-            res.status(404).send('Nenhum evento encontrado.');
+        let results;
+
+        try {
+            if (filter === 'pending') {
+                results = await connection.execute(
+                    "SELECT * FROM EVENTS WHERE validation_status = 'pendente'"
+                );
+            } else if (filter === 'upcoming') {
+                results = await connection.execute(
+                    "SELECT * FROM EVENTS WHERE eventDate > SYSDATE"
+                );
+            } else if (filter === 'past') {
+                results = await connection.execute(
+                    "SELECT * FROM EVENTS WHERE eventDate < SYSDATE"
+                );
+            } else {
+                results = await connection.execute('SELECT * FROM EVENTS'); 
+            }
+
+            if (results.rows && results.rows.length > 0) {
+                res.status(200).json(results.rows);
+            } else {
+                res.status(404).send('Nenhum evento encontrado.'); 
+            }
+        } catch (error) {
+            console.error("Erro ao buscar eventos:", error);
+            res.status(500).send("Erro ao buscar eventos.");
+        } finally {
+            await connection.close();
         }
     };
     
@@ -416,28 +422,39 @@ export namespace EventsHandler {
 
     export const searchEvent: RequestHandler = async (req: Request, res: Response): Promise<void> => {
         const keyword = req.get('keyword');
-
-
+    
         if (!keyword) {
             res.status(400).send('A palavra-chave é obrigatória.');
             return;
         }
-
-
-        const connection = await connectionOracle();
-        const results = await connection.execute(
-            'SELECT * FROM EVENTS WHERE title LIKE :keyword OR description LIKE :keyword',
-            { keyword: `%${keyword}%` } 
-        );
-       
-
-
-        if (results.rows && results.rows.length > 0) {
-            res.status(200).json(results.rows);
-        } else {
-            res.status(404).send('Nenhum evento encontrado com essa palavra-chave.');
+    
+        let connection;
+    
+        try {
+            connection = await connectionOracle();
+            const results = await connection.execute(
+                'SELECT * FROM events WHERE title LIKE :keyword OR description LIKE :keyword',
+                { keyword: `%${keyword}%` }
+            );
+    
+            if (results.rows && results.rows.length > 0) {
+                res.status(200).json(results.rows);
+            } else {
+                res.status(404).send('Nenhum evento encontrado com essa palavra-chave.');
+            }
+        } catch (error) {
+            res.status(500).send('Erro ao buscar eventos.');
+        } finally {
+            if (connection) {
+                try {
+                    await connection.close();
+                } catch (closeError) {
+                    console.error('Erro ao fechar a conexão:', closeError);
+                }
+            }
         }
     };
+    
 
 
 export const finishEvent: RequestHandler = async (req: Request, res: Response): Promise<void> => {

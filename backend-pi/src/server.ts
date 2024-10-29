@@ -28,7 +28,7 @@ routes.put('/finishEvent', EventsHandler.finishEvent);
 
 routes.get('/searchEvent', EventsHandler.searchEvent);
 
-routes.get('/getEvent', EventsHandler.getEvents);
+routes.get('/getEvents', EventsHandler.getEvents);
 
 routes.put('/withdraw', WalletHandler.withdrawFunds); 
 
