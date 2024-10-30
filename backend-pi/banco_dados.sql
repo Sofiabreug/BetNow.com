@@ -1,0 +1,74 @@
+-- Tabela ACCOUNTS
+CREATE TABLE ACCOUNTS (
+    accountId NUMBER PRIMARY KEY,
+    completeName VARCHAR2(100) NOT NULL,
+    email VARCHAR2(100) NOT NULL UNIQUE,
+    password VARCHAR2(100) NOT NULL,
+    birthDate DATE NOT NULL,
+    token VARCHAR2(32) NOT NULL
+  
+);
+
+COMMIT;
+SELECT * FROM ACCOUNTS;
+DROP TABLE ACCOUNTS;
+DESCRIBE ACCOUNTS;
+
+-- Tabela EVENTS
+CREATE TABLE EVENTS (
+    EVENTID INTEGER PRIMARY KEY ,
+    TITLE VARCHAR2(50) NOT NULL,
+    DESCRIPTION VARCHAR2(150) NOT NULL,
+    TICKETVALUE NUMBER(10, 2) NOT NULL,
+    STARTDATE DATE NOT NULL,   
+    ENDDATE DATE NOT NULL,
+    EVENTDATE DATE NOT NULL,
+    CREATORTOKEN VARCHAR2(32) NOT NULL,
+    EVENT_STATUS VARCHAR2(20) DEFAULT 'não iniciado',
+    VALIDATION_STATUS VARCHAR2(20) DEFAULT 'pendente', 
+    VERDICT VARCHAR2(3)                               -- Sim ou Não, após avaliação
+);
+--- Tabela Wallet
+CREATE TABLE WALLET (
+    walletId INTEGER PRIMARY KEY,
+    accountId integer not null,
+    balance DECIMAL(10, 2) DEFAULT 0.00,
+    creditCardNumber VARCHAR(20) NOT NULL,  
+    FOREIGN KEY (accountId) REFERENCES ACCOUNTS(accountId)
+);
+
+-- Tabela BETS
+CREATE TABLE BETS (
+    id INTEGER PRIMARY KEY,
+    accountId INTEGER NOT NULL, -- Referência ao token do apostador
+    eventId INTEGER NOT NULL, -- Referência ao ID do evento
+    amountBet NUMBER NOT NULL,
+    betChoice VARCHAR2(10) CHECK (betChoice IN ('sim', 'não')), -- Limita as escolhas possíveis
+    FOREIGN KEY (accountId) REFERENCES ACCOUNTS(accountId), -- Assumindo que 'ACCOUNTS' tem um campo 'token'
+   FOREIGN KEY (eventId) REFERENCES EVENTS(eventId) -- Assumindo que a tabela 'EVENTS' existe
+);
+
+-- Tabela MODERATORS
+CREATE TABLE MODERATORS (
+    moderatorId INTEGER PRIMARY KEY, 
+    name VARCHAR2(100) NOT NULL,
+    email VARCHAR2(100) UNIQUE NOT NULL,
+    password VARCHAR2(100)  NOT NULL
+  
+);
+CREATE TABLE TRANSACTIONS (
+    transactionId INTEGER PRIMARY KEY,
+    walletId NUMBER NOT NULL,
+    amount NUMBER NOT NULL,
+    transaction_type VARCHAR2(10) CHECK (transaction_type IN ('ganho', 'perda')),
+    transaction_date DATE DEFAULT SYSDATE,
+    FOREIGN KEY (walletId) REFERENCES WALLET(walletId),
+    FOREIGN KEY (eventId) REFERENCES EVENTS(eventId)
+);
+
+
+CREATE SEQUENCE SEQ_TRANSICTIONS START WITH 1 INCREMENT BY 1;
+CREATE SEQUENCE SEQ_ACCOUNTS START WITH 1 INCREMENT BY 1;
+CREATE SEQUENCE SEQ_EVENTS START WITH 1 INCREMENT BY 1;
+CREATE SEQUENCE SEQ_BETS START WITH 1 INCREMENT BY 1;
+CREATE SEQUENCE SEQ_WALLET START WITH 1 INCREMENT BY 1;
