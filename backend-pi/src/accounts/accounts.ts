@@ -11,18 +11,17 @@ OracleDB.outFormat = OracleDB.OUT_FORMAT_OBJECT;
 
 export namespace AccountsHandler {
 
-
     export type UserAccount = {
-        id: string;
-        token: string;
-        completeName: string;
-        email: string;
-        password: string;
-        confirmPass: string;
-        birthDate: string;
+        id: string;               // ID da conta
+        token: string;            // Token de autenticação
+        completeName: string;     // Nome completo do usuário
+        email: string;            // E-mail do usuário
+        password: string;         // Senha do usuário
+        confirmPass: string;      // Confirmação da senha
+        birthDate: string;        // Data de nascimento do usuário
     };
 
-
+    // Função para estabelecer conexão com o banco de dados Oracle
     export async function connectionOracle() {
         console.log('Tentando conectar ao Oracle...');
         try {
@@ -32,19 +31,19 @@ export namespace AccountsHandler {
                 connectString: process.env.ORACLE_CONN_STR
             });
             console.log('Conectado ao Oracle com sucesso!');
-            return connection;
+            return connection; // Retorna a conexão estabelecida
         } catch (error) {
             console.error('Erro ao conectar ao Oracle:', error);
-            throw error;
+            throw error; // Lança o erro para ser tratado onde a função for chamada
         }
     }
-   
     
+    // Função para salvar uma nova conta no banco de dados
     export async function saveAccount(newAccount: UserAccount): Promise<void> {
         const connection = await connectionOracle();
    
         try {
-            
+            // Executa a inserção da nova conta na tabela ACCOUNTS
             await connection.execute(
                 `INSERT INTO ACCOUNTS (accountid, completeName, email, password, token, birthDate)
                  VALUES (SEQ_ACCOUNTS.NEXTVAL, :completeName, :email, :password, DBMS_RANDOM.STRING('x', 32), TO_DATE(:birthDate, 'YYYY-MM-DD'))`,
@@ -56,21 +55,21 @@ export namespace AccountsHandler {
                 }
             );
    
-            await connection.commit();
+            await connection.commit(); // Confirma a transação
             console.log('Usuário inserido com sucesso!');
         } catch (error) {
             console.error('Erro ao inserir usuário:', error);
-            throw error; 
+            throw error; // Lança o erro para ser tratado onde a função for chamada
         } finally {
-            await connection.close();
+            await connection.close(); // Fecha a conexão com o banco de dados
             console.log('Conexão fechada.');
         }
     }
    
- 
+    // Função para verificar se um e-mail já está cadastrado
     async function verifyAccount(email: string): Promise<boolean> {
         const connection = await connectionOracle();
-        let emailExists = false; 
+        let emailExists = false; // Flag para verificar se o e-mail existe
    
         try {
             const result = await connection.execute(
@@ -78,68 +77,87 @@ export namespace AccountsHandler {
                 { email }
             );
    
-          
+            // Se houver resultados, o e-mail já está cadastrado
             if (result.rows && result.rows.length > 0) {
                 emailExists = true;
             }
         } catch (error) {
             console.error('Erro ao verificar o e-mail:', error);
-            throw error; 
+            throw error; // Lança o erro para ser tratado onde a função for chamada
         } finally {
-            await connection.close(); 
+            await connection.close(); // Fecha a conexão
         }
    
-   
-        return emailExists;
+        return emailExists; // Retorna se o e-mail existe ou não
     }
    
-   
+    // Função para validar se a idade do usuário é maior ou igual a 18 anos
     function isAgeValid(birthDate: string): boolean {
-        const birth = new Date(birthDate);
-        const age = new Date().getFullYear() - birth.getFullYear();
-        return age >= 18; 
+        const birth = new Date(birthDate); // Converte a data de nascimento para um objeto Date
+        const age = new Date().getFullYear() - birth.getFullYear(); // Calcula a idade
+        return age >= 18; // Retorna true se a idade for válida
     }
    
-
+    // Função para criar uma nova conta
     export const createAccount: RequestHandler = async (req: Request, res: Response): Promise<void> => {
         console.log('Recebendo requisição para criar conta');
    
+        // Obtém os parâmetros do cabeçalho da requisição
         const pcompleteName = req.get('completeName');
         const pemail = req.get('email');
         const ppassword = req.get('password');
+        const pconfirmPass = req.get('confirmPass');
         const pbirthDate = req.get('birthDate');
    
         console.log('Parâmetros recebidos:', { pcompleteName, pemail, ppassword, pbirthDate });
    
-        if (!pcompleteName || !pemail || !ppassword || !pbirthDate) {
+        // Valida se todos os parâmetros necessários foram fornecidos
+        if (!pcompleteName || !pemail || !ppassword || !pconfirmPass || !pbirthDate) {
             res.status(400).send('Requisição inválida - Parâmetros faltando.');
             return;
         }
-   
-     
+
+        // Valida se a confirmação da senha corresponde à senha original
+        if (ppassword !== pconfirmPass) {
+            res.status(400).send('As senhas não correspondem.');
+            return;
+        }
+        
+        const birthDateObj = new Date(pbirthDate);
+        const today = new Date();
+        
+        // Valida se a data de nascimento não é uma data futura
+        if (birthDateObj > today) {
+            res.status(400).send('Data de nascimento inválida - não pode ser uma data futura.');
+            return;
+        }
+        
+        // Verifique se a idade é válida somente após confirmar que a data de nascimento é válida
+        if (!isAgeValid(pbirthDate)) {
+            res.status(400).send('Idade deve ser maior ou igual a 18 anos.');
+            return;
+        }
+        
+        // Verifique a existência do e-mail
         const emailExists = await verifyAccount(pemail);
         if (emailExists) {
             res.status(400).send('E-mail já cadastrado.');
             return;
         }
-   
-        if (!isAgeValid(pbirthDate)) {
-            res.status(400).send('Idade deve ser maior ou igual a 18 anos.');
-            return;
-        }
-   
+        
+        // Cria um objeto de nova conta
         const newAccount: UserAccount = {
             id: '',
             token: '',
             completeName: pcompleteName,
             email: pemail,
             password: ppassword,
-            confirmPass: '', 
+            confirmPass: pconfirmPass, 
             birthDate: pbirthDate,
         };
    
         try {
-            await saveAccount(newAccount); 
+            await saveAccount(newAccount); // Chama a função para salvar a conta no banco de dados
             res.status(200).send('Usuário inserido com sucesso!'); 
         } catch (error) {
             console.error('Erro ao criar conta:', error);
@@ -147,11 +165,12 @@ export namespace AccountsHandler {
         }
     };
    
-   
+    // Função para autenticar um usuário
     export const loginHandler: RequestHandler = async (req: Request, res: Response): Promise<void> => {
         const email = req.get('email');
         const password = req.get('password');
    
+        // Verifica se os parâmetros de login foram fornecidos
         if (!email || !password) {
             res.status(400).send('E-mail e senha são obrigatórios.');
             return;
@@ -160,16 +179,16 @@ export namespace AccountsHandler {
         const connection = await connectionOracle();
    
         try {
-            
+            // Executa a consulta para verificar o e-mail e a senha
             const result = await connection.execute(
                 `SELECT token FROM ACCOUNTS WHERE email = :email AND password = :password`,
                 { email, password }
             );
    
-          
+            // Obtém o token se as credenciais estiverem corretas
             const tokenRows = result.rows as Array<{ TOKEN: string }>;
    
-        
+            // Se as credenciais estiverem corretas, retorna o token
             if (tokenRows.length > 0) {
                 const token = tokenRows[0].TOKEN;
                 res.status(200).send(`Login feito com sucesso. Token: ${token}`);
@@ -180,7 +199,7 @@ export namespace AccountsHandler {
             console.error('Erro ao autenticar usuário:', error);
             res.status(500).send('Erro ao autenticar usuário.');
         } finally {
-            await connection.close();
+            await connection.close(); // Fecha a conexão
             console.log('Conexão fechada.');
         }
     };
