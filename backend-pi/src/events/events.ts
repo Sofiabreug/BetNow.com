@@ -7,11 +7,10 @@ dotenv.config();
 
 export namespace EventsHandler {
 
-    // Função para estabelecer uma conexão com o banco de dados Oracle
+
     export async function connectionOracle() {
         console.log('Tentando conectar ao Oracle...');
         try {
-            // Tenta obter uma conexão com as credenciais do banco de dados
             const connection = await OracleDB.getConnection({
                 user: process.env.DB_USER,
                 password: process.env.DB_PASSWORD,
@@ -19,99 +18,89 @@ export namespace EventsHandler {
             });
            
             console.log('Conectado ao Oracle com sucesso!');
-            return connection; // Retorna a conexão estabelecida
+            return connection;
         } catch (error) {
             console.error('Erro ao conectar ao Oracle:', error);
-            throw error; // Lança o erro caso a conexão falhe
+            throw error;
         }
+       
     }
-
-    // Função para verificar se o título e a descrição já existem no banco de dados
-    async function verifytitulo_e_description(title: string, description: string): Promise<boolean> {
-        const connection = await connectionOracle(); // Obtém uma conexão com o Oracle
-        let titulo_or_description_Exists = false; // Variável para armazenar se o título ou descrição existem
+    async function verifytitulo_e_description(title: string, description:string): Promise<boolean> {
+        const connection = await connectionOracle();
+        let titulo_or_description_Exists = false; 
    
         try {
-            // Executa uma consulta para verificar se o título e a descrição já estão cadastrados
             const result = await connection.execute(
                 'SELECT title, description FROM EVENTS WHERE title = :title AND description = :description',
                 { title, description }
             );
         
-            // Se o resultado contiver linhas, significa que o título ou descrição já existem
             if (result.rows && result.rows.length > 0) {
                 titulo_or_description_Exists = true;
             }
         } catch (error) {
             console.error('Erro ao verificar o e-mail:', error);
-            throw error; // Lança o erro em caso de falha na consulta
+            throw error; 
         } finally {
-            await connection.close(); // Garante que a conexão será fechada após a execução
+            await connection.close(); 
         }
-        return titulo_or_description_Exists; // Retorna true ou false com base na verificação
+        return titulo_or_description_Exists;
     }
 
-    // Handler para adicionar um novo evento
+    
     export const AddNewEvent: RequestHandler = async (req: Request, res: Response): Promise<void> => {
-        // Obtém os dados do evento do cabeçalho da requisição
         const title = req.get('title');
         const description = req.get('description');
         const ticketValue = req.get('ticketValue');
         const startDate = req.get('startDate'); 
         const endDate = req.get('endDate');     
         const eventDate = req.get('eventDate'); 
-        const creatorToken = req.get('token')?.toUpperCase(); // Converte o token do criador para maiúsculas
+        const creatorToken = req.get('token')?.toUpperCase();
     
-        // Valida se o título é fornecido e se não excede o limite de 50 caracteres
+        // Validação dos dados de entrada
         if (!title || title.length > 50) {
             res.status(400).send('O título deve possuir até 50 caracteres.');
             return;
         }
     
-        // Valida se a descrição é fornecida e se não excede o limite de 150 caracteres
         if (!description || description.length > 150) {
             res.status(400).send('A descrição deve possuir até 150 caracteres.');
             return;
         }
     
-        // Valida se o valor do ingresso é fornecido e é pelo menos R$1,00
         if (!ticketValue || Number(ticketValue) < 1) {
             res.status(400).send('O valor de cada cota deve ser R$1,00 ou mais');
             return;
         }
     
-        // Valida se as datas de início, fim e do evento são fornecidas
         if (!startDate || !endDate || !eventDate) {
             res.status(400).send('Data e hora de início, fim e do evento são obrigatórias.');
             return;
         }
     
-        // Valida se o token do criador é fornecido
         if (!creatorToken) {
             res.status(400).send('O token do criador é obrigatório.');
             return;
         }
     
-        // Verifica se o título ou descrição já existem no banco de dados
         const titulo_or_description_Exists = await verifytitulo_e_description(title, description);
         if (titulo_or_description_Exists) {
             res.status(400).send('Título ou descrição já utilizadas.');
-            return; // Retorna erro se título ou descrição já estiverem em uso
+            return;
         }
     
-        // Cria objetos Date para as datas fornecidas
+        // Convertendo strings de data para objetos de data
         const startDateTime = new Date(startDate);
         const endDateTime = new Date(endDate);
         const eventDateObj = new Date(eventDate);
-        const now = new Date(); // Obtém a data atual
+        const now = new Date();
     
-        // Valida se a data de início não é no passado
+        // Validação de datas
         if (startDateTime < now) {
             res.status(400).send('A data e hora de início não podem ser no passado.');
             return;
         }
     
-        // Valida se a data do evento não é no passado
         if (eventDateObj < now) {
             res.status(400).send('Data do evento inválida - não pode ser uma data passada.');
             return;
@@ -120,17 +109,17 @@ export namespace EventsHandler {
         let connection;
     
         try {
-            connection = await connectionOracle(); // Obtém uma nova conexão com o banco de dados
+            connection = await connectionOracle();
     
-            // Determina o status atual do evento com base nas datas
+            // Definir status do evento
             let currentStatus = 'ativo';
             if (now > endDateTime) {
-                currentStatus = 'finalizado'; // Se a data atual é maior que a data de término, o evento está finalizado
+                currentStatus = 'finalizado';
             } else if (eventDateObj < now) {
-                currentStatus = 'expirado'; // Se a data do evento é menor que a data atual, o evento está expirado
+                currentStatus = 'expirado';
             }
     
-            // Insere um novo evento no banco de dados
+            // Inserir dados no banco de dados
             await connection.execute(
                 `INSERT INTO EVENTS (
                     EVENTID,
@@ -154,7 +143,7 @@ export namespace EventsHandler {
                     TO_TIMESTAMP(:eventDate, 'YYYY-MM-DD"T"HH24:MI:SS'),
                     :creatorToken,
                     :event_status,
-                    'pendente', // Status de validação inicial
+                    'pendente',
                     NULL
                 )`,
                 {
@@ -165,33 +154,32 @@ export namespace EventsHandler {
                     endDate,
                     eventDate,
                     creatorToken,
-                    event_status: currentStatus // O status atual do evento
+                    event_status: currentStatus
                 }
             );
     
-            await connection.commit(); // Confirma a transação no banco de dados
+            await connection.commit();
     
-            res.status(201).send(`Evento criado com sucesso com o status "${currentStatus}".`); // Retorna sucesso com status 201
+            res.status(201).send(`Evento criado com sucesso com o status "${currentStatus}".`);
         } catch (error) {
             console.error('Erro ao adicionar o evento:', error);
-            res.status(500).send('Erro ao adicionar o evento.'); // Retorna erro em caso de falha
+            res.status(500).send('Erro ao adicionar o evento.');
         } finally {
-            // Garante que a conexão será fechada ao final do processamento
             if (connection) {
                 try {
-                    await connection.close(); // Fecha a conexão com o banco de dados
+                    await connection.close();
                 } catch (closeError) {
-                    console.error('Erro ao fechar a conexão:', closeError); // Loga qualquer erro ao fechar a conexão
+                    console.error('Erro ao fechar a conexão:', closeError);
                 }
             }
         }
     };
-
+    
   export const getEvents: RequestHandler = async (req: Request, res: Response): Promise<void> => {
-    const filter = req.get('filter')?.toLowerCase(); 
+    const filter = req.get('filter'); 
     const connection = await connectionOracle();
     let results;
-
+// faz a consulta a partir dos filtros: pendente, futuros,passado,aprovado,encerrado,expirado,removido,reprovado
     try {
         let query = "SELECT EVENTID, TITLE, DESCRIPTION, EVENT_STATUS, VALIDATION_STATUS, TICKETVALUE, " +
                     "TO_CHAR(STARTDATE, 'YYYY-MM-DD HH24:MI:SS') AS STARTDATETIME, " +
@@ -200,23 +188,24 @@ export namespace EventsHandler {
 
         if (filter === 'pendente') {
             query += " WHERE VALIDATION_STATUS = 'pendente'";
-        } else if (filter === 'futuros') {
+        } else if (filter === 'futuro') {
             query += " WHERE STARTDATE > SYSDATE";
         } else if (filter === 'passado') {
             query += " WHERE ENDDATE < SYSDATE";
         } else if (filter === 'aprovado') {
             query += " WHERE VALIDATION_STATUS = 'aprovado'";
-        } else if (filter === 'finalizado') {
-            query += " WHERE EVENT_STATUS = 'finalizado'";
+        } else if (filter === 'encerrado') {
+            query += " WHERE EVENT_STATUS = 'encerrado'";
         }else if (filter === 'expirado') {
             query += " WHERE VALIDATION_STATUS = 'expirado'";
         }else if (filter === 'removido') {
             query += " WHERE EVENT_STATUS = 'removido'";
         }else if (filter === 'reprovado') {
-            query += " WHERE VALIDATION_STATUS = 'reprovado'";
+            query += " WHERE VALIDATION_status = 'reprovado'";
+        }else {
+            res.status(404).send('Nenhum evento com esse filtro encontrado! Tente usar os filtros: pendente, futuro, passado, aprovado, encerrado,expirado, removido, reprovado.'); 
         }
         
-
         results = await connection.execute(query);
 
         if (results.rows && results.rows.length > 0) {
@@ -225,6 +214,7 @@ export namespace EventsHandler {
                 eventId: number;
                 title: string;
                 description: string;
+                event_status: string;
                 validationStatus: string;
                 ticketValue: number;
                 startDateTime: string; 
@@ -233,6 +223,7 @@ export namespace EventsHandler {
                 eventId: event.EVENTID,
                 title: event.TITLE,
                 description: event.DESCRIPTION,
+                event_status: event.EVENT_STATUS,
                 validationStatus: event.VALIDATION_STATUS,
                 ticketValue: event.TICKETVALUE,
                 startDateTime: event.STARTDATETIME, 
@@ -267,7 +258,7 @@ export namespace EventsHandler {
         'texto inapropriado',
         'não respeita a política de privacidade e/ou termos de uso da plataforma'
       ];
-    
+    // Verifica se o motivo é um motivo valido
       if (newStatus.toLowerCase() === 'reprovado' && !validRejectionReasons.includes(rejectionReason ?? '')) {
         res.status(400).send(`Motivo de reprovação inválido. Os motivos válidos são: ${validRejectionReasons.join(', ')}.`);
         return;
@@ -278,7 +269,7 @@ export namespace EventsHandler {
       try {
         connection = await connectionOracle();
     
-        
+        // Verifica se o usuário é um moderador
         const results = await connection.execute(
           `SELECT * FROM MODERATORS WHERE MODERATORID = :moderatorId`,
           { moderatorId }
@@ -290,7 +281,7 @@ export namespace EventsHandler {
           return;
         }
     
-        
+        // Consulta a data de início e o status atual do evento
         const statusResult = await connection.execute(
             `SELECT VALIDATION_STATUS, STARTDATE, CREATORTOKEN FROM EVENTS WHERE EVENTID = :eventId`,
             { eventId }
@@ -309,15 +300,15 @@ export namespace EventsHandler {
         
         const { VALIDATION_STATUS, STARTDATE, CREATORTOKEN: creatorToken } = statusRows[0];
         
-        
+        // Obter a data e hora atuais
         const currentDateTime = new Date();
         
-        
+        // Criar um objeto Date a partir da string de data e hora do evento
         const eventStartDateTime = new Date(STARTDATE);
         
-        
+        // Verificar se o evento já expirou
         if (eventStartDateTime <= currentDateTime) {
-            
+            // Atualizar status para expirado
             await connection.execute(
                 `UPDATE EVENTS SET VALIDATION_STATUS = :status WHERE EVENTID = :eventId`,
                 { status: 'expirado', eventId }
@@ -325,8 +316,8 @@ export namespace EventsHandler {
             await connection.commit();
             res.status(400).send('O evento expirou e não pode mais ser avaliado.');
             return;
-        }
-        
+        }        
+    
         if (VALIDATION_STATUS.toLowerCase() === 'aprovado' || VALIDATION_STATUS.toLowerCase() === 'reprovado') {
           res.status(400).send(`O evento já foi ${VALIDATION_STATUS.toLowerCase()} e não pode ser atualizado novamente.`);
           return;
@@ -337,6 +328,7 @@ export namespace EventsHandler {
           return;
         }
     
+        // Obter e-mail do criador do evento
         const emailResult = await connection.execute(
           `SELECT email FROM ACCOUNTS WHERE token = :creatorToken`,
           { creatorToken }
@@ -351,7 +343,7 @@ export namespace EventsHandler {
     
         const email = emailRows[0].EMAIL;
     
-
+        // Enviar e-mail se o evento for reprovado
         if (newStatus.toLowerCase() === 'reprovado') {
           const transporter = nodemailer.createTransport({
             host: 'smtp.gmail.com',
@@ -384,7 +376,7 @@ export namespace EventsHandler {
           console.log('E-mail enviado com sucesso.');
         }
     
-
+        // Atualizar o status do evento
         await connection.execute(
           `UPDATE EVENTS SET validation_status = :newStatus WHERE eventid = :eventId`,
           { newStatus, eventId }
@@ -402,25 +394,30 @@ export namespace EventsHandler {
     export const betOnEvent: RequestHandler = async (req: Request, res: Response): Promise<void> => {
         const email = req.get('email');
         const eventId = req.get('eventId');
-        const qtd_cota = req.get('betValue');
+        const qtd_cota = Number(req.get('betValue'));
         const betChoice = req.get('betChoice')?.toLowerCase();
     
-    
+        // Verificar se os parâmetros necessários estão presentes
         if (!email || !eventId || !qtd_cota || !betChoice) {
-            res.status(400).send('Token, ID do evento, valor da aposta e escolha da aposta são obrigatórios.');
+            res.status(400).send('Email, ID do evento, valor da aposta e escolha da aposta são obrigatórios.');
             return;
         }
     
-      
+        // Validar a escolha da aposta
         if (betChoice !== 'sim' && betChoice !== 'não' && betChoice !== 'nao') {
             res.status(400).send('A escolha da aposta deve ser "sim" ou "não".');
+            return;
+        }
+        // Valida se nao é um numero negativo
+        if(qtd_cota<=0){
+            res.status(400).send('Erro ao realizar aposta - número invalido.');
             return;
         }
     
         const connection = await connectionOracle();
     
         try {
-          
+            // Obter detalhes do evento
             const eventResult = await connection.execute(
                 `SELECT VALIDATION_STATUS, TICKETVALUE, STARTDATE, ENDDATE 
                  FROM EVENTS WHERE EVENTID = :eventId`,
@@ -571,12 +568,6 @@ export namespace EventsHandler {
         }
     };
     
-    
-    
-
-
-
-    
     export const deleteEvent: RequestHandler = async (req: Request, res: Response): Promise<void> => {
         const eventId = req.get('eventId');
         const creatorToken = req.get('token');
@@ -589,12 +580,12 @@ export namespace EventsHandler {
         const connection = await connectionOracle();
    
         const eventCheckResult = await connection.execute(
-            `SELECT event_status FROM EVENTS
+            `SELECT validation_status FROM EVENTS
              WHERE eventid = :eventId AND creatorToken = :creatorToken`,
             [eventId, creatorToken]
         );
    
-        const eventRows = eventCheckResult.rows as Array<{ event_status: string }>;
+        const eventRows = eventCheckResult.rows as Array<{ validation_status: string }>;
    
         if (eventRows.length === 0) {
             res.status(404).send('Evento não encontrado ou você não é o proprietário.');
@@ -602,22 +593,22 @@ export namespace EventsHandler {
             return;
         }
    
-        const eventStatus = eventRows[0].event_status;
+        const validation_status = eventRows[0].validation_status;
    
-        if (eventStatus === 'aprovado') {
+        if (validation_status === 'aprovado') {
             res.status(400).send('O evento já foi aprovado e não pode ser removido.');
             await connection.close();
             return;
         }
-   
+   // Realiza a soma para saber se o evento ja teve alguma aposta
         const betsCheckResult = await connection.execute(
-            'SELECT COUNT(*) AS betCount FROM BETS WHERE eventId = :eventId',
+            'SELECT COUNT(*) AS BETCOUNT FROM BETS WHERE eventId = :eventId',
             [eventId]
         );
    
-        const betCount = (betsCheckResult.rows as Array<{ betCount: number }>)[0].betCount;
+        const BETCOUNT = (betsCheckResult.rows as Array<{ BETCOUNT: number }>)[0].BETCOUNT;
    
-        if (betCount > 0) {
+        if (BETCOUNT > 0) {
             res.status(400).send('O evento já recebeu apostas e não pode ser removido.');
             await connection.close();
             return;
@@ -635,7 +626,7 @@ export namespace EventsHandler {
    
 
     export const searchEvent: RequestHandler = async (req: Request, res: Response): Promise<void> => {
-        const keyword = req.get('keyword');
+        const keyword = req.get('keyword');//palavra qualquer que o usuario ira digitar
     
         if (!keyword) {
             res.status(400).send('A palavra-chave é obrigatória.');
@@ -647,12 +638,12 @@ export namespace EventsHandler {
         try {
             connection = await connectionOracle();
             const results = await connection.execute(
-                'SELECT * FROM events WHERE title LIKE :keyword OR description LIKE :keyword',
+                'SELECT * FROM events WHERE title LIKE :keyword OR description LIKE :keyword', // Realiza a busca no banco de dados
                 { keyword: `%${keyword}%` }
             );
     
             if (results.rows && results.rows.length > 0) {
-                res.status(200).json(results.rows);
+                res.status(200).json(results.rows);// Retorna os eventos com essa palavra-chave
             } else {
                 res.status(404).send('Nenhum evento encontrado com essa palavra-chave.');
             }
@@ -668,138 +659,193 @@ export namespace EventsHandler {
             }
         }
     };
+    export const finishEvent: RequestHandler = async (req: Request, res: Response): Promise<void> => {
+        const eventId = req.get('eventId');
+        const verdict = req.get('verdict');
+        const moderatorId = req.get('moderatorId');
     
-
-
-export const finishEvent: RequestHandler = async (req: Request, res: Response): Promise<void> => {
-    const eventId = req.get('eventId');
-    const verdict = req.get('verdict');
-    const moderatorId = req.get('moderatorId');
-
-    console.log('ID do moderador recebido:', moderatorId);
-
-    if (!moderatorId) {
-        res.status(400).send('O ID do moderador é obrigatório.');
-        return;
-    }
-
-    const connection = await connectionOracle();
-
-    try {
-        const results = await connection.execute(
-            `SELECT * FROM MODERATORS WHERE MODERATORID = :moderatorId`,
-            { moderatorId }
-        );
-
-        console.log('Resultados da consulta ao moderador:', results.rows);
-
-        const moderatorResults = results.rows as Array<{ MODERATORID: string }>;
-
-        if (moderatorResults.length === 0) {
-            res.status(403).send('Apenas moderadores podem finalizar o evento.');
+        console.log('ID do moderador recebido:', moderatorId);
+    
+        if (!moderatorId) {
+            res.status(400).send('O ID do moderador é obrigatório.');
             return;
         }
-
-        if (!eventId) {
-            res.status(400).send('O ID do evento é obrigatório.');
-            return;
-        }
-
-        if (!verdict || (verdict !== 'sim' && verdict !== 'não' && verdict !== 'nao')) {
-            res.status(400).send('O veredito é obrigatório e deve ser "sim" ou "não".');
-            return;
-        }
-
-        const updateEventResult = await connection.execute(
-            `UPDATE EVENTS SET event_status = 'encerrado', verdict = :verdict WHERE eventId = :eventId`,
-            { verdict, eventId }
-        );
-
-        console.log('Resultado da atualização do evento:', updateEventResult);
-
-        const totalApostadoSimResult = await connection.execute(
-            `SELECT SUM(amountBet) AS "TOTAL" FROM BETS WHERE eventId = :eventId AND betChoice = 'sim'`,
-            { eventId }
-        );
-
-        const totalApostadoSim = (totalApostadoSimResult.rows as Array<{ TOTAL: number }>)[0]?.TOTAL || 0;
-        console.log('Total apostado para "sim":', totalApostadoSim);
-
-        const totalApostadoNaoResult = await connection.execute(
-            `SELECT SUM(amountBet) AS "TOTAL" FROM BETS WHERE eventId = :eventId AND (betChoice = 'não' OR betChoice = 'nao')`,
-            { eventId }
-        );
-
-        const totalApostadoNao = (totalApostadoNaoResult.rows as Array<{ TOTAL: number }>)[0]?.TOTAL || 0;
-        console.log('Total apostado para "não":', totalApostadoNao);
-
-        if (verdict === 'sim') {
-            const apostadoresVencedoresResult = await connection.execute(
-                `SELECT accountId AS "ACCOUNTID", amountBet AS "AMOUNTBET" FROM BETS WHERE eventId = :eventId AND betChoice = 'sim'`,
+    
+        const connection = await connectionOracle();
+    
+        try {
+            const results = await connection.execute(
+                `SELECT * FROM MODERATORS WHERE MODERATORID = :moderatorId`,
+                { moderatorId }
+            );
+    
+            console.log('Resultados da consulta ao moderador:', results.rows);
+    
+            const moderatorResults = results.rows as Array<{ MODERATORID: string }>;
+    
+            if (moderatorResults.length === 0) {
+                res.status(403).send('Apenas moderadores podem finalizar o evento.');
+                return;
+            }
+    
+            if (!eventId) {
+                res.status(400).send('O ID do evento é obrigatório.');
+                return;
+            }
+    
+            if (!verdict || (verdict !== 'sim' && verdict !== 'não' && verdict !== 'nao')) {
+                res.status(400).send('O veredito é obrigatório e deve ser "sim" ou "não".');
+                return;
+            }
+    // Atualiza o status e o veredito
+            const updateEventResult = await connection.execute(
+                `UPDATE EVENTS SET event_status = 'encerrado', verdict = :verdict WHERE eventId = :eventId`,
+                { verdict, eventId }
+            );
+    
+            console.log('Resultado da atualização do evento:', updateEventResult);
+    
+            const totalApostadoSimResult = await connection.execute(
+                `SELECT SUM(amountBet) AS "TOTAL" FROM BETS WHERE eventId = :eventId AND betChoice = 'sim'`,
                 { eventId }
             );
-
-            const apostadoresVencedores = apostadoresVencedoresResult.rows as Array<{ ACCOUNTID: string; AMOUNTBET: number }>;
-
-            console.log('Apostadores vencedores:', apostadoresVencedores);
-
-            if (apostadoresVencedores.length > 0) {
-                for (const apostador of apostadoresVencedores) {
-                    const accountId = apostador.ACCOUNTID;
-                    const amountBet = apostador.AMOUNTBET;
-
-                    const proporcao = totalApostadoSim > 0 ? amountBet / totalApostadoSim : 0;
-                    const ganhos = totalApostadoNao * proporcao;
-
-                    console.log(`Ganhos para o apostador ${accountId}:`, ganhos);
-
-                    if (!isNaN(ganhos) && ganhos > 0) {
+    
+            const totalApostadoSim = (totalApostadoSimResult.rows as Array<{ TOTAL: number }>)[0]?.TOTAL || 0;
+            console.log('Total apostado para "sim":', totalApostadoSim);
+    
+            const totalApostadoNaoResult = await connection.execute(
+                `SELECT SUM(amountBet) AS "TOTAL" FROM BETS WHERE eventId = :eventId AND (betChoice = 'não' OR betChoice = 'nao')`,
+                { eventId }
+            );
+    
+            const totalApostadoNao = (totalApostadoNaoResult.rows as Array<{ TOTAL: number }>)[0]?.TOTAL || 0;
+            console.log('Total apostado para "não":', totalApostadoNao);
+    
+            if (verdict === 'sim') {
+                const apostadoresVencedoresResult = await connection.execute(
+                    `SELECT accountId AS "ACCOUNTID", amountBet AS "AMOUNTBET" FROM BETS WHERE eventId = :eventId AND betChoice = 'sim'`,
+                    { eventId }
+                );
+    
+                const apostadoresVencedores = apostadoresVencedoresResult.rows as Array<{ ACCOUNTID: string; AMOUNTBET: number }>;
+    
+                console.log('Apostadores vencedores:', apostadoresVencedores);
+    
+                if (apostadoresVencedores.length > 0) {
+                    for (const apostador of apostadoresVencedores) {
+                        const accountId = apostador.ACCOUNTID;
+                        const amountBet = apostador.AMOUNTBET;
+    
+                        const proporcao = totalApostadoSim > 0 ? amountBet / totalApostadoSim : 0;
+                        const ganhos = (totalApostadoNao * proporcao) + amountBet;
+    
+                        console.log(`Ganhos para o apostador ${accountId}:`, ganhos.toFixed(2));
+    
+                        if (!isNaN(ganhos) && ganhos > 0) {
+                            
+                            await connection.execute(
+                                `UPDATE WALLET SET balance = balance + :ganhos WHERE accountId = :accountId`,
+                                { ganhos, accountId }
+                            );
                         
-                        await connection.execute(
-                            `UPDATE WALLET SET balance = balance + :ganhos WHERE accountId = :accountId`,
-                            { ganhos, accountId }
-                        );
-                    
-                        const walletResult = await connection.execute(
-                            `SELECT WALLETID FROM WALLET WHERE ACCOUNTID = :accountId`,
-                            { accountId }
-                        );
-                    
-                        const walletRows = walletResult.rows as Array<{ WALLETID: number }>;
-                    
-                        if (walletRows.length === 0) {
-                            console.error(`Wallet não encontrada para o apostador ${accountId}.`);
-                            return; 
+                            const walletResult = await connection.execute(
+                                `SELECT WALLETID FROM WALLET WHERE ACCOUNTID = :accountId`,
+                                { accountId }
+                            );
+                        
+                            const walletRows = walletResult.rows as Array<{ WALLETID: number }>;
+                        
+                            if (walletRows.length === 0) {
+                                console.error(`Wallet não encontrada para o apostador ${accountId}.`);
+                                return; 
+                            }
+                        
+                            const walletId = walletRows[0].WALLETID;
+                        
+                            await connection.execute(
+                                `INSERT INTO "TRANSACTIONS" ("TRANSACTIONID", "WALLETID", "AMOUNT", "TRANSACTION_TYPE", "TRANSACTION_DATE") 
+                                VALUES (SEQ_TRANSACTIONS.NEXTVAL, :walletId, :amount, 'pagamento de aposta', SYSDATE)`,
+                                { walletId, amount: ganhos } 
+                            );
+                        
+                            console.log(`Pagamento de aposta de R$${ganhos.toFixed(2)} realizado para o apostador ${accountId}.`);
+                        } else {
+                            console.log(`Ganhos inválidos para o apostador ${accountId}:`, ganhos.toFixed(2));
                         }
-                    
-                        const walletId = walletRows[0].WALLETID;
-                    
-                        
-                        await connection.execute(
-                            `INSERT INTO "TRANSACTIONS" ("TRANSACTIONID", "WALLETID", "AMOUNT", "TRANSACTION_TYPE", "TRANSACTION_DATE") 
-                            VALUES (SEQ_TRANSACTIONS.NEXTVAL, :walletId, :amount, 'pagamento de aposta', SYSDATE)`,
-                            { walletId, amount: ganhos } 
-                        );
-                    
-                        console.log(`Pagamento de aposta de R$${ganhos} realizado para o apostador ${accountId}.`);
-                    } else {
-                        console.log(`Ganhos inválidos para o apostador ${accountId}:`, ganhos);
                     }
+                
+                    await connection.commit();
+                } else {
+                    console.log('Nenhum apostador vencedor encontrado.');
                 }
-            
-                await connection.commit();
-            } else {
-                console.log('Nenhum apostador vencedor encontrado.');
             }
+    
+            if (verdict === 'não' || verdict === 'nao') {
+                const apostadoresVencedoresResult = await connection.execute(
+                    `SELECT accountId AS "ACCOUNTID", amountBet AS "AMOUNTBET" FROM BETS WHERE eventId = :eventId AND (betChoice = 'não' OR betChoice = 'nao')`,
+                    { eventId }
+                );
+    
+                const apostadoresVencedores = apostadoresVencedoresResult.rows as Array<{ ACCOUNTID: string; AMOUNTBET: number }>;
+    
+                console.log('Apostadores vencedores:', apostadoresVencedores);
+    
+                if (apostadoresVencedores.length > 0) {
+                    for (const apostador of apostadoresVencedores) {
+                        const accountId = apostador.ACCOUNTID;
+                        const amountBet = apostador.AMOUNTBET;
+    
+                        const proporcao = totalApostadoNao > 0 ? amountBet / totalApostadoNao : 0;
+                        const ganhos = (totalApostadoSim * proporcao) + amountBet;
+    
+                        console.log(`Ganhos para o apostador ${accountId}:`, ganhos.toFixed(2));
+    
+                        if (!isNaN(ganhos) && ganhos > 0) {
+                            
+                            await connection.execute(
+                                `UPDATE WALLET SET balance = balance + :ganhos WHERE accountId = :accountId`,
+                                { ganhos, accountId }
+                            );
+                        
+                            const walletResult = await connection.execute(
+                                `SELECT WALLETID FROM WALLET WHERE ACCOUNTID = :accountId`,
+                                { accountId }
+                            );
+                        
+                            const walletRows = walletResult.rows as Array<{ WALLETID: number }>;
+                        
+                            if (walletRows.length === 0) {
+                                console.error(`Wallet não encontrada para o apostador ${accountId}.`);
+                                return; 
+                            }
+                        
+                            const walletId = walletRows[0].WALLETID;
+                        
+                            await connection.execute(
+                                `INSERT INTO "TRANSACTIONS" ("TRANSACTIONID", "WALLETID", "AMOUNT", "TRANSACTION_TYPE", "TRANSACTION_DATE") 
+                                VALUES (SEQ_TRANSACTIONS.NEXTVAL, :walletId, :amount, 'pagamento de aposta', SYSDATE)`,
+                                { walletId, amount: ganhos } 
+                            );
+                        
+                            console.log(`Pagamento de aposta de R$${ganhos.toFixed(2)} realizado para o apostador ${accountId}.`);
+                        } else {
+                            console.log(`Ganhos inválidos para o apostador ${accountId}:`, ganhos.toFixed(2));
+                        }
+                    }
+                
+                    await connection.commit();
+                } else {
+                    console.log('Nenhum apostador vencedor encontrado.');
+                }
+            }
+    
+            res.status(200).send('Evento finalizado com sucesso. Pagamento Realizado!');
+        } catch (error) {
+            console.error('Erro ao finalizar o evento:', error);
+            await connection.rollback(); 
+            res.status(500).send('Erro ao finalizar o evento.');
+        } finally {
+            await connection.close();
         }
-
-        res.status(200).send('Evento finalizado com sucesso. Pagamento Realizado!');
-    } catch (error) {
-        console.error('Erro ao finalizar o evento:', error);
-        await connection.rollback(); 
-        res.status(500).send('Erro ao finalizar o evento.');
-    } finally {
-        await connection.close();
-    }
-};
+    };
 }

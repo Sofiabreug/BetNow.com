@@ -22,7 +22,7 @@ routes.post('/BetOnEvents', EventsHandler.betOnEvent);
 
 routes.put('/evaluateEvent', EventsHandler.evaluateEvent);
 
-routes.delete('/deleteEvent', EventsHandler.deleteEvent);
+routes.put('/deleteEvent', EventsHandler.deleteEvent);
 
 routes.put('/finishEvent', EventsHandler.finishEvent);
 

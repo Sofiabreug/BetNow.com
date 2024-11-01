@@ -170,21 +170,43 @@ export namespace WalletHandler {
     export const withdrawFunds: RequestHandler = async (req, res) => {
         const token = req.get('token');
         const amount = Number(req.get('amount'));
+        const banco = req.get('banco');
+        const agencia = req.get('agencia');
+        const conta = req.get('conta');
     
         if (!token || isNaN(amount) || amount <= 0) {
             res.status(400).send('Token e valor de saque válido são obrigatórios.');
             return;
         }
     
+        if (!banco || !agencia || !conta) {
+            res.status(400).send('Informações bancárias (banco, agência e conta) são obrigatórias para o saque.');
+            return;
+        }
+    
+        if (banco.length < 3 || banco.length > 4) {
+            res.status(400).send('O código do banco deve ter entre 3 e 4 dígitos.');
+            return;
+        }
+    
+        if (agencia.length !== 4) {
+            res.status(400).send('A agência deve ter exatamente 4 dígitos.');
+            return;
+        }
+    
+        if (conta.length < 6 || conta.length > 7) {
+            res.status(400).send('A conta deve ter entre 6 e 7 dígitos.');
+            return;
+        }
+    
         const connection = await connectionOracle();
     
         try {
-            // Buscar o ID da conta e o saldo atual com base no token
             const accountResult = await connection.execute(
                 `SELECT ACCOUNTID FROM ACCOUNTS WHERE TOKEN = :token`,
                 { token }
             );
-            
+    
             const accountRows = accountResult.rows as Array<{ ACCOUNTID: number }>;
             if (accountRows.length === 0) {
                 res.status(404).send('Conta não encontrada.');
@@ -212,7 +234,6 @@ export namespace WalletHandler {
                 return;
             }
     
-            // Calcular a taxa de saque com base no valor
             let feePercentage;
             if (amount <= 100) {
                 feePercentage = 0.04;
@@ -226,15 +247,14 @@ export namespace WalletHandler {
                 feePercentage = 0;
             }
     
-            const fee = amount * feePercentage;
-            const netAmount = amount + fee;
+            const fee = amount * feePercentage; // Calculando a taxa
+            const netAmount = amount + fee; // valor que sera retirado da conta
     
             if (netAmount > currentBalance) {
                 res.status(400).send('Saldo insuficiente após aplicar a taxa.');
                 return;
             }
     
-            // Atualizar o saldo da carteira após o saque
             const newBalance = currentBalance - netAmount;
             await connection.execute(
                 `UPDATE WALLET SET BALANCE = :newBalance WHERE WALLETID = :walletId`,
@@ -243,13 +263,13 @@ export namespace WalletHandler {
     
             // Inserir a transação na tabela TRANSACTIONS
             await connection.execute(
-                `INSERT INTO "TRANSACTIONS" ("TRANSACTIONID", "WALLETID", "AMOUNT", "TRANSACTION_TYPE", "TRANSACTION_DATE") 
+                `INSERT INTO TRANSACTIONS (TRANSACTIONID, WALLETID, AMOUNT, TRANSACTION_TYPE, TRANSACTION_DATE) 
                 VALUES (SEQ_TRANSACTIONS.NEXTVAL, :walletId, :amount, 'saque', SYSDATE)`,
                 { walletId, amount: netAmount }
             );
     
             await connection.commit();
-            res.status(200).send(`Saque de R$${netAmount.toFixed(2)} realizado com sucesso. Taxa aplicada: R$${fee.toFixed(2)}. Saldo atual: R$${newBalance.toFixed(2)}.`);
+            res.status(200).send(`Saque de R$${amount.toFixed(2)} realizado com sucesso. Taxa aplicada: R$${fee.toFixed(2)}. Saldo atual: R$${newBalance.toFixed(2)}.`);
         } catch (error) {
             console.error("Erro durante o saque:", error);
             res.status(500).send("Erro ao processar o saque.");
@@ -257,4 +277,5 @@ export namespace WalletHandler {
             await connection.close();
         }
     };
-}    
+    
+}
