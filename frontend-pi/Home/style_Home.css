@@ -1,0 +1,243 @@
+@media (max-width: 1800px) {
+    .card {
+        width: 22%; /* Ajusta os cards para caberem 4 na linha */
+    }
+}
+@media (max-width: 900px) {
+    .card {
+        width: 30%; /* Ajusta para 3 cards na linha */
+    }
+}
+@media (max-width: 600px) {
+    .card {
+        width: 48%; /* Ajusta para 2 cards por linha */
+    }
+}
+@media (max-width: 400px) {
+    .card {
+        width: 100%; /* Ajusta para 1 card por linha */
+    }
+}
+html {
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+}
+body {
+    background-color: #191919;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    width: 100%;
+    height: 100%;
+}
+header, main, footer {
+    width: 100%;
+    height: 100%;
+}
+main {
+    flex: 1;
+}
+h4{
+    color: white;
+    -webkit-text-stroke-color: #48008B;
+    -webkit-text-stroke-width: 1px;
+    font-weight: bold;
+    font-family: Arial, Helvetica, sans-serif;
+    text-shadow: 0px 0px 10px #48008B;
+    margin-bottom: 10px;
+    margin-top: 20px;
+    cursor: default;
+}
+.buscar{
+    border: 1px solid white;
+    background-color: #191919;
+    border-radius: 5px;
+    padding: 5px 20px;
+    margin-left: 15px;
+    margin-right: 30px;
+}
+.buscar:hover{
+    border: 1px solid white;
+    background-color: #48008B;
+}
+.buscar:active{
+    border: 1px solid white;
+    background-color: #191919;
+}
+.cadastrar{
+    border: 1px solid #48008B;
+    background-color: white;
+    border-radius: 7px;
+    padding: 5px;
+    width: 200px;
+    color: #48008B;
+    font-size: 18px;
+    margin-left: 10px;
+    margin-right: 18px;
+}
+.cadastrar:hover{
+    border: 1px solid white;
+    background-color: #191919;
+    color: white;
+}
+.cadastrar:active{
+    border: 1px solid #48008B;
+    background-color: white;
+    color: #48008B;
+}
+.entrar{
+    border: 1px solid white;
+    background-color: #48008B;
+    border-radius: 7px;
+    padding: 5px; 
+    width: 200px;
+    font-size: 18px;
+    margin-left: 10px;
+    margin-right: 18px;
+}
+.entrar:hover{
+    border: 1px solid white;
+    background-color: #191919;
+}
+.entrar:active{
+    border: 1px solid white;
+    background-color: #48008B;
+}
+.form-control{
+    width: 350px;
+}
+.logo{
+    margin-left: 10px;
+}
+.modal-content{
+    background-color: #212529;
+    width: 340px;
+} 
+.modal-title{
+    color: white;
+    font-size: 30px;
+    padding: 0;
+    margin-left: 110px;
+}
+.modal-body{
+    color: white;
+    padding: 40px;
+}
+#fieldEmail{
+    border-radius: 5px;
+    border: none;
+    width: 250px;
+}
+#fieldPassword{
+    border-radius: 5px;
+    border: none;
+    width: 250px;
+}
+#messageBox{
+    background-color: rgb(205, 24, 24);
+    color: white;
+    padding: 0;
+    display: none;
+    text-align: center;
+    border-radius: 3px; 
+    cursor: default;
+    width: 250px;
+    margin-top: 15px;
+    margin-bottom: 5px;
+}
+#messageBox p{
+    padding: 5px;
+    margin: 0;                
+}
+.modal-footer{
+    display: block;
+    justify-items: center;
+}
+#btnSignIn{
+    border: 1px solid white;
+    background-color: #48008B;
+    border-radius: 5px;
+    padding: 5px 30px;
+    color: white;
+}
+#btnSignIn:hover{
+    border: 1px solid white;
+    background-color:#212529;
+}
+#btnSignIn:active{
+    border: 1px solid white;
+    background-color: #48008B;
+}
+.body{    
+    width: 100%; 
+    height: 80vh; 
+    margin: 0 25px; 
+    display: flex;
+    flex-direction: column;         
+}
+.card {
+    background-color: #191919;
+    border-radius: 10px;
+    width: 200px;
+    height: auto;
+    margin: 10px;
+    overflow: hidden;
+}
+.card:hover {
+    cursor: pointer;
+}
+.card:active {
+    border: none;
+}
+.card-title {
+    color: white;
+}
+.cards{
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+.card-title{
+    margin-top: 30px;
+    margin-bottom: 35px;
+    color: white;
+}
+.category {
+    width: 100%;
+    background-color: #48008B;
+    border-radius: 8px;
+}
+.category:hover {
+    background-color: #191919;
+    border: 2px solid white;
+}
+.category:active {
+    background-color: #48008B;
+    border: none;
+}
+.img{
+    border-radius: 8px;
+    width: 270px;
+    height: 120px;
+    object-fit: cover;
+}
+.cards .none{
+    background-color: #212529;
+    border-radius: 8px;
+    cursor: default;
+    color: rgb(78, 78, 78);
+    border: none;
+    height: 100%;
+}
+.none .card-title{
+    color: rgb(78, 78, 78);
+    font-size: 15px;
+}
+.events:hover{
+    border: 2px solid white;
+}
