@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <title>Apostar em Evento</title>
+  <style>
+    body {
+      background-color: #000000;
+      color: #ffffff;
+      font-family: Arial, sans-serif;
+    }
+    .navbar-custom {
+      background-color: #1d0f2f;
+      padding: 16px;
+    }
+    .navbar-brand {
+      font-size: 30px;
+      font-weight: bold;
+      color: #ffffff;
+      text-shadow: 0px 0px 10px #a443ff;
+    }
+    .navbar-text a {
+      color: #ffffff;
+      text-decoration: none;
+      font-size: 18px;
+    }
+    .navbar-text a:hover {
+      text-shadow: 0px 0px 5px rgba(176, 103, 255, 0.7);
+    }
+    .event-title {
+      margin-top: 30px;
+      text-align: center;
+      font-size: 28px;
+      font-weight: bold;
+      color: #ffffff;
+      text-shadow: 0px 0px 5px #a443ff;
+    }
+    .event-question {
+      text-align: center;
+      font-size: 24px;
+      margin-top: 20px;
+    }
+    .buttons {
+      display: flex;
+      justify-content: center;
+      margin-top: 20px;
+      gap: 20px;
+    }
+    .btn-green {
+      background-color: #28a745;
+      border: none;
+      color: #ffffff;
+      font-size: 18px;
+      padding: 10px 20px;
+      border-radius: 5px;
+    }
+    .btn-green:hover {
+      background-color: #218838;
+    }
+    .btn-red {
+      background-color: #dc3545;
+      border: none;
+      color: #ffffff;
+      font-size: 18px;
+      padding: 10px 20px;
+      border-radius: 5px;
+    }
+    .btn-red:hover {
+      background-color: #c82333;
+    }
+    .value-input {
+      text-align: center;
+      margin-top: 20px;
+    }
+    .value-input input {
+      width: 200px;
+      padding: 10px;
+      border: none;
+      border-radius: 5px;
+    }
+    .value-input label {
+      margin-right: 10px;
+      font-size: 18px;
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar navbar-custom">
+    <span class="navbar-brand">Betting...</span>
+    <div class="navbar-text">
+      <a href="HomeLogon.html">| Voltar a Home Page |</a>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="event-title" id="eventTitle">Evento: Corinthians X Palmeiras</div>
+    <div class="event-question" id="eventQuestion">O Corinthians ganhará do Palmeiras?</div>
+
+    <div class="buttons">
+      <button class="btn-green" onclick="placeBet('sim')">SIM</button>
+      <button class="btn-red" onclick="placeBet('nao')">NÃO</button>
+    </div>
+
+    <div class="value-input">
+      <label for="betValue">Valor:</label>
+      <input type="number" id="betValue" placeholder="Insira o valor da aposta">
+    </div>
+  </div>
+
+</body>
+</html>

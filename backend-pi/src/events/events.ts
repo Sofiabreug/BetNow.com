@@ -47,7 +47,54 @@ export namespace EventsHandler {
         return titulo_or_description_Exists;
     }
 
-    
+    export const AddNewEvent: RequestHandler = async (req: Request, res: Response): Promise<void> => {
+        const { title, description, category, startDate, endDate, eventDate, ticketValue, creatorToken } = req.body;
+      
+        if (!title || title.length > 50) {
+          res.status(400).send('O título deve possuir até 50 caracteres.');
+          return;
+        }
+        if (!description || description.length > 150) {
+          res.status(400).send('A descrição deve possuir até 150 caracteres.');
+          return;
+        }
+        if (!ticketValue || Number(ticketValue) < 1) {
+          res.status(400).send('O valor de cada cota deve ser R$1,00 ou mais.');
+          return;
+        }
+        if (!startDate || !endDate || !eventDate) {
+          res.status(400).send('Data e hora de início, fim e do evento são obrigatórias.');
+          return;
+        }
+        if (!creatorToken) {
+          res.status(400).send('O token do criador é obrigatório.');
+          return;
+        }
+      
+        try {
+          const connection = await connectionOracle();
+          await connection.execute(
+            `INSERT INTO EVENTS (
+                EVENTID, TITLE, DESCRIPTION, CATEGORY, TICKETVALUE,
+                STARTDATE, ENDDATE, EVENTDATE, CREATORTOKEN, EVENT_STATUS
+            ) VALUES (
+                SEQ_EVENTS.NEXTVAL, :title, :description, :category, :ticketValue,
+                TO_TIMESTAMP(:startDate, 'YYYY-MM-DD"T"HH24:MI:SS'),
+                TO_TIMESTAMP(:endDate, 'YYYY-MM-DD"T"HH24:MI:SS'),
+                TO_TIMESTAMP(:eventDate, 'YYYY-MM-DD"T"HH24:MI:SS'),
+                :creatorToken, 'ativo'
+            )`,
+            { title, description, category, ticketValue, startDate, endDate, eventDate, creatorToken }
+          );
+          await connection.commit();
+          res.status(201).send('Evento criado com sucesso!');
+        } catch (error) {
+          console.error('Erro ao adicionar evento:', error);
+          res.status(500).send('Erro ao adicionar evento.');
+        }
+      };
+      
+    /*
     export const AddNewEvent: RequestHandler = async (req: Request, res: Response): Promise<void> => {
         const title = req.get('title');
         const description = req.get('description');
@@ -175,6 +222,7 @@ export namespace EventsHandler {
         }
     };
     
+    */
   export const getEvents: RequestHandler = async (req: Request, res: Response): Promise<void> => {
     const filter = req.get('filter'); 
     const connection = await connectionOracle();
@@ -659,6 +707,54 @@ export namespace EventsHandler {
             }
         }
     };
+
+    // Adicione isso em events.ts
+    export const getEventsByCategory: RequestHandler = async (req, res) => {
+        const category = req.query.category as string;
+    
+        if (!category) {
+            res.status(400).send('Categoria não informada.');
+            return;
+        }
+    
+        let connection;
+    
+        try {
+            connection = await connectionOracle();
+            const query = `
+                SELECT EVENTID, TITLE, DESCRIPTION, CATEGORY 
+                FROM EVENTS 
+                WHERE CATEGORY = :category AND EVENT_STATUS = 'ativo'
+            `;
+            const bindParams = { category }; // Ajustando os parâmetros corretamente
+    
+            const results = await connection.execute(query, bindParams);
+    
+            if (!results.rows || results.rows.length === 0) {
+                res.status(404).send('Nenhum evento encontrado para esta categoria.');
+                return;
+            }
+    
+            const events = results.rows.map((row: any) => ({
+                eventId: row[0],
+                title: row[1],
+                description: row[2],
+                category: row[3],
+            }));
+    
+            res.status(200).json(events);
+        } catch (error) {
+            console.error('Erro ao buscar eventos por categoria:', error);
+            res.status(500).send('Erro ao buscar eventos.');
+        } finally {
+            if (connection) {
+                await connection.close();
+            }
+        }
+    };
+    
+    
+
     export const finishEvent: RequestHandler = async (req: Request, res: Response): Promise<void> => {
         const eventId = req.get('eventId');
         const verdict = req.get('verdict');

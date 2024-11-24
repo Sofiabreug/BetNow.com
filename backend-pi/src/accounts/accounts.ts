@@ -2,12 +2,9 @@ import { RequestHandler, Request, Response } from 'express';
 import OracleDB from "oracledb";
 import dotenv from 'dotenv';
 
-
 dotenv.config();
 
-
-OracleDB.outFormat = OracleDB.OUT_FORMAT_OBJECT; 
-
+OracleDB.outFormat = OracleDB.OUT_FORMAT_OBJECT;
 
 export namespace AccountsHandler {
 
@@ -169,38 +166,39 @@ export namespace AccountsHandler {
     export const loginHandler: RequestHandler = async (req: Request, res: Response): Promise<void> => {
         const email = req.get('email');
         const password = req.get('password');
-   
-        // Verifica se os parâmetros de login foram fornecidos
+    
+        console.log(`Requisição de login recebida. Email: ${email}, Senha: ${password}`);
+    
         if (!email || !password) {
+            console.log("Faltando e-mail ou senha.");
             res.status(400).send('E-mail e senha são obrigatórios.');
             return;
         }
-   
+    
         const connection = await connectionOracle();
-   
+    
         try {
-            // Executa a consulta para verificar o e-mail e a senha
-            const result = await connection.execute(
+            const result = await connection.execute<{ TOKEN: string }>(
                 `SELECT token FROM ACCOUNTS WHERE email = :email AND password = :password`,
                 { email, password }
             );
-   
-            // Obtém o token se as credenciais estiverem corretas
-            const tokenRows = result.rows as Array<{ TOKEN: string }>;
-   
-            // Se as credenciais estiverem corretas, retorna o token
-            if (tokenRows.length > 0) {
-                const token = tokenRows[0].TOKEN;
-                res.status(200).send(`Login feito com sucesso. Token: ${token}`);
+    
+            console.log("Resultado da consulta ao banco:", result.rows);
+    
+            if (result.rows && result.rows.length > 0) {
+                const token = result.rows[0].TOKEN;
+                console.log(`Login bem-sucedido. Token: ${token}`);
+                res.status(200).send(token);
             } else {
+                console.log("Credenciais inválidas.");
                 res.status(401).send('E-mail ou senha incorretos.');
             }
         } catch (error) {
-            console.error('Erro ao autenticar usuário:', error);
+            console.error("Erro no login:", error);
             res.status(500).send('Erro ao autenticar usuário.');
         } finally {
-            await connection.close(); // Fecha a conexão
-            console.log('Conexão fechada.');
+            await connection.close();
+            console.log("Conexão com o banco de dados fechada.");
         }
     };
 }
