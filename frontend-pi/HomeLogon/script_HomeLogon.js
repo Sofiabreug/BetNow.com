@@ -35,13 +35,10 @@ async function displayEventsFinishing() {
     const eventList = document.getElementById("eventsFinishing");
     const events = await getEventsFinishing();
 
-    // Limita os eventos a no máximo 5
-    const limitedEvents = events.slice(0, 5);
-
     eventList.innerHTML = "";
 
     // Use o limitedEvents para iterar
-    limitedEvents.forEach(evento => {
+    events.forEach(evento => {
         const card = document.createElement("div");
         card.classList.add("card", "text-center");
         card.style.width = "17rem";
@@ -60,10 +57,6 @@ async function displayEventsFinishing() {
         eventList.appendChild(card);
     });
 }
-
-window.onload = function() {
-    displayEventsFinishing();
-};
 
 // Eventos mais apostados
 async function getMostBetEvents() {
@@ -80,12 +73,9 @@ async function displayMostBetEvents() {
     const eventList = document.getElementById("mostBetEvents");
     const events = await getMostBetEvents();
 
-    // Limita os eventos a no máximo 5
-    const limitedEvents = events.slice(0, 5);
-
     eventList.innerHTML = "";
 
-    limitedEvents.forEach(evento => {
+    events.forEach(evento => {
         const card = document.createElement("div");
         card.classList.add("card", "text-center");
         card.style.width = "17rem";
@@ -104,10 +94,6 @@ async function displayMostBetEvents() {
         eventList.appendChild(card);
     });
 }
-
-window.onload = function() {
-        displayMostBetEvents();
-};
 
 // Função para atualizar a imagem com base na categoria selecionada
 function updateImage() {
@@ -134,30 +120,37 @@ function filterCategory(){
 }
 
 // Buscar
-async function searchEvent(keyword) {
-    try {
-        // Faz a requisição com a palavra-chave no cabeçalho
-        const response = await fetch("http://localhost:3000/searchEvent", {
-            method: "GET",
-            headers: {
-                "keyword": keyword // Envia a palavra-chave
-            }
-        });
-
-        // Verifica o status da resposta
-        if (response.ok) {
-            const events = await response.json();
-            console.info("Eventos encontrados:", events);
-            // Aqui você pode implementar lógica para exibir os eventos
-        } else if (response.status === 404) {
-            console.info("Nenhum evento encontrado com essa palavra-chave.");
-        } else {
-            console.error("Erro ao buscar eventos:", response.statusText);
-        }
-    } catch (error) {
-        console.error("Erro ao fazer a requisição:", error);
+async function searchEvent() {
+    const keyword = document.getElementById('search').value;
+    if(!keyword){
+        return;
     }
+    
+    const response = await fetch(`http://localhost:3000/searchEvent/${keyword}`, {
+        method: 'GET',
+    });
+
+    if (!response.ok) {
+        showToast();
+    }
+    else{
+        window.location.href = "search.html";
+    }                
 }
+
+function showToast(){
+    var toast = new bootstrap.Toast(document.getElementById('myToast'), {
+        delay: 5000 // 5000ms = 5 segundos
+    });
+    toast.show();
+}
+
+
+window.addEventListener("load", () => {
+    hideNoneEvent();
+    displayEventsFinishing();
+    displayMostBetEvents();
+});
 
 src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" 
 integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" 
