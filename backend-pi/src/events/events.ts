@@ -943,5 +943,37 @@ export namespace EventsHandler {
         } finally {
             await connection.close();
         }
-    };
+    }
+
+    export const getEventsFinishing: RequestHandler = async (req: Request, res: Response): Promise<void> => {
+        const connection = await connectionOracle();
+        try {
+            const result = await connection.execute(`
+                SELECT title, endDate 
+                FROM events 
+                WHERE endDate > SYSDATE 
+                AND endDate <= SYSDATE + INTERVAL '24' HOUR
+            `);
+            result.rows;
+        } catch (error) {
+            console.error("Erro ao buscar eventos:", error);
+        }
+    }
+    
+    export const getMostBetEvents: RequestHandler = async (req: Request, res: Response): Promise<void> =>  { 
+        const eventId = req.get('eventId');
+        
+        const connection = await connectionOracle();
+    
+        try {
+            const result = await connection.execute(
+                'SELECT COUNT(*) AS betCount FROM BETS WHERE eventId = :eventId ORDER BY betCount DESC',
+                [eventId]
+            );    
+            res.status(200).json(result.rows);
+
+        } catch (error) {
+            console.error("Nenhum evento apostado ainda.", error);
+        }
+    }
 }
