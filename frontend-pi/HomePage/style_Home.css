@@ -115,13 +115,12 @@ h4{
 }
 .modal-content{
     background-color: #212529;
-    width: 340px;
+    width: 80%;
 } 
 .modal-title{
     color: white;
     font-size: 30px;
     padding: 0;
-    margin-left: 110px;
 }
 .modal-body{
     color: white;
@@ -130,12 +129,12 @@ h4{
 #fieldEmail{
     border-radius: 5px;
     border: none;
-    width: 250px;
+    width: 95%;
 }
 #fieldPassword{
     border-radius: 5px;
     border: none;
-    width: 250px;
+    width: 95%;
 }
 #messageBox{
     background-color: rgb(205, 24, 24);
@@ -145,7 +144,7 @@ h4{
     text-align: center;
     border-radius: 3px; 
     cursor: default;
-    width: 250px;
+    width: 85%;
     margin-top: 15px;
     margin-bottom: 5px;
 }

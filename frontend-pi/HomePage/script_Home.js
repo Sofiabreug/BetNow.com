@@ -3,18 +3,28 @@ integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIe
 crossorigin="anonymous"
 
 // Esconder card 'Nenhum evento ainda...'
-function hideNoneEvent() {
+function displayNoneEvent() {
     const ef = document.getElementById("eventsFinishin");
     const mbe = document.getElementById("mostBetEvents");
 
-    if(ef.length > 0 || mbe.length > 0){
+    if(!ef || !mbe){
+        showNone();
+    }
+    else{
         hideNone();
     }
 }
 
 function hideNone(){
-    var nn = document.getElementById("none");
+    const nn = document.getElementById("none");
     nn.style.display = "none";
+}
+
+function showNone() {
+    const ef = document.getElementById("eventsFinishing");
+    const mbe = document.getElementById("mostBetEvents");
+    ef.style.display = "block";
+    mbe.style.display = "block";
 }
 
 // Eventos em destaque (finalizando)
@@ -31,12 +41,10 @@ async function getEventsFinishing() {
 }
 
 async function displayEventsFinishing() {
-    const eventList = document.getElementById("eventsFinishing");
-    const events = await getFinishingEvents();
+    const eventFinishinList = document.getElementById("eventsFinishing");
+    const eventsFinishing = await getEventsFinishing();
 
-    eventList.innerHTML = "";
-
-    events.forEach(evento => {
+    eventsFinishing.forEach(evento => {
         const card = document.createElement("div");
         card.classList.add("card", "text-center");
         card.style.width = "17rem";
@@ -50,7 +58,7 @@ async function displayEventsFinishing() {
             </div>
         `;
 
-        eventList.appendChild(card);
+        eventFinishinList.appendChild(card);
     });
 }
 
@@ -68,12 +76,10 @@ async function getMostBetEvents() {
 }
 
 async function displayMostBetEvents() { 
-    const eventList = document.getElementById("mostBetEvents");
-    const events = await getFinishingEvents();
+    const mostBetEventList = document.getElementById("mostBetEvents");
+    const mostBetEvents = await getMostBetEvents();
 
-    eventList.innerHTML = "";
-
-    events.forEach(evento => {
+    mostBetEvents.forEach(evento => {
         const card = document.createElement("div");
         card.classList.add("card", "text-center");
         card.style.width = "17rem";
@@ -87,7 +93,7 @@ async function displayMostBetEvents() {
             </div>
         `;
 
-        eventList.appendChild(card);
+        mostBetEventList.appendChild(card);
     });
 }
 
@@ -151,13 +157,11 @@ async function searchEvent() {
     displaySearchEvents(eventosCards, eventos);
 }
 
-function displaySearchEvents(eventList, events){
-    const eventList = document.getElementById("search");
-    const events = searchEvent();
+function displaySearchEvents(){
+    const searchEventList = document.getElementById("search");
+    const searchEvents = searchEvent();
 
-    eventList.innerHTML = "";
-
-    events.forEach(evento => {
+    searchEvents.forEach(evento => {
         const card = document.createElement("div");
         card.classList.add("card", "text-center");
         card.style.width = "17rem";
@@ -173,31 +177,34 @@ function displaySearchEvents(eventList, events){
             </div>
         `;
 
-        eventList.appendChild(card);
+        searchEventList.appendChild(card);
     });
 }
 
 // Login
 function isValid(email, password) {
+    var valid = false;
+
     email = email.trim();
     password = password.trim();
 
-    if (!email && !password) {
+    if(email && password){
+        valid = true;
+    }
+
+    else if (!email && !password) {
         showErrorMessage("Preencha os campos.");
-        return false;
     }
 
-    if (!email) {
+    else if (!email) {
         showErrorMessage("Informe o seu e-mail.");
-        return false;
     }
 
-    if (!password) {
+    else {
         showErrorMessage("Informe a sua senha.");
-        return false;
     }
 
-    return true;
+    return valid;
 }
 
 function showErrorMessage(message) {
@@ -243,7 +250,7 @@ function hideErrorMessage() {
 }
 
 window.addEventListener("load", () => {
-    hideNoneEvent();
+    displayNoneEvent();
     displayEventsFinishing();
     displayMostBetEvents();
 });

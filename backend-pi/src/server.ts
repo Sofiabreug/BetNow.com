@@ -39,7 +39,6 @@ routes.get('/getCreditPurchasesHistory', WalletHandler.getCreditPurchasesHistory
 routes.get('/getEventsFinishing', EventsHandler.getEventsFinishing);
 routes.get('/getMostBetEvents', EventsHandler.getMostBetEvents);
 
-
 // Uso das rotas
 server.use(routes);
 
