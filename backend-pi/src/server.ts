@@ -30,7 +30,7 @@ routes.put('/deleteEvent', EventsHandler.deleteEvent);
 routes.put('/finishEvent', EventsHandler.finishEvent);
 routes.get('/searchEvent', EventsHandler.searchEvent);
 routes.get('/getEvents', EventsHandler.getEvents);
-routes.put('/withdraw', WalletHandler.withdrawFunds); 
+routes.post('/withdraw', WalletHandler.withdrawFunds); 
 routes.get('/checkBalance', WalletHandler.checkBalance);
 routes.post('/addFunds', WalletHandler.addFunds);
 routes.get('/getEventsByCategory', EventsHandler.getEventsByCategory);

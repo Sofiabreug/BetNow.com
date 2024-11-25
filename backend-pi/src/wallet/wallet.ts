@@ -177,18 +177,13 @@ export namespace WalletHandler {
     export const withdrawFunds: RequestHandler = async (req: Request, res: Response): Promise<void> => {
         const token = req.get('token');
         const amount = Number(req.body.amount);
-    // Chave Pix enviada ou nula
-        const banco = req.body.bankName || null;     // Nome do banco ou nulo
-        const agencia = req.body.agencyNumber || null; // Agência ou nulo
-        const conta = req.body.accountNumber || null; // Conta ou nulo
+ 
     
         console.log('Requisição recebida:');
         console.log('Token:', token);
         console.log('Amount:', amount);
      
-        console.log('Bank Name:', banco);
-        console.log('Agency Number:', agencia);
-        console.log('Account Number:', conta);
+      
     
         if (!token || isNaN(amount) || amount <= 0) {
             res.status(400).json({ error: 'Token e valor de saque válidos são obrigatórios.' });
@@ -196,11 +191,7 @@ export namespace WalletHandler {
         }
     
        
-        if (!banco || !agencia || !conta) {
-            res.status(400).json({ error: 'Dados bancários são obrigatórios para pagamentos via banco.' });
-            return;
-            }
-      
+       
     
         try {
             const connection = await connectionOracle();
@@ -283,6 +274,10 @@ export namespace WalletHandler {
             res.status(500).json({ error: 'Erro ao realizar saque. Tente novamente mais tarde.' });
         }
     };
+    
+ 
+    
+
     
  
     

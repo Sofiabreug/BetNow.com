@@ -142,92 +142,92 @@ function toggleCardFields() {
     const banco = document.getElementById('bankName').value.trim();
     const agencia = document.getElementById('agencyNumber').value.trim();
     const conta = document.getElementById('accountNumber').value.trim();
-  
+
     // Validações básicas
     const valorError = document.getElementById('withdrawAmountError');
     const bancoError = document.getElementById('bankNameError');
     const agenciaError = document.getElementById('agencyNumberError');
     const contaError = document.getElementById('accountNumberError');
-  
+
     // Limpando mensagens antigas
     valorError.classList.add('d-none');
     bancoError.classList.add('d-none');
     agenciaError.classList.add('d-none');
     contaError.classList.add('d-none');
-  
+
     // Validações
     let valid = true;
-  
+
     // Validação de valor
     if (isNaN(valor) || valor <= 0) {
-      valorError.textContent = 'Por favor, insira um valor válido para o saque.';
-      valorError.classList.remove('d-none');
-      valid = false;
+        valorError.textContent = 'Por favor, insira um valor válido para o saque.';
+        valorError.classList.remove('d-none');
+        valid = false;
     }
-  
+
     // Validação de nome do banco
     if (!banco) {
-      bancoError.textContent = 'O nome do banco é obrigatório.';
-      bancoError.classList.remove('d-none');
-      valid = false;
+        bancoError.textContent = 'O nome do banco é obrigatório.';
+        bancoError.classList.remove('d-none');
+        valid = false;
     }
-  
+
     // Validação de número da agência
-    if (!agencia || agencia.length < 4) {
-      agenciaError.textContent = 'Número da agência inválido.';
-      agenciaError.classList.remove('d-none');
-      valid = false;
+    if (!agencia || agencia.length !== 4) {
+        agenciaError.textContent = 'Número da agência deve ter exatamente 4 dígitos.';
+        agenciaError.classList.remove('d-none');
+        valid = false;
     }
-  
+
     // Validação de número da conta
-    if (!conta || conta.length < 5) {
-      contaError.textContent = 'Número da conta inválido.';
-      contaError.classList.remove('d-none');
-      valid = false;
+    if (!conta || conta.length < 6 || conta.length > 7) {
+        contaError.textContent = 'Número da conta deve ter entre 6 e 7 dígitos.';
+        contaError.classList.remove('d-none');
+        valid = false;
     }
-  
+
     // Se houver algum erro, retorna para não continuar
     if (!valid) {
-      return;
+        return;
     }
-  
+
     const token = 'BBFSMAWBW6I9QHJAZQWFV91WGR8BVQ1M'; // Substitua pelo valor real do token.
-  
+
     const body = {
-      amount: valor.toFixed(2), // Garante o envio como string no formato correto.
-      bankName: banco,
-      agencyNumber: agencia,
-      accountNumber: conta
+        amount: valor.toFixed(2), // Garante o envio como string no formato correto.
+        banco: banco,
+        agencia: agencia,
+        conta: conta
     };
-  
+
     try {
-      const response = await fetch('http://localhost:3000/withdraw', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          token: token
-        },
-        body: JSON.stringify(body)
-      });
-  
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(errorText || "Erro desconhecido.");
-      }
-  
-      const data = await response.json(); // Mudança aqui para pegar a resposta como JSON
-  
-      // Exibir a popup de confirmação com as informações do saque
-      showConfirmationPopup(
-        "Saque Realizado",
-        `Você sacou R$${valor} com uma taxa de R$${data.fee} Saldo atual: R$${data.newBalance}`
-      );
+        const response = await fetch('http://localhost:3000/withdraw', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                token: token
+            },
+            body: JSON.stringify(body)
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(errorText || "Erro desconhecido.");
+        }
+
+        const data = await response.json();
+
+        // Exibir a popup de confirmação com as informações do saque
+        showConfirmationPopup(
+            "Saque Realizado",
+            `Você sacou R$${valor} com uma taxa de R$${data.fee} Saldo atual: R$${data.newBalance}`
+        );
     } catch (error) {
-      console.error("Erro capturado:", error.message);
-      showConfirmationPopup("Erro", "Houve um erro ao realizar o saque. Tente novamente.");
+        console.error("Erro capturado:", error.message);
+        showConfirmationPopup("Erro", error.message || "Houve um erro ao realizar o saque. Tente novamente.");
     }
-  }
-  
+}
+
   
   
   const historyBoxPurchase = document.getElementById('creditPurchaseHistory');
