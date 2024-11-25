@@ -7,7 +7,6 @@ dotenv.config();
 
 export namespace EventsHandler {
 
-
     export async function connectionOracle() {
         console.log('Tentando conectar ao Oracle...');
         try {
@@ -16,15 +15,14 @@ export namespace EventsHandler {
                 password: process.env.DB_PASSWORD,
                 connectString: process.env.ORACLE_CONN_STR
             });
-           
             console.log('Conectado ao Oracle com sucesso!');
             return connection;
         } catch (error) {
             console.error('Erro ao conectar ao Oracle:', error);
             throw error;
         }
-       
     }
+
     async function verifytitulo_e_description(title: string, description:string): Promise<boolean> {
         const connection = await connectionOracle();
         let titulo_or_description_Exists = false; 
@@ -94,135 +92,7 @@ export namespace EventsHandler {
         }
       };
       
-    /*
-    export const AddNewEvent: RequestHandler = async (req: Request, res: Response): Promise<void> => {
-        const title = req.get('title');
-        const description = req.get('description');
-        const ticketValue = req.get('ticketValue');
-        const startDate = req.get('startDate'); 
-        const endDate = req.get('endDate');     
-        const eventDate = req.get('eventDate'); 
-        const creatorToken = req.get('token')?.toUpperCase();
-    
-        // Validação dos dados de entrada
-        if (!title || title.length > 50) {
-            res.status(400).send('O título deve possuir até 50 caracteres.');
-            return;
-        }
-    
-        if (!description || description.length > 150) {
-            res.status(400).send('A descrição deve possuir até 150 caracteres.');
-            return;
-        }
-    
-        if (!ticketValue || Number(ticketValue) < 1) {
-            res.status(400).send('O valor de cada cota deve ser R$1,00 ou mais');
-            return;
-        }
-    
-        if (!startDate || !endDate || !eventDate) {
-            res.status(400).send('Data e hora de início, fim e do evento são obrigatórias.');
-            return;
-        }
-    
-        if (!creatorToken) {
-            res.status(400).send('O token do criador é obrigatório.');
-            return;
-        }
-    
-        const titulo_or_description_Exists = await verifytitulo_e_description(title, description);
-        if (titulo_or_description_Exists) {
-            res.status(400).send('Título ou descrição já utilizadas.');
-            return;
-        }
-    
-        // Convertendo strings de data para objetos de data
-        const startDateTime = new Date(startDate);
-        const endDateTime = new Date(endDate);
-        const eventDateObj = new Date(eventDate);
-        const now = new Date();
-    
-        // Validação de datas
-        if (startDateTime < now) {
-            res.status(400).send('A data e hora de início não podem ser no passado.');
-            return;
-        }
-    
-        if (eventDateObj < now) {
-            res.status(400).send('Data do evento inválida - não pode ser uma data passada.');
-            return;
-        }
-    
-        let connection;
-    
-        try {
-            connection = await connectionOracle();
-    
-            // Definir status do evento
-            let currentStatus = 'ativo';
-            if (now > endDateTime) {
-                currentStatus = 'finalizado';
-            } else if (eventDateObj < now) {
-                currentStatus = 'expirado';
-            }
-    
-            // Inserir dados no banco de dados
-            await connection.execute(
-                `INSERT INTO EVENTS (
-                    EVENTID,
-                    TITLE,
-                    DESCRIPTION,
-                    TICKETVALUE,
-                    STARTDATE,
-                    ENDDATE,
-                    EVENTDATE,
-                    CREATORTOKEN,
-                    EVENT_STATUS,
-                    VALIDATION_STATUS,
-                    VERDICT
-                ) VALUES (
-                    SEQ_EVENTS.NEXTVAL,
-                    :title,
-                    :description,
-                    :ticketValue,
-                    TO_TIMESTAMP(:startDate, 'YYYY-MM-DD"T"HH24:MI:SS'),
-                    TO_TIMESTAMP(:endDate, 'YYYY-MM-DD"T"HH24:MI:SS'),
-                    TO_TIMESTAMP(:eventDate, 'YYYY-MM-DD"T"HH24:MI:SS'),
-                    :creatorToken,
-                    :event_status,
-                    'pendente',
-                    NULL
-                )`,
-                {
-                    title,
-                    description,
-                    ticketValue,
-                    startDate,
-                    endDate,
-                    eventDate,
-                    creatorToken,
-                    event_status: currentStatus
-                }
-            );
-    
-            await connection.commit();
-    
-            res.status(201).send(`Evento criado com sucesso com o status "${currentStatus}".`);
-        } catch (error) {
-            console.error('Erro ao adicionar o evento:', error);
-            res.status(500).send('Erro ao adicionar o evento.');
-        } finally {
-            if (connection) {
-                try {
-                    await connection.close();
-                } catch (closeError) {
-                    console.error('Erro ao fechar a conexão:', closeError);
-                }
-            }
-        }
-    };
-    
-    */
+   
   export const getEvents: RequestHandler = async (req: Request, res: Response): Promise<void> => {
     const filter = req.get('filter'); 
     const connection = await connectionOracle();
@@ -945,35 +815,81 @@ export namespace EventsHandler {
         }
     }
 
+    // Rota para obter eventos em destaque (finalizando em breve)
     export const getEventsFinishing: RequestHandler = async (req: Request, res: Response): Promise<void> => {
-        const connection = await connectionOracle();
-        try {
-            const result = await connection.execute(`
-                SELECT title, endDate 
-                FROM events 
-                WHERE endDate > SYSDATE 
-                AND endDate <= SYSDATE + INTERVAL '24' HOUR
-            `);
-            result.rows;
-        } catch (error) {
-            console.error("Erro ao buscar eventos:", error);
-        }
-    }
-    
-    export const getMostBetEvents: RequestHandler = async (req: Request, res: Response): Promise<void> =>  { 
-        const eventId = req.get('eventId');
-        
-        const connection = await connectionOracle();
-    
-        try {
-            const result = await connection.execute(
-                'SELECT COUNT(*) AS betCount FROM BETS WHERE eventId = :eventId ORDER BY betCount DESC',
-                [eventId]
-            );    
-            res.status(200).json(result.rows);
+        let connection;
 
-        } catch (error) {
-            console.error("Nenhum evento apostado ainda.", error);
+        try {
+        connection = await connectionOracle();
+        const query = `
+            SELECT EVENTID, TITLE, ENDDATE 
+            FROM EVENTS 
+            WHERE ENDDATE > SYSDATE 
+            AND ENDDATE <= SYSDATE + INTERVAL '24' HOUR
+            AND EVENT_STATUS = 'ativo'
+        `;
+
+        const result = await connection.execute(query);
+
+        if (!result.rows || result.rows.length === 0) {
+            res.status(404).send("Nenhum evento próximo de finalizar encontrado.");
+            return;
         }
-    }
+
+        const events = result.rows.map((row: any) => ({
+            eventId: row[0],
+            title: row[1],
+            endDate: row[2],
+        }));
+
+        res.status(200).json(events);
+        } catch (error) {
+        console.error("Erro ao buscar eventos próximos de finalizar:", error);
+        res.status(500).send("Erro ao buscar eventos.");
+        } finally {
+        if (connection) {
+            await connection.close();
+        }
+        }
+    };
+    
+    // Rota para obter os eventos mais apostados
+    export const getMostBetEvents: RequestHandler = async (req: Request, res: Response): Promise<void> => {
+        let connection;
+
+        try {
+        connection = await connectionOracle();
+        const query = `
+            SELECT E.EVENTID, E.TITLE, COUNT(B.BETID) AS BET_COUNT
+            FROM EVENTS E
+            LEFT JOIN BETS B ON E.EVENTID = B.EVENTID
+            WHERE E.EVENT_STATUS = 'ativo'
+            GROUP BY E.EVENTID, E.TITLE
+            ORDER BY BET_COUNT DESC
+            FETCH FIRST 5 ROWS ONLY
+        `;
+
+        const result = await connection.execute(query);
+
+        if (!result.rows || result.rows.length === 0) {
+            res.status(404).send("Nenhum evento com apostas encontrado.");
+            return;
+        }
+
+        const mostBetEvents = result.rows.map((row: any) => ({
+            eventId: row[0],
+            title: row[1],
+            betCount: row[2],
+        }));
+
+        res.status(200).json(mostBetEvents);
+        } catch (error) {
+        console.error("Erro ao buscar eventos mais apostados:", error);
+        res.status(500).send("Erro ao buscar eventos.");
+        } finally {
+        if (connection) {
+            await connection.close();
+        }
+        }
+    };
 }
