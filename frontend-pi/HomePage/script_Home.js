@@ -20,7 +20,7 @@ function hideNone(){
 // Eventos em destaque (finalizando)
 async function getEventsFinishing() {
     try {
-        const response = await fetch('http://172.16.229.21:3000/getEventsFinishing', {
+        const response = await fetch('http://localhost:3000/getEventsFinishing', {
             method: 'GET',
         });
         const events = await response.json();
@@ -57,7 +57,7 @@ async function displayEventsFinishing() {
 // Eventos mais apostados
 async function getMostBetEvents() {
     try {
-        const response = await fetch('http://172.16.229.21:3000/getMostBetEvents', {
+        const response = await fetch('http://localhost:3000/getMostBetEvents', {
             method: 'GET',
         });
         const events = await response.json();
