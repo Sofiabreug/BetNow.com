@@ -7,16 +7,14 @@ import { WalletHandler } from "./wallet/wallet";
 
 const port = 3000; 
 const server = express();
-
-// Configuração do middleware global
-server.use(express.json()); // Middleware para tratar JSON
-server.use(cors({
-    origin: 'http://127.0.0.1:8080', // URL do frontend
-    methods: ['GET', 'POST', 'PUT', 'DELETE'], // Métodos permitidos
-    allowedHeaders: ['Content-Type', 'Authorization', 'email', 'password'] // Cabeçalhos permitidos
-})); // Middleware global para CORS
-
 const routes = Router();
+
+
+server.use(express.json());
+server.use(cors());
+
+
+
 
 // Rotas
 routes.get('/', (req: Request, res: Response) => {
@@ -36,6 +34,8 @@ routes.put('/withdraw', WalletHandler.withdrawFunds);
 routes.get('/checkBalance', WalletHandler.checkBalance);
 routes.post('/addFunds', WalletHandler.addFunds);
 routes.get('/getEventsByCategory', EventsHandler.getEventsByCategory);
+routes.get('/getBettingHistory', WalletHandler.getBettingHistory);
+routes.get('/getCreditPurchasesHistory', WalletHandler.getCreditPurchasesHistory);
 
 
 // Uso das rotas

@@ -25,94 +25,98 @@ export namespace WalletHandler {
 
     export const addFunds: RequestHandler = async (req: Request, res: Response): Promise<void> => {
         const token = req.get('token');
-        const amount = Number(req.get('amount'));
-        const creditCardNumber = req.get('creditCardNumber');
-   
-        if (!token || isNaN(amount) || !creditCardNumber) {
-            res.status(400).send('Token da conta, valor e número do cartão são obrigatórios.');
+        const amount = Number(req.body.amount);
+        const creditCardNumber = req.body.creditCardNumber;
+        console.log("Amount: ", amount);
+
+        console.log("Received Data from Frontend:");
+        console.log("Token:", token);
+        console.log("Valor a ser inserido no banco:", amount);
+
+
+
+        if (!token || !amount || !creditCardNumber) {
+            console.error("Token, amount, and credit card number are required.");
+            res.status(400).send("Token da conta, valor e número do cartão são obrigatórios.");
             return;
         }
-   
+
         const connection = await connectionOracle();
-   
+
         try {
-            
             const accountResult = await connection.execute(
                 'SELECT ACCOUNTID FROM "ACCOUNTS" WHERE "TOKEN" = :token',
                 { token }
             );
-   
+
             const accountRows = accountResult.rows as Array<{ ACCOUNTID: number }>;
-   
             if (accountRows.length === 0) {
                 res.status(404).send('Conta não encontrada.');
                 return;
             }
-   
+
             const accountId = accountRows[0].ACCOUNTID;
-   
+
             const walletResult = await connection.execute(
                 'SELECT "WALLETID", "BALANCE", "CREDITCARDNUMBER" FROM "WALLET" WHERE "ACCOUNTID" = :accountId',
                 { accountId }
             );
-   
+
             const walletRows = walletResult.rows as Array<{ WALLETID: number, BALANCE: number, CREDITCARDNUMBER: string }>;
-   
             let newBalance = 0;
             let walletId: number | undefined;
-   
+
             if (walletRows.length > 0) {
                 const currentBalance = walletRows[0].BALANCE;
                 const storedCreditCardNumber = walletRows[0].CREDITCARDNUMBER;
-   
-                walletId = walletRows[0].WALLETID; 
-   
-                if (storedCreditCardNumber !== creditCardNumber) {
-                    res.status(403).send('Número do cartão de crédito inválido.');
-                    return;
-                }
-   
+
+                walletId = walletRows[0].WALLETID;
+
+                
+
                 newBalance = currentBalance + amount;
-   
+
                 await connection.execute(
                     'UPDATE "WALLET" SET "BALANCE" = :newBalance WHERE "WALLETID" = :walletId',
                     { newBalance, walletId }
                 );
             } else {
-                
-                newBalance = amount; 
+                newBalance = amount;
                 await connection.execute(
                     'INSERT INTO "WALLET" ("WALLETID", "ACCOUNTID", "BALANCE", "CREDITCARDNUMBER") ' +
                     'VALUES (SEQ_WALLET.NEXTVAL, :accountId, :newBalance, :creditCardNumber)',
                     { accountId, newBalance, creditCardNumber }
                 );
-   
-                
+
                 const newWalletResult = await connection.execute(
                     'SELECT WALLETID FROM "WALLET" WHERE "ACCOUNTID" = :accountId AND "BALANCE" = :newBalance',
                     { accountId, newBalance }
                 );
-   
+
                 const newWalletRows = newWalletResult.rows as Array<{ WALLETID: number }>;
                 if (newWalletRows.length > 0) {
-                    walletId = newWalletRows[0].WALLETID; 
+                    walletId = newWalletRows[0].WALLETID;
                 }
             }
-   
-            
-            if (walletId) { 
+
+            if (walletId) {
                 await connection.execute(
                     'INSERT INTO "TRANSACTIONS" ("TRANSACTIONID", "WALLETID", "AMOUNT", "TRANSACTION_TYPE", "TRANSACTION_DATE") ' +
-                    'VALUES (SEQ_TRANSACTIONS.NEXTVAL, :walletId, :amount, \'deposito \', SYSDATE)',
+                    'VALUES (SEQ_TRANSACTIONS.NEXTVAL, :walletId, :amount, \'deposito\', SYSDATE)',
                     { walletId, amount }
                 );
             } else {
                 res.status(500).send('Erro ao recuperar o WALLETID.');
                 return;
             }
-   
+
             await connection.commit();
-            res.status(200).send('Fundos adicionados com sucesso!');
+            console.log("Requisição concluída. Novo saldo:", newBalance);
+
+            res.status(200).send({
+                message: 'Fundos adicionados com sucesso!',
+                newBalance
+            });
         } catch (error) {
             console.error('Erro ao adicionar fundos:', error);
             res.status(500).send('Erro ao adicionar fundos.');
@@ -120,162 +124,279 @@ export namespace WalletHandler {
             await connection.close();
         }
     };
-   
+
     export const checkBalance: RequestHandler = async (req: Request, res: Response): Promise<void> => {
         const token = req.get('token');
-    
+
         if (!token) {
-            res.status(400).send('Token da conta é obrigatório.');
+            res.status(400).json({ error: 'Token da conta é obrigatório.' });
             return;
         }
     
         const connection = await connectionOracle();
     
         try {
-            
             const accountResult = await connection.execute(
                 'SELECT "ACCOUNTID" FROM "ACCOUNTS" WHERE "TOKEN" = :token',
-                [token]
+                [token],
+                { outFormat:OracleDB.OUT_FORMAT_OBJECT } // Configura saída como objeto
             );
+    
             const accountRows = accountResult.rows as Array<{ ACCOUNTID: number }>;
     
-            if (accountRows.length === 0) {
-                res.status(404).send('Conta não encontrada.');
+            if (!accountRows || accountRows.length === 0) {
+                res.status(404).json({ error: 'Conta não encontrada.' });
                 return;
             }
     
             const accountId = accountRows[0].ACCOUNTID;
     
-            
             const walletResult = await connection.execute(
                 'SELECT "BALANCE" FROM "WALLET" WHERE "ACCOUNTID" = :accountId',
-                [accountId]
+                [accountId],
+                { outFormat: OracleDB.OUT_FORMAT_OBJECT }
             );
+    
             const walletRows = walletResult.rows as Array<{ BALANCE: number }>;
     
-            if (walletRows.length === 0) {
-                res.status(404).send('Carteira não encontrada.');
+            if (!walletRows || walletRows.length === 0) {
+                res.status(404).json({ error: 'Carteira não encontrada.' });
                 return;
             }
     
-            res.status(200).send(`Seu saldo é: R$${walletRows[0].BALANCE}.`);
+            const balance = walletRows[0].BALANCE;
+            res.status(200).json({ balance });
         } catch (error) {
             console.error('Erro ao verificar o saldo:', error);
-            res.status(500).send('Erro ao verificar o saldo.');
+            res.status(500).json({ error: 'Erro ao verificar o saldo.' });
         } finally {
             await connection.close();
         }
     };
-    
-    export const withdrawFunds: RequestHandler = async (req, res) => {
+
+    export const withdrawFunds: RequestHandler = async (req: Request, res: Response): Promise<void> => {
         const token = req.get('token');
-        const amount = Number(req.get('amount'));
-        const banco = req.get('banco');
-        const agencia = req.get('agencia');
-        const conta = req.get('conta');
+        const amount = Number(req.body.amount);
+    // Chave Pix enviada ou nula
+        const banco = req.body.bankName || null;     // Nome do banco ou nulo
+        const agencia = req.body.agencyNumber || null; // Agência ou nulo
+        const conta = req.body.accountNumber || null; // Conta ou nulo
+    
+        console.log('Requisição recebida:');
+        console.log('Token:', token);
+        console.log('Amount:', amount);
+     
+        console.log('Bank Name:', banco);
+        console.log('Agency Number:', agencia);
+        console.log('Account Number:', conta);
     
         if (!token || isNaN(amount) || amount <= 0) {
-            res.status(400).send('Token e valor de saque válido são obrigatórios.');
+            res.status(400).json({ error: 'Token e valor de saque válidos são obrigatórios.' });
             return;
         }
     
+       
         if (!banco || !agencia || !conta) {
-            res.status(400).send('Informações bancárias (banco, agência e conta) são obrigatórias para o saque.');
+            res.status(400).json({ error: 'Dados bancários são obrigatórios para pagamentos via banco.' });
             return;
-        }
-    
-        if (banco.length < 3 || banco.length > 4) {
-            res.status(400).send('O código do banco deve ter entre 3 e 4 dígitos.');
-            return;
-        }
-    
-        if (agencia.length !== 4) {
-            res.status(400).send('A agência deve ter exatamente 4 dígitos.');
-            return;
-        }
-    
-        if (conta.length < 6 || conta.length > 7) {
-            res.status(400).send('A conta deve ter entre 6 e 7 dígitos.');
-            return;
-        }
-    
-        const connection = await connectionOracle();
+            }
+      
     
         try {
+            const connection = await connectionOracle();
+    
+            // Busca conta pelo token
             const accountResult = await connection.execute(
-                `SELECT ACCOUNTID FROM ACCOUNTS WHERE TOKEN = :token`,
+                'SELECT ACCOUNTID FROM "ACCOUNTS" WHERE "TOKEN" = :token',
                 { token }
             );
     
             const accountRows = accountResult.rows as Array<{ ACCOUNTID: number }>;
             if (accountRows.length === 0) {
-                res.status(404).send('Conta não encontrada.');
+                res.status(404).json({ error: 'Conta não encontrada.' });
                 return;
             }
     
             const accountId = accountRows[0].ACCOUNTID;
     
+            // Busca saldo da carteira
             const walletResult = await connection.execute(
-                `SELECT WALLETID, BALANCE FROM WALLET WHERE ACCOUNTID = :accountId`,
+                'SELECT "WALLETID", "BALANCE" FROM "WALLET" WHERE "ACCOUNTID" = :accountId',
                 { accountId }
             );
     
-            const walletRows = walletResult.rows as Array<{ WALLETID: number; BALANCE: number }>;
-            if (walletRows.length === 0 || walletRows[0].BALANCE === undefined) {
-                res.status(404).send('Saldo não encontrado.');
+            const walletRows = walletResult.rows as Array<{ WALLETID: number, BALANCE: number }>;
+            if (walletRows.length === 0) {
+                res.status(404).json({ error: 'Saldo não encontrado.' });
                 return;
             }
     
-            const walletId = walletRows[0].WALLETID;
             const currentBalance = walletRows[0].BALANCE;
+            const walletId = walletRows[0].WALLETID;
     
             if (currentBalance < amount) {
-                res.status(400).send('Saldo insuficiente para realizar o saque.');
+                res.status(400).json({ error: 'Saldo insuficiente para realizar o saque.' });
                 return;
             }
-    
-            let feePercentage;
-            if (amount <= 100) {
+            let feePercentage = 0;
+                if (amount <= 100) {
                 feePercentage = 0.04;
-            } else if (amount <= 1000) {
+                } else if (amount <= 1000) {
                 feePercentage = 0.03;
-            } else if (amount <= 5000) {
+                } else if (amount <= 5000) {
                 feePercentage = 0.02;
-            } else if (amount <= 100000) {
+                } else if (amount <= 100000) {
                 feePercentage = 0.01;
-            } else {
-                feePercentage = 0;
-            }
-    
-            const fee = amount * feePercentage; // Calculando a taxa
-            const netAmount = amount + fee; // valor que sera retirado da conta
+                }
+                    
+            
+            const fee = amount * feePercentage;
+            const netAmount = amount + fee;
     
             if (netAmount > currentBalance) {
-                res.status(400).send('Saldo insuficiente após aplicar a taxa.');
+                res.status(400).json({ error: 'Saldo insuficiente após aplicar a taxa.' });
                 return;
             }
     
             const newBalance = currentBalance - netAmount;
+    
             await connection.execute(
-                `UPDATE WALLET SET BALANCE = :newBalance WHERE WALLETID = :walletId`,
+                'UPDATE "WALLET" SET "BALANCE" = :newBalance WHERE "WALLETID" = :walletId',
                 { newBalance, walletId }
             );
     
-            // Inserir a transação na tabela TRANSACTIONS
             await connection.execute(
-                `INSERT INTO TRANSACTIONS (TRANSACTIONID, WALLETID, AMOUNT, TRANSACTION_TYPE, TRANSACTION_DATE) 
-                VALUES (SEQ_TRANSACTIONS.NEXTVAL, :walletId, :amount, 'saque', SYSDATE)`,
+                'INSERT INTO "TRANSACTIONS" ("TRANSACTIONID", "WALLETID", "AMOUNT", "TRANSACTION_TYPE", "TRANSACTION_DATE") ' +
+                'VALUES (SEQ_TRANSACTIONS.NEXTVAL, :walletId, :amount, \'saque\', SYSDATE)',
                 { walletId, amount: netAmount }
             );
     
             await connection.commit();
-            res.status(200).send(`Saque de R$${amount.toFixed(2)} realizado com sucesso. Taxa aplicada: R$${fee.toFixed(2)}. Saldo atual: R$${newBalance.toFixed(2)}.`);
+    
+            res.status(200).json({
+                message: `Saque de R$${amount.toFixed(2)} realizado com sucesso.`,
+                fee: fee.toFixed(2),
+                newBalance: newBalance.toFixed(2)
+            });
         } catch (error) {
-            console.error("Erro durante o saque:", error);
-            res.status(500).send("Erro ao processar o saque.");
-        } finally {
-            await connection.close();
+            console.error('Erro ao realizar saque:', error);
+            res.status(500).json({ error: 'Erro ao realizar saque. Tente novamente mais tarde.' });
         }
     };
     
-}
+ 
+    
+    export const getCreditPurchasesHistory: RequestHandler = async (req: Request, res: Response): Promise<void> => {
+        const token = req.get('token');
+        
+        if (!token) {
+            console.log("Token não fornecido");
+            res.status(400).json({ error: 'Token é obrigatório.' });
+            return;
+        }
+    
+        try {
+            const connection = await connectionOracle();
+            console.log("Conexão com banco de dados estabelecida");
+    
+            // Busca o accountId pela token
+            const accountResult = await connection.execute(
+                'SELECT ACCOUNTID FROM "ACCOUNTS" WHERE "TOKEN" = :token',
+                { token }
+            );
+            console.log("Resultado da consulta para ACCOUNTID:", accountResult);
+    
+            const accountRows = accountResult.rows as Array<{ ACCOUNTID: number }>;
+            if (accountRows.length === 0) {
+                console.log("Conta não encontrada para o token:", token);
+                res.status(404).json({ error: 'Conta não encontrada.' });
+                return;
+            }
+    
+            const accountId = accountRows[0].ACCOUNTID;
+            console.log("AccountId encontrado:", accountId);
+    
+            // Busca o histórico de compras de créditos
+            const purchaseHistoryResult = await connection.execute(
+                'SELECT "TRANSACTIONID", "AMOUNT", "TRANSACTION_DATE" ' +
+                'FROM "TRANSACTIONS" WHERE "WALLETID" = ' + 
+                '(SELECT WALLETID FROM WALLET WHERE ACCOUNTID = :accountId) ' + 
+                'AND "TRANSACTION_TYPE" = \'deposito\' ' +
+                'ORDER BY "TRANSACTION_DATE" DESC',
+                { accountId }
+            );
+            console.log("Resultado da consulta de histórico de compras:", purchaseHistoryResult);
+    
+            const purchaseHistory = purchaseHistoryResult.rows;
+    
+            if (!purchaseHistory || purchaseHistory.length === 0) {
+                console.log("Nenhuma compra de crédito encontrada para AccountId:", accountId);
+                res.status(404).json({ error: 'Nenhuma compra de crédito encontrada.' });
+                return;
+            }
+    
+            console.log("Histórico de compras encontrado:", purchaseHistory);
+            res.status(200).json({ purchases: purchaseHistory });
+        } catch (error) {
+            console.error('Erro ao buscar histórico de compras de créditos:', error);
+            res.status(500).json({ error: 'Erro ao buscar histórico. Tente novamente mais tarde.' });
+        }
+    };
+    
+    export const getBettingHistory: RequestHandler = async (req: Request, res: Response): Promise<void> => {
+        const token = req.get('token');
+        
+        if (!token) {
+            console.log("Token não fornecido");
+            res.status(400).json({ error: 'Token é obrigatório.' });
+            return;
+        }
+    
+        try {
+            const connection = await connectionOracle();
+            console.log("Conexão com banco de dados estabelecida");
+    
+            // Busca o accountId pela token
+            const accountResult = await connection.execute(
+                'SELECT ACCOUNTID FROM "ACCOUNTS" WHERE "TOKEN" = :token',
+                { token }
+            );
+            console.log("Resultado da consulta para ACCOUNTID:", accountResult);
+    
+            const accountRows = accountResult.rows as Array<{ ACCOUNTID: number }>;
+            if (accountRows.length === 0) {
+                console.log("Conta não encontrada para o token:", token);
+                res.status(404).json({ error: 'Conta não encontrada.' });
+                return;
+            }
+    
+            const accountId = accountRows[0].ACCOUNTID;
+            console.log("AccountId encontrado:", accountId);
+    
+            // Busca o histórico de apostas feitas
+            const bettingHistoryResult = await connection.execute(
+                'SELECT "TRANSACTIONID", "AMOUNT", "TRANSACTION_DATE" ' +
+                'FROM "TRANSACTIONS" WHERE "WALLETID" = ' + 
+                '(SELECT WALLETID FROM WALLET WHERE ACCOUNTID = :accountId) ' + 
+                'AND "TRANSACTION_TYPE" = \'pagamento de aposta\' ' +
+                'ORDER BY "TRANSACTION_DATE" DESC',
+                { accountId }
+            );
+            console.log("Resultado da consulta de histórico de apostas:", bettingHistoryResult);
+    
+            const bettingHistory = bettingHistoryResult.rows;
+    
+            if (!bettingHistory || bettingHistory.length === 0) {
+                console.log("Nenhuma aposta encontrada para AccountId:", accountId);
+                res.status(404).json({ error: 'Nenhuma aposta encontrada.' });
+                return;
+            }
+    
+            console.log("Histórico de apostas encontrado:", bettingHistory);
+            res.status(200).json({ bets: bettingHistory });
+        } catch (error) {
+            console.error('Erro ao buscar histórico de apostas:', error);
+            res.status(500).json({ error: 'Erro ao buscar histórico. Tente novamente mais tarde.' });
+        }
+    };
+    }    

@@ -6,70 +6,181 @@
   <title>Minha Wallet</title>
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-
+  <link rel="stylesheet" href="style_MyWallet.css">
 </head>
 
 <body>
+
   <!-- Navbar -->
   <nav class="navbar navbar-custom">
     <span class="navbar-brand">Minha Wallet</span>
     <div class="navbar-text">
-        <a href="HomeLogon.html" class="homepage">| Voltar a Home Page |</a>
-        <a href="#" class="logo">BetNow.com <img src="images/image-Photoroom (3) 2.png" alt="Logo"></a>
+      <a href="/frontend-pi/HomeLogon/HomeLogon.html" class="homepage">| Voltar a Home Page | </a>
+      
+        <img src="images/image-Photoroom (3) 2.png" alt="Logo">
+      </a>
     </div>
   </nav>
 
   <!-- Saldo Atual -->
   <div class="container">
-    <h4>Saldo atual</h4>
+    <span class="text">Saldo atual</span>
     <div class="saldo">
+      <span class="rs">R$</span>
       <div class="cash">
-        <span class="rs">R$</span>
-        <span class="valor">00,00</span>
-        <button class="eye-button"><i class="fas fa-eye-slash"></i></button>
+        <span class="valor">••••••••</span>
+        <button class="eye-button" onclick="toggleBalance()">
+          <i class="fas fa-eye-slash"></i>
+        </button>
       </div>
     </div>
   </div>
+
 
   <!-- Seção de Compra e Histórico -->
-  <div class="container credit-history">
-    <div class="credit-section">
-      <h2>Compra de Créditos</h2>
-      <div class="history-box">Nenhuma compra efetuada no momento.</div>
+  <div class="credit-history-container">
+    <div class="credit-history">
+        <div class="credit-section">
+            <h2 class="section-title">Compra de créditos</h2>
+            <div class="history-box" id="creditPurchaseHistory">• Nenhuma compra efetuada no momento.</div>
+            <button class="btn btn-primary mt-2" id="verComprasBtn">Carregar Compras</button>
+        </div>
+        <div class="history-section">
+            <h2 class="section-title">Histórico de uso de créditos</h2>
+            <div class="history-box" id="creditUsageHistory">• Nenhuma aposta feita no momento.</div>
+            <button class="btn btn-primary mt-2" id="verApostasBtn">Carregar Apostas</button>
+        </div>
+        <div class="botoes">
+            <button class="btn btn-wallet btn-add-credits" data-toggle="modal" data-target="#addCreditsModal">+ Adicionar créditos</button>
+            <button class="btn btn-wallet btn-withdraw" data-toggle="modal" data-target="#withdrawModal">- Sacar Saldo</button>
+        </div>
     </div>
-    <div class="history-section">
-      <h2>Histórico de Uso</h2>
-      <div class="history-box">Nenhuma aposta feita no momento.</div>
-    </div>
-    <div class="botoes">
-      <button class="btn-wallet btn-add-credits" data-toggle="modal" data-target="#addCreditsModal">+ Adicionar Créditos</button>
-      <button class="btn-wallet btn-withdraw" data-toggle="modal" data-target="#withdrawModal">- Sacar Saldo</button>
-    </div>
-  </div>
+</div>
 
-  <!-- Modais -->
-  <div class="modal fade" id="addCreditsModal" tabindex="-1">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">Adicionar Créditos</h5>
-          <button type="button" class="close" data-dismiss="modal">&times;</button>
-        </div>
-        <div class="modal-body">
-          <form>
+
+<!-- Modal Adicionar Créditos -->
+<div class="modal fade" id="addCreditsModal" tabindex="-1" aria-labelledby="addCreditsModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addCreditsModalLabel">Adicionar Créditos</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+
+
+        <form id="addCreditsForm">
+          <!-- Campo para valor -->
+          <div class="form-group">
+            <label for="addCreditsAmount">Valor a adicionar</label>
+            <input type="number" class="form-control" id="addCreditsAmount" placeholder="Digite o valor">
+            <small class="form-text text-danger d-none" id="addCreditsError">O valor é obrigatório.</small>
+          </div>
+
+          <!-- Método de pagamento (removido Pix) -->
+          <div class="form-group">
+            <label for="paymentMethod">Método de Pagamento</label>
+            <select class="form-control" id="paymentMethod" onchange="toggleCardFields()">
+              <option value="">Selecione</option>
+              <option value="credit-card">Cartão de Crédito</option>
+            </select>
+            <small class="form-text text-danger d-none" id="paymentMethodError">Selecione um método de pagamento.</small>
+          </div>
+
+          <!-- Campos para cartão de crédito -->
+          <div id="cardFields" class="d-none">
             <div class="form-group">
-              <label>Valor a adicionar</label>
-              <input type="number" class="form-control">
+              <label for="cardNumber">Número do Cartão</label>
+              <input type="text" class="form-control" id="cardNumber" placeholder="Digite o número do cartão" oninput="formatCreditCard(this)">
+              <small class="form-text text-danger d-none" id="cardNumberError">O número do cartão é obrigatório.</small>
             </div>
-          </form>
-        </div>
-        <div class="modal-footer">
-          <button class="btn btn-secondary">Fechar</button>
-          <button class="btn btn-primary">Confirmar</button>
-        </div>
+          </div>
+        </form>
+
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+        <button type="button" class="btn btn-primary" onclick="mandarPBackend()">Confirmar</button>
       </div>
     </div>
   </div>
+</div>
 
+  <!-- Modal Sacar Saldo -->
+<!-- Modal Sacar Saldo -->
+<div class="modal fade" id="withdrawModal" tabindex="-1" aria-labelledby="withdrawModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="withdrawModalLabel">Sacar Saldo</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id="withdrawForm">
+          <!-- Valor do Saque -->
+          <div class="form-group">
+            <label for="withdrawAmount">Valor do Saque:</label>
+            <input type="number" class="form-control" id="withdrawAmount" name="withdrawAmount" placeholder="Digite o valor">
+            <small class="form-text text-danger d-none" id="withdrawAmountError">Valor inválido.</small>
+          </div>
+
+          <!-- Tipo de Conta -->
+          <div class="form-group">
+            <label for="accountType">Tipo de Conta:</label>
+            <select class="form-control" id="accountType" onchange="toggleWithdrawFields()">
+              <option value="">Selecione</option>
+              <option value="bank-account">Conta Bancária</option>
+            </select>
+            <small class="form-text text-danger d-none" id="accountTypeError">Selecione um tipo de conta.</small>
+          </div>
+
+          <!-- Campos para Conta Bancária -->
+          <div id="bankFields" class="d-none">
+            <div class="form-group">
+              <label for="bankName">Banco:</label>
+              <input type="text" class="form-control" id="bankName" name="bankName" placeholder="Digite o nome do banco">
+              <small class="form-text text-danger d-none" id="bankNameError">O nome do banco é obrigatório.</small>
+            </div>
+            <div class="form-group">
+              <label for="agencyNumber">Número da Agência:</label>
+              <input type="text" class="form-control" id="agencyNumber" name="agencyNumber" placeholder="Digite o número da agência">
+              <small class="form-text text-danger d-none" id="agencyNumberError">Número da agência inválido.</small>
+            </div>
+            <div class="form-group">
+              <label for="accountNumber">Número da Conta:</label>
+              <input type="text" class="form-control" id="accountNumber" name="accountNumber" placeholder="Digite o número da conta">
+              <small class="form-text text-danger d-none" id="accountNumberError">Número da conta inválido.</small>
+            </div>
+          </div>
+
+          <!-- Botões -->
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+            <button type="button" class="btn btn-primary" onclick="mandarProBackend()">Confirmar Saque</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+  <div id="confirmationPopup" class="confirmation-popup d-none">
+    <div class="popup-content">
+      <span class="close" onclick="closeConfirmationPopup()">&times;</span>
+      <h3 id="popupTitle">Confirmação</h3>
+      <p id="popupMessage">Mensagem do popup.</p>
+      <button onclick="closeConfirmationPopup()">Fechar</button>
+    </div>
+  </div>
+  
+
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  <script src="script_MyWallet.js"></script>
 </body>
 </html>

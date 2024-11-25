@@ -180,7 +180,7 @@ async function performSignIn() {
             if (response.ok) {
                 const token = await response.text();
                 localStorage.setItem("authToken", token); // Salvar o token
-                window.location.href = "HomeLogon.html"; // Redirecionar após login
+                window.location.href = "/frontend-pi/HomeLogon/HomeLogon.html"; // Redirecionar após login
             } else if (response.status === 401) {
                 showErrorMessage("E-mail ou senha incorretos.");
             } else {
