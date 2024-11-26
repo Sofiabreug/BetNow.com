@@ -100,11 +100,11 @@ export namespace AccountsHandler {
         console.log('Recebendo requisição para criar conta');
    
         // Obtém os parâmetros do cabeçalho da requisição
-        const pcompleteName = req.get('completeName');
-        const pemail = req.get('email');
-        const ppassword = req.get('password');
-        const pconfirmPass = req.get('confirmPass');
-        const pbirthDate = req.get('birthDate');
+        const pcompleteName = (req.body.completeName);
+        const pemail = (req.body.email);
+        const ppassword = (req.body.password);
+        const pconfirmPass = (req.body.confirmPass);
+        const pbirthDate = (req.body.birthDate);
    
         console.log('Parâmetros recebidos:', { pcompleteName, pemail, ppassword, pbirthDate });
    

@@ -47,28 +47,51 @@ export namespace EventsHandler {
 
     export const AddNewEvent: RequestHandler = async (req: Request, res: Response): Promise<void> => {
         const { title, description, category, startDate, endDate, eventDate, ticketValue, creatorToken } = req.body;
-      
+    
+        // Validações de dados obrigatórios
         if (!title || title.length > 50) {
-          res.status(400).send('O título deve possuir até 50 caracteres.');
-          return;
+            res.status(400).send('O título deve possuir até 50 caracteres.');
+            return;
         }
         if (!description || description.length > 150) {
-          res.status(400).send('A descrição deve possuir até 150 caracteres.');
-          return;
+            res.status(400).send('A descrição deve possuir até 150 caracteres.');
+            return;
         }
         if (!ticketValue || Number(ticketValue) < 1) {
-          res.status(400).send('O valor de cada cota deve ser R$1,00 ou mais.');
-          return;
+            res.status(400).send('O valor de cada cota deve ser R$1,00 ou mais.');
+            return;
         }
         if (!startDate || !endDate || !eventDate) {
-          res.status(400).send('Data e hora de início, fim e do evento são obrigatórias.');
-          return;
+            res.status(400).send('Data e hora de início, fim e do evento são obrigatórias.');
+            return;
         }
         if (!creatorToken) {
-          res.status(400).send('O token do criador é obrigatório.');
-          return;
+            res.status(400).send('O token do criador é obrigatório.');
+            return;
         }
-      
+    
+        // Verificar se título e descrição já existem
+        const eventExists = await verifytitulo_e_description(title, description);
+        if (eventExists) {
+            res.status(400).send('Já existe um evento com esse título e descrição.');
+            return;
+        }
+    
+        // Validar as datas
+        const currentDate = new Date();
+        const startDateObj = new Date(startDate);
+        const endDateObj = new Date(endDate);
+        const eventDateObj = new Date(eventDate);
+    
+        if (startDateObj < currentDate || endDateObj < currentDate || eventDateObj < currentDate) {
+            res.status(400).send('As datas do evento não podem ser anteriores à data atual.');
+            return;
+        }
+    
+        if (startDateObj > endDateObj) {
+            res.status(400).send('A data de início não pode ser posterior à data de término.');
+            return;
+        }
         try {
           const connection = await connectionOracle();
           await connection.execute(
