@@ -95,7 +95,7 @@ function toggleCardFields() {
       return; // Sai da função se houver erros
     }
   
-    const token = 'BBFSMAWBW6I9QHJAZQWFV91WGR8BVQ1M';
+    const token = localStorage.getItem("authToken");
     const body = {
       amount: valor.toFixed(2),
       creditCardNumber: cartao,
@@ -191,7 +191,7 @@ function toggleCardFields() {
         return;
     }
 
-    const token = 'BBFSMAWBW6I9QHJAZQWFV91WGR8BVQ1M'; // Substitua pelo valor real do token.
+    const token = LocalStorage.getItem("authToken"); // Substitua pelo valor real do token.
 
     const body = {
         amount: valor.toFixed(2), // Garante o envio como string no formato correto.
@@ -256,7 +256,7 @@ function toggleCardFields() {
   });
   // Função para buscar o saldo e alternar a exibição
   async function toggleBalance() {
-    const token = 'BBFSMAWBW6I9QHJAZQWFV91WGR8BVQ1M'; // Substitua pelo token real
+    const token = localStorage.getItem("authToken"); // Substitua pelo token real
     const balanceElement = document.querySelector('.valor');
     const eyeIcon = document.querySelector('.eye-button i');
   
@@ -299,7 +299,7 @@ function toggleCardFields() {
     // Função para buscar o histórico de compras de crédito
   
   async function getCreditPurchasesHistory() {
-    const token = 'BBFSMAWBW6I9QHJAZQWFV91WGR8BVQ1M'; // Token de exemplo
+    const token = localStorage.getItem("authToken"); // Token de exemplo
   
     if (!token) {
         alert('Token não encontrado.');
@@ -349,7 +349,7 @@ function toggleCardFields() {
   
   // Função para buscar o histórico de apostas
   async function getBettingHistory() {
-    const token = 'BBFSMAWBW6I9QHJAZQWFV91WGR8BVQ1M'; 
+    const token = localStorage.getItem("authToken"); 
   
     if (!token) {
         alert('Token não encontrado.');

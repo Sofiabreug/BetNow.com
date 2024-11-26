@@ -188,3 +188,37 @@ h4{
 .toast-container {
     z-index: 1050; 
 }
+* {
+    border: none !important;
+    outline: none !important;
+}
+card {
+    border: none; /* Remove a borda padrão do card */
+    transition: transform 0.2s ease, box-shadow 0.2s ease; /* Transições suaves */
+    outline: none; /* Remove o outline do card */
+}
+
+/* Remove a borda do container que envolve todos os cards */
+.card-container {
+    border: none; /* Remove a borda ao redor do container */
+    padding: 0; /* Certifica-se que o padding não cria borda visível */
+    outline: none; /* Remove qualquer borda ou outline do container */
+}
+
+/* Estilo de hover no card */
+.card:hover {
+    cursor: pointer;
+    transform: scale(1.05); /* Leve aumento no tamanho ao passar o mouse */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Sombra suave */
+}
+
+/* Remove borda ao redor da imagem do card */
+.card-img-top {
+    border: none; /* Remove borda da imagem */
+}
+
+/* Remove qualquer borda ou outline dos elementos de foco ou clique */
+.card:focus, .card:active {
+    outline: none;
+    border: none;
+}

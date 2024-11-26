@@ -17,49 +17,30 @@
                         <button class="wallet" type="button" onclick="window.location.href='/frontend-pi/MyWallet/MyWallet.html'"> Minha Wallet </button>
                     </form>
                 </nav>        
-                <form class="d-flex" role="search">
-                    <input class="form-control" type="search" placeholder="Buscar por palavra-chave" aria-label="Buscar por palavra-chave">
-                    <button class="buscar" type="submit" onclick="searchEvent()">Buscar</button>
+                <form class="d-flex" role="search" onsubmit="return redirectToSearchPage()">
+                    <input id="searchInput" class="form-control" type="search" placeholder="Buscar por palavra-chave" aria-label="Buscar por palavra-chave">
+                    <button class="buscar" type="submit">Buscar</button>
                 </form>
+                
+
             </div>
         </nav>
         <div class="body">
             <h4><strong>Eventos em destaque</strong></h4>
             <div class="cards"> 
-                <div class="cards d-flex justify-content-center">
-                    <div id="eventsFinishing" class="events">
+                <div class="cards d-flex justify-content-start"> 
+                    <div id="eventsFinishing" type="button" data-bs-toggle="modal" data-bs-target="#entrarModal" class="events d-flex flex-wrap ">
 
                     </div>
                 </div> 
             </div>
-            <div class="cards"> 
-                <div class="cards d-flex justify-content-center">           
-                    <div class="card text-center" style="width: 17rem;">
-                        <div class="none">
-                            <div class="card-body">
-                                <h5 class="card-title">Nenhum evento ainda</h5>
-                            </div>
-                        </div> 
-                    </div>
-                </div>
-            </div>
+            
                 
             <h4><strong>Eventos mais apostados</strong></h4>
             <div class="cards"> 
-                <div class="cards d-flex justify-content-center">
-                    <div id="mostBetEvents" class="events">
+                <div class="cards d-flex justify-content-start"> 
+                    <div id="mostBetEvents" type="button" data-bs-toggle="modal" data-bs-target="#entrarModal" class="events d-flex flex-wrap">
 
-                    </div>
-                </div>
-            </div>
-            <div class="cards"> 
-                <div class="cards d-flex justify-content-center">      
-                    <div class="card text-center" style="width: 17rem;">
-                        <div class="none">
-                            <div class="card-body">
-                                <h5 class="card-title">Nenhum evento ainda...</h5>
-                            </div>
-                        </div> 
                     </div>
                 </div>
             </div>

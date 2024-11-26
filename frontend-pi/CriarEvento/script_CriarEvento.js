@@ -12,6 +12,7 @@ document.getElementById('eventForm').addEventListener('submit', async (e) => {
   const eventDate = document.getElementById('eventDate').value;
   const eventTime = document.getElementById('eventTime').value;
   const ticketValue = parseFloat(document.getElementById('quotaValue').value);
+  const token = localStorage.getItem("authToken"); 
 
 
   // Validação dos campos
@@ -48,7 +49,7 @@ document.getElementById('eventForm').addEventListener('submit', async (e) => {
     endDate: fullEndDate,
     eventDate: fullEventDate,
     ticketValue,
-    creatorToken: "KGNT2VUL55403KHBITEUQVPB53EWCUM4" // Substitua por um token válido
+    creatorToken: token, // Substitua por um token válido
   };
 
   try {
