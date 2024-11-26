@@ -6,6 +6,24 @@ body {
   padding: 0;
 }
 
+.card {
+    background-color: #191919;
+    border-radius: 10px;
+    margin: 10px;
+    width: 17rem;
+    overflow: hidden;
+    transition: transform 0.3s;
+}
+
+.card:hover {
+    transform: scale(1.05);
+}
+
+.card-body h5 {
+    font-size: 1.1rem;
+    text-align: center;
+}
+
 /* Estilos da Navbar */
 .navbar-custom {
   height: 90px;

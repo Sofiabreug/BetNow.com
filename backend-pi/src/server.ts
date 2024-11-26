@@ -37,8 +37,7 @@ routes.get('/getEventsByCategory', EventsHandler.getEventsByCategory);
 routes.get('/getBettingHistory', WalletHandler.getBettingHistory);
 routes.get('/getCreditPurchasesHistory', WalletHandler.getCreditPurchasesHistory);
 routes.get('/getEventsFinishing', EventsHandler.getEventsFinishing);
-routes.get('/getMostBetEvents', EventsHandler.getMostBetEvents);
-
+routes.get('/getMostBetEvents', EventsHandler.getMostBetEvents);     
 
 
 // Uso das rotas
