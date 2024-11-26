@@ -1,8 +1,7 @@
-
 /* Estilo geral */
 body {
     font-family: Arial, sans-serif;
-    background-color: #1e1e1e;
+    background-color: #1e1e1e; /* Fundo escuro */
     color: #ffffff;
     margin: 0;
     padding: 0;
@@ -13,44 +12,55 @@ body {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 1rem 2rem;
-    background-color: #0d0d0d;
+    padding: 1.5rem 2rem;
+    background-color: #1a002b;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.5);
 }
 
-.header .logo {
+.header .logo span {
     font-size: 1.5rem;
-    color: #c14fff;
     font-weight: bold;
-    margin-right: 1rem;
+    color: #c14fff;
+    text-shadow: 0 0 10px #c14fff, 0 0 20px #c14fff;
 }
 
 .header nav {
     display: flex;
-    align-items: center;
-    gap: 1rem;
-    flex-shrink: 0;
+    gap: 2.5rem; /* Aumentei o espaçamento entre os links */
 }
 
 .header nav a {
-    color: #ffffff;
     text-decoration: none;
-    font-weight: 500;
+    font-size: 1.1rem;
+    color: white;
+    font-weight: bold;
+    transition: color 0.3s, transform 0.3s;
 }
 
+.header nav a:hover {
+    color: #c14fff; /* Muda para roxo claro ao passar o mouse */
+    transform: scale(1.1); /* Efeito de destaque */
+}
+
+/* Barra de pesquisa */
 .header .search-bar {
-    flex-grow: 1;
-    margin-left: 1rem; 
-    margin-right: 3rem;
+    flex-grow: 1; /* Permite que a barra de busca ocupe o máximo de espaço */
+    margin: 0 2rem;
+    display: flex;
 }
 
 .header .search-bar input {
-    max-width: 100%;
-    width: 100%;
-    padding: 0.5rem;
-    border-radius: 0.5rem;
+    width: 60%; /* Reduzi a largura da barra de pesquisa */
+    padding: 0.5rem; /* Diminui o padding da barra */
+    border-radius: 5px;
     border: 1px solid #333;
-    background-color: #fff;
+    background-color: #ffffff;
     color: #333;
+    font-size: 1rem;
+}
+
+.header .search-bar input::placeholder {
+    color: #777;
 }
 
 /* Container principal */
@@ -65,28 +75,6 @@ body {
     font-weight: bold;
     color: #c14fff;
     margin-bottom: 1rem;
-}
-
-/* Controles de filtro */
-.filters {
-    display: flex;
-    gap: 1rem;
-    margin-bottom: 1rem;
-}
-
-.filters button, .filters input {
-    padding: 0.5rem 1rem;
-    background-color: #333;
-    color: #fff;
-    border: 1px solid #666;
-    border-radius: 0.5rem;
-    cursor: pointer;
-}
-
-.filters input {
-    flex-grow: 1;
-    background-color: #1e1e1e;
-    color: #fff;
 }
 
 /* Lista de cards */
@@ -112,7 +100,7 @@ body {
     height: 80px;
     border-radius: 0.5rem;
     object-fit: cover;
-    background-color: #666; /* Placeholder para imagens ausentes */
+    background-color: #666;
 }
 
 .card-content {
@@ -148,41 +136,25 @@ body {
 
 /* Responsividade */
 @media (max-width: 768px) {
-    .header, .filters, .card {
-        flex-direction: column;
+    .header {
+        flex-direction: column; /* Navbar empilhada */
+        gap: 1rem;
     }
-    
+
     .header nav, .header .search-bar {
         width: 100%;
     }
-    
+
     .filters input {
         width: 100%;
     }
-    
+
     .card img {
         width: 100%;
         height: auto;
     }
-    
+
     .card-content {
         text-align: center;
     }
-    /* Botão "Voltar à Home Page" */
-    .header .home-button {
-        flex-shrink: 0;
-        margin-left: 1rem;
-        padding: 0.5rem 1rem;
-        background-color: #c14fff;
-        color: #fff;
-        text-decoration: none;
-        font-weight: bold;
-        border-radius: 0.5rem;
-        transition: background-color 0.3s;
-    }
-
-    .header .home-button:hover {
-        background-color: #b76aff;
-    }
-
 }
