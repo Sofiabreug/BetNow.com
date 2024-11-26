@@ -1,27 +1,31 @@
-
 body {
   background-color: #000000;
   color: #ffffff;
   font-family: Arial, sans-serif;
 }
+
 .navbar-custom {
   background-color: #1d0f2f;
   padding: 16px;
 }
+
 .navbar-brand {
   font-size: 30px;
   font-weight: bold;
   color: #ffffff;
   text-shadow: 0px 0px 10px #a443ff;
 }
+
 .navbar-text a {
   color: #ffffff;
   text-decoration: none;
   font-size: 18px;
 }
+
 .navbar-text a:hover {
   text-shadow: 0px 0px 5px rgba(176, 103, 255, 0.7);
 }
+
 .event-title {
   margin-top: 30px;
   text-align: center;
@@ -30,50 +34,77 @@ body {
   color: #ffffff;
   text-shadow: 0px 0px 5px #a443ff;
 }
+
 .event-question {
   text-align: center;
   font-size: 24px;
   margin-top: 20px;
 }
+
 .buttons {
   display: flex;
   justify-content: center;
   margin-top: 20px;
   gap: 20px;
 }
-.btn-green {
-  background-color: #28a745;
-  border: none;
+
+/* Botões SIM e NÃO */
+.btn-choice {
+  background-color: #6c757d; /* Cor padrão dos botões */
+  border: 2px solid transparent;
   color: #ffffff;
   font-size: 18px;
   padding: 10px 20px;
   border-radius: 5px;
+  cursor: pointer;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
 }
-.btn-green:hover {
-  background-color: #218838;
+
+.btn-choice:hover {
+  background-color: #5a6268; /* Cor ao passar o mouse */
+  border-color: #ccc;
 }
-.btn-red {
-  background-color: #dc3545;
-  border: none;
-  color: #ffffff;
-  font-size: 18px;
-  padding: 10px 20px;
-  border-radius: 5px;
+
+.btn-choice.selected {
+  border-color: #00ff00; /* Borda verde para o botão selecionado */
+  font-weight: bold;
 }
-.btn-red:hover {
-  background-color: #c82333;
-}
+
+/* Campo de entrada para o valor */
 .value-input {
   text-align: center;
   margin-top: 20px;
 }
+
 .value-input input {
   width: 200px;
   padding: 10px;
   border: none;
   border-radius: 5px;
 }
+
 .value-input label {
   margin-right: 10px;
   font-size: 18px;
+}
+
+/* Botão "Apostar" */
+.submit-button {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.submit-button button {
+  background-color: #a443ff;
+  border: none;
+  color: #ffffff;
+  font-size: 18px;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.submit-button button:hover {
+  background-color: #872ce4; /* Cor mais escura ao passar o mouse */
 }

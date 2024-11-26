@@ -160,6 +160,52 @@ export namespace EventsHandler {
     }
 };
 
+export const getEventDetails: RequestHandler = async (req, res) => {
+    const eventId = req.query.eventId as string;
+  
+    if (!eventId) {
+      res.status(400).send('ID do evento não informado.');
+      return;
+    }
+  
+    let connection;
+  
+    try {
+      connection = await connectionOracle(); // Função para conectar ao Oracle
+      const query = `
+        SELECT EVENTID, TITLE, DESCRIPTION, CATEGORY, TICKETVALUE
+        FROM EVENTS
+        WHERE EVENTID = :eventId AND EVENT_STATUS = 'ativo'
+      `;
+  
+      const result = await connection.execute(query, { eventId });
+  
+      if (!result.rows || result.rows.length === 0) {
+        res.status(404).send('Evento não encontrado.');
+        return;
+      }
+  
+      // Mapear o resultado para um objeto
+      const event = result.rows.map((row: any) => ({
+        eventId: row.EVENTID,
+        title: row.TITLE,
+        description: row.DESCRIPTION,
+        category: row.CATEGORY,
+        ticketValue: row.TICKETVALUE,
+      }))[0];
+  
+      res.status(200).json(event); // Retorna os dados do evento em JSON
+    } catch (error) {
+      console.error('Erro ao buscar detalhes do evento:', error);
+      res.status(500).send('Erro ao buscar detalhes do evento.');
+    } finally {
+      if (connection) {
+        await connection.close();
+      }
+    }
+  };
+  
+
     export const evaluateEvent: RequestHandler = async (req: Request, res: Response) => {
     const eventId = req.get('eventId');
     const newStatus = req.get('status');
@@ -310,13 +356,10 @@ export namespace EventsHandler {
     };
    
     export const betOnEvent: RequestHandler = async (req: Request, res: Response): Promise<void> => {
-        const email = req.get('email');
-        const eventId = req.get('eventId');
-        const qtd_cota = Number(req.get('betValue'));
-        const betChoice = req.get('betChoice')?.toLowerCase();
+        const { email, eventId, betValue, betChoice } = req.body; // Use req.body para acessar os dados do JSON
     
         // Verificar se os parâmetros necessários estão presentes
-        if (!email || !eventId || !qtd_cota || !betChoice) {
+        if (!email || !eventId || !betValue || !betChoice) {
             res.status(400).send('Email, ID do evento, valor da aposta e escolha da aposta são obrigatórios.');
             return;
         }
@@ -326,11 +369,15 @@ export namespace EventsHandler {
             res.status(400).send('A escolha da aposta deve ser "sim" ou "não".');
             return;
         }
-        // Valida se nao é um numero negativo
-        if(qtd_cota<=0){
-            res.status(400).send('Erro ao realizar aposta - número invalido.');
+    
+        // Validar se o valor da aposta é válido
+        if (isNaN(Number(betValue)) || betValue <= 0) {
+            res.status(400).send('Erro ao realizar aposta - valor inválido.');
             return;
         }
+    
+        // Log para depuração
+        console.log('Dados recebidos na aposta:', { email, eventId, betValue, betChoice });
     
         const connection = await connectionOracle();
     
@@ -359,9 +406,6 @@ export namespace EventsHandler {
             // Desestruturar os dados do evento
             const { VALIDATION_STATUS, TICKETVALUE: ticketValue, STARTDATE, ENDDATE } = eventRows[0];
     
-            // Log do status do evento
-            console.log(`EVENT_STATUS: ${VALIDATION_STATUS.trim().toLowerCase()}`);
-    
             // Verificar se o evento está aprovado
             if (VALIDATION_STATUS.trim().toLowerCase() !== 'aprovado') {
                 res.status(400).send('Não é possível realizar aposta em um evento que ainda não foi aprovado.');
@@ -382,11 +426,6 @@ export namespace EventsHandler {
             const eventEndDateTime = new Date(ENDDATE);
             const now = new Date();
     
-            // Logs das datas
-            console.log(`Data e hora de início: ${eventStartDateTime}`);
-            console.log(`Data e hora de término: ${eventEndDateTime}`);
-            console.log(`Data e hora atual: ${now}`);
-    
             // Atualizar o status do evento para "encerrado" se a data de término já passou
             if (now > eventEndDateTime) {
                 await connection.execute(
@@ -406,9 +445,10 @@ export namespace EventsHandler {
                 return;
             }
     
-            const betValue = Number(qtd_cota) * ticketValue;
+            // Calcular o valor total da aposta
+            const totalBetValue = Number(betValue) * ticketValue;
     
-            // Verificar o saldo da conta
+            // Obter o ID da conta do usuário
             const accountResult = await connection.execute(
                 `SELECT ACCOUNTID AS ACCOUNTID FROM ACCOUNTS WHERE email = :email`,
                 { email }
@@ -444,11 +484,8 @@ export namespace EventsHandler {
     
             const currentBalance = walletRows[0].BALANCE;
     
-            // Log do saldo da conta
-            console.log(`Saldo atual da conta: R$${currentBalance}`);
-    
             // Verificar se o saldo é suficiente para a aposta
-            if (currentBalance < betValue) {
+            if (currentBalance < totalBetValue) {
                 console.error("Saldo insuficiente para realizar a aposta.");
                 res.status(400).send('Saldo insuficiente para realizar a aposta.');
                 await connection.close();
@@ -458,11 +495,11 @@ export namespace EventsHandler {
             // Inserir a aposta
             await connection.execute(
                 `INSERT INTO BETS (ID, ACCOUNTID, EVENTID, AMOUNTBET, BETCHOICE) VALUES (SEQ_BETS.NEXTVAL, :accountId, :eventId, :amountBet, :betChoice)`,
-                { accountId, eventId, amountBet: betValue, betChoice }
+                { accountId, eventId, amountBet: totalBetValue, betChoice }
             );
     
             // Atualizar o saldo da carteira
-            const newBalance = currentBalance - betValue;
+            const newBalance = currentBalance - totalBetValue;
     
             await connection.execute(
                 `UPDATE WALLET SET BALANCE = :newBalance WHERE ACCOUNTID = :accountId`,
@@ -470,8 +507,7 @@ export namespace EventsHandler {
             );
     
             await connection.commit();
-            res.status(200).send(`Aposta de R$${betValue} realizada com sucesso no evento ${eventId}. Saldo atual: R$${newBalance}.`);
-    
+            res.status(200).send(`Aposta de R$${totalBetValue} realizada com sucesso no evento ${eventId}. Saldo atual: R$${newBalance}.`);
         } catch (error) {
             console.error("Erro durante a execução:", error);
             res.status(500).send("Erro ao processar a aposta.");
@@ -485,6 +521,7 @@ export namespace EventsHandler {
             }
         }
     };
+    
     
     export const deleteEvent: RequestHandler = async (req: Request, res: Response): Promise<void> => {
         const eventId = req.get('eventId');
@@ -600,7 +637,7 @@ export namespace EventsHandler {
             `;
     
             const results = await connection.execute(query, { category });
-            console.log('Resultados da consulta:', results.rows);
+            //console.log('Resultados da consulta:', results.rows);
 
     
             if (!results.rows || results.rows.length === 0) {
@@ -614,7 +651,7 @@ export namespace EventsHandler {
                 description: row.DESCRIPTION,
                 category: row.CATEGORY,
             }));
-            console.log('Eventos formatados:', events);
+            //console.log('Eventos formatados:', events);
             
     
             res.status(200).json(events);

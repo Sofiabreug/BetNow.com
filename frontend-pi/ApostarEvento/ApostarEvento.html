@@ -21,13 +21,20 @@
     <div class="event-question" id="eventQuestion">O Corinthians ganhará do Palmeiras?</div>
 
     <div class="buttons">
-      <button class="btn-green" onclick="placeBet('sim')">SIM</button>
-      <button class="btn-red" onclick="placeBet('nao')">NÃO</button>
+      <div class="buttons">
+        <button class="btn-choice" data-choice="sim" id="btnSim">SIM</button>
+        <button class="btn-choice" data-choice="nao" id="btnNao">NÃO</button>
+      </div>      
     </div>
 
     <div class="value-input">
       <label for="betValue">Valor:</label>
       <input type="number" id="betValue" placeholder="Insira o valor da aposta">
+    </div>
+
+    <!-- Botão para registrar a aposta -->
+    <div class="submit-button">
+      <button id="btnApostar">Apostar</button>
     </div>
   </div>
   <script src="script_ApostarEvento.js"></script>
