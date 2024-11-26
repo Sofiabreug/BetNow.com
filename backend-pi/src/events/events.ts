@@ -544,7 +544,7 @@ export namespace EventsHandler {
    
 
     export const searchEvent: RequestHandler = async (req: Request, res: Response): Promise<void> => {
-        const keyword = req.get('keyword');//palavra qualquer que o usuario ira digitar
+        const keyword = req.query.keyword as string; // Obtem a palavra-chave da query string
     
         if (!keyword) {
             res.status(400).send('A palavra-chave é obrigatória.');
@@ -556,16 +556,17 @@ export namespace EventsHandler {
         try {
             connection = await connectionOracle();
             const results = await connection.execute(
-                'SELECT * FROM events WHERE title LIKE :keyword OR description LIKE :keyword', // Realiza a busca no banco de dados
+                'SELECT * FROM events WHERE title LIKE :keyword OR description LIKE :keyword',
                 { keyword: `%${keyword}%` }
             );
     
             if (results.rows && results.rows.length > 0) {
-                res.status(200).json(results.rows);// Retorna os eventos com essa palavra-chave
+                res.status(200).json(results.rows); // Retorna os eventos
             } else {
                 res.status(404).send('Nenhum evento encontrado com essa palavra-chave.');
             }
         } catch (error) {
+            console.error("Erro ao buscar eventos:", error);
             res.status(500).send('Erro ao buscar eventos.');
         } finally {
             if (connection) {
@@ -577,6 +578,7 @@ export namespace EventsHandler {
             }
         }
     };
+    
 
     // Adicione isso em events.ts
     export const getEventsByCategory: RequestHandler = async (req, res) => {
@@ -822,14 +824,14 @@ export namespace EventsHandler {
         try {
         connection = await connectionOracle();
         const query = `
-            SELECT EVENTID, TITLE, ENDDATE 
+            SELECT EVENTID, TITLE, ENDDATE, CATEGORY 
             FROM EVENTS 
             WHERE ENDDATE > SYSDATE 
             AND ENDDATE <= SYSDATE + INTERVAL '24' HOUR
             AND EVENT_STATUS = 'ativo'
         `;
 
-        const result = await connection.execute(query);
+        const result = await connection.execute(query, [], { outFormat: OracleDB.OUT_FORMAT_OBJECT });
 
         if (!result.rows || result.rows.length === 0) {
             res.status(404).send("Nenhum evento próximo de finalizar encontrado.");
@@ -837,9 +839,11 @@ export namespace EventsHandler {
         }
 
         const events = result.rows.map((row: any) => ({
-            eventId: row[0],
-            title: row[1],
-            endDate: row[2],
+           
+            eventId: row.EVENTID,   // Correto
+            title: row.TITLE,       // Correto
+            endDate: row.ENDDATE,
+            category: row.CATEGORY
         }));
 
         res.status(200).json(events);
@@ -856,40 +860,52 @@ export namespace EventsHandler {
     // Rota para obter os eventos mais apostados
     export const getMostBetEvents: RequestHandler = async (req: Request, res: Response): Promise<void> => {
         let connection;
-
+    
         try {
-        connection = await connectionOracle();
-        const query = `
-            SELECT E.EVENTID, E.TITLE, COUNT(B.BETID) AS BET_COUNT
-            FROM EVENTS E
-            LEFT JOIN BETS B ON E.EVENTID = B.EVENTID
-            WHERE E.EVENT_STATUS = 'ativo'
-            GROUP BY E.EVENTID, E.TITLE
-            ORDER BY BET_COUNT DESC
-            FETCH FIRST 5 ROWS ONLY
-        `;
+            // Estabelecer conexão com o banco de dados
+            connection = await connectionOracle();
+            const query = `
+                SELECT E.EVENTID, E.TITLE, E.CATEGORY, COUNT(B.ID) AS BET_COUNT
+                FROM EVENTS E
+                LEFT JOIN BETS B ON E.EVENTID = B.EVENTID
+                WHERE E.EVENT_STATUS = 'ativo'
+                GROUP BY E.EVENTID, E.TITLE, E.CATEGORY
+                ORDER BY BET_COUNT DESC
+                FETCH FIRST 5 ROWS ONLY
+            `;
+    
+            // Executar a query
+            const result = await connection.execute(query, [], { outFormat: OracleDB.OUT_FORMAT_OBJECT });
 
-        const result = await connection.execute(query);
+    
+            // Verificar se há resultados
+            if (!result.rows || result.rows.length === 0) {
+                res.status(404).json({ error: "Nenhum evento com apostas encontrado." });
+                return;
+            }
+    
+            // Mapear os resultados para um formato JSON
+            const mostBetEvents = result.rows.map((row: any) => ({
+                eventId: row.EVENTID,   // Correto
+                title: row.TITLE,       // Correto
+                betCount: row.BET_COUNT,
+                category: row.CATEGORY// Correto
+            }));
+            
+            console.log(mostBetEvents);
+           
 
-        if (!result.rows || result.rows.length === 0) {
-            res.status(404).send("Nenhum evento com apostas encontrado.");
-            return;
-        }
-
-        const mostBetEvents = result.rows.map((row: any) => ({
-            eventId: row[0],
-            title: row[1],
-            betCount: row[2],
-        }));
-
-        res.status(200).json(mostBetEvents);
+    
+            // Enviar resposta
+            res.status(200).json(mostBetEvents);
         } catch (error) {
-        console.error("Erro ao buscar eventos mais apostados:", error);
-        res.status(500).send("Erro ao buscar eventos.");
+            console.error("Erro ao buscar eventos mais apostados:", error);
+            res.status(500).json({ error: "Erro ao buscar eventos." });
         } finally {
-        if (connection) {
-            await connection.close();
-        }
+            if (connection) {
+                await connection.close();
+            }
         }
     };
+    
 }
