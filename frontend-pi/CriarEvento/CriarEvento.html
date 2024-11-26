@@ -6,17 +6,14 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <title>Criar Evento</title>
   <link rel="stylesheet" href="style_CriarEvento.css">
-  
 </head>
 <body>
 
   <nav class="navbar navbar-custom">
     <span class="navbar-brand">Criar Evento</span>
     <div class="navbar-text">
-      <a href="../HomeLogon/HomeLogon.html" class="homepage">| Voltar a Home Page |</a>
-      
-        <img src="imagens/image-Photoroom (3) 3.png" alt="Logo">
-      </a>
+      <a href="/frontend-pi/HomeLogon/HomeLogon.html" class="homepage">| Voltar a Home Page |</a>
+      <img src="imagens/image-Photoroom (3) 3.png" alt="Logo">
     </div>
   </nav>
   
@@ -25,10 +22,12 @@
       <div class="col-12">
         <label for="eventTitle" class="form-label">Título</label>
         <input type="text" class="form-control" id="eventTitle" required>
+        <span id="eventTitleError" class="d-none text-danger"></span> <!-- Campo de erro -->
       </div>
       <div class="col-12">
         <label for="eventDescription" class="form-label">Descrição</label>
         <textarea class="form-control" id="eventDescription" rows="3" required></textarea>
+        <span id="eventDescriptionError" class="d-none text-danger"></span> <!-- Campo de erro -->
       </div>
       <div class="col-md-4">
         <label for="category" class="form-label">Categoria</label>
@@ -40,40 +39,58 @@
           <option value="Economia">Economia</option>
           <option value="E-Sports">E-Sports</option>
         </select>
+        <span id="categoryError" class="d-none text-danger"></span> <!-- Campo de erro -->
       </div>
       <div class="col-md-4">
         <label for="eventStartDate" class="form-label">Data de início</label>
         <input type="date" class="form-control" id="eventStartDate" required>
+        <span id="eventStartDateError" class="d-none text-danger"></span> <!-- Campo de erro -->
       </div>
       <div class="col-md-4">
         <label for="eventEndDate" class="form-label">Data final</label>
         <input type="date" class="form-control" id="eventEndDate" required>
+        <span id="eventEndDateError" class="d-none text-danger"></span> <!-- Campo de erro -->
       </div>
       <div class="col-md-4">
         <label for="eventStartTime" class="form-label">Hora de início</label>
         <input type="time" class="form-control" id="eventStartTime" required>
+        <span id="eventTimeError" class="d-none text-danger"></span> <!-- Campo de erro -->
       </div>
       <div class="col-md-4">
         <label for="eventEndTime" class="form-label">Hora final</label>
         <input type="time" class="form-control" id="eventEndTime" required>
+        <span id="eventTimeError" class="d-none text-danger"></span> <!-- Campo de erro -->
       </div>
       <div class="col-md-4">
         <label for="eventDate" class="form-label">Data do Evento</label>
         <input type="date" class="form-control" id="eventDate" required>
+        <span id="eventDateError" class="d-none text-danger"></span> <!-- Campo de erro -->
       </div>
       <div class="col-md-4">
         <label for="eventTime" class="form-label">Hora do Evento</label>
         <input type="time" class="form-control" id="eventTime" required>
+        <span id="eventTimeError" class="d-none text-danger"></span> <!-- Campo de erro -->
       </div>
       <div class="col-md-4">
         <label for="quotaValue" class="form-label">Valor da cota</label>
         <input type="number" class="form-control" id="quotaValue" min="1" step="0.01" required>
+        <span id="quotaValueError" class="d-none text-danger"></span> <!-- Campo de erro -->
       </div>
       <div class="col-12">
         <button type="submit" class="btn btn-primary w-100">Criar</button>
       </div>
     </form>
   </div>
+
+  <div id="confirmationPopup" class="confirmation-popup d-none">
+    <div class="popup-content">
+      <span class="close" onclick="closeConfirmationPopup()">&times;</span>
+      <h3 id="popupTitle">Confirmação</h3>
+      <p id="popupMessage">Mensagem do popup.</p>
+      <button onclick="closeConfirmationPopup()">Fechar</button>
+    </div>
+  </div>
+
   <script src="script_CriarEvento.js"></script>
 </body>
 </html>
