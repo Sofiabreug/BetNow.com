@@ -598,9 +598,10 @@ export namespace EventsHandler {
                 FROM EVENTS 
                 WHERE CATEGORY = :category AND EVENT_STATUS = 'ativo'
             `;
-            const bindParams = { category }; // Ajustando os parâmetros corretamente
     
-            const results = await connection.execute(query, bindParams);
+            const results = await connection.execute(query, { category });
+            console.log('Resultados da consulta:', results.rows);
+
     
             if (!results.rows || results.rows.length === 0) {
                 res.status(404).send('Nenhum evento encontrado para esta categoria.');
@@ -608,11 +609,13 @@ export namespace EventsHandler {
             }
     
             const events = results.rows.map((row: any) => ({
-                eventId: row[0],
-                title: row[1],
-                description: row[2],
-                category: row[3],
+                eventId: row.EVENTID,
+                title: row.TITLE,
+                description: row.DESCRIPTION,
+                category: row.CATEGORY,
             }));
+            console.log('Eventos formatados:', events);
+            
     
             res.status(200).json(events);
         } catch (error) {

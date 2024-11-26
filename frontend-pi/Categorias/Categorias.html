@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BetNow</title>
     <link rel="stylesheet" href="style_Categorias.css">
-
 </head>
 <body>
     <div class="header">
@@ -17,34 +16,16 @@
         <div class="search-bar">
             <input type="text" placeholder="Buscar eventos por palavra-chave">
         </div>
+        <nav>
+            <a href="../HomeLogon/HomeLogon.html" class="home-button">Voltar à Home Page</a>
+        </nav>
     </div>
 
     <div class="container">
-        <div class="category">Categoria: <span>Esportes</span></div>
+        <div class="category">Categoria: <span id="categoryName"></span></div>
 
-        <div class="filters">
-            <button>Ordenar eventos</button>
-            <input type="text" placeholder="Filtrar eventos">
-        </div>
-
-        <div class="cards">
-            <div class="card">
-                <img src="soccer.jpg" alt="Corinthians X Palmeiras">
-                <div class="card-content">
-                    <h3>Corinthians X Palmeiras</h3>
-                    <p>Corinthians ganhará do Palmeiras?</p>
-                </div>
-                <button>Apostar</button>
-            </div>
-
-            <div class="card">
-                <img src="basketball.jpg" alt="Bulls X Lakers">
-                <div class="card-content">
-                    <h3>Bulls X Lakers</h3>
-                    <p>Bulls ganhará do Lakers?</p>
-                </div>
-                <button>Apostar</button>
-            </div>
+        <div class="cards" id="eventsContainer">
+            <!-- Os eventos serão inseridos aqui dinamicamente -->
         </div>
     </div>
     <script src="script_categorias.js"></script>

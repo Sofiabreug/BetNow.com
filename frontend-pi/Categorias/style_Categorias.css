@@ -28,6 +28,7 @@ body {
     display: flex;
     align-items: center;
     gap: 1rem;
+    flex-shrink: 0;
 }
 
 .header nav a {
@@ -38,10 +39,12 @@ body {
 
 .header .search-bar {
     flex-grow: 1;
-    margin-left: 2rem;
+    margin-left: 1rem; 
+    margin-right: 3rem;
 }
 
 .header .search-bar input {
+    max-width: 100%;
     width: 100%;
     padding: 0.5rem;
     border-radius: 0.5rem;
@@ -165,4 +168,21 @@ body {
     .card-content {
         text-align: center;
     }
+    /* Botão "Voltar à Home Page" */
+    .header .home-button {
+        flex-shrink: 0;
+        margin-left: 1rem;
+        padding: 0.5rem 1rem;
+        background-color: #c14fff;
+        color: #fff;
+        text-decoration: none;
+        font-weight: bold;
+        border-radius: 0.5rem;
+        transition: background-color 0.3s;
+    }
+
+    .header .home-button:hover {
+        background-color: #b76aff;
+    }
+
 }
