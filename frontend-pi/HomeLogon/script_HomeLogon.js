@@ -73,18 +73,6 @@ function createEventCard(event) {
     return card;
 }
 // Função chamada ao enviar o formulário de pesquisa
-function redirectToSearchPage() {
-    const keyword = document.getElementById('searchInput').value.trim(); // Captura a palavra-chave
-    if (!keyword) {
-        alert('Por favor, insira uma palavra-chave para buscar.'); // Validação simples
-        return false; // Impede o redirecionamento se o campo estiver vazio
-    }
-
-    // Redireciona para a página de resultados com a palavra-chave como query string
-    window.location.href = '/frontend-pi/Busca/ResultadosBusca.html?keyword=' + encodeURIComponent(keyword);
-
-    return false; // Impede o comportamento padrão do formulário
-}
 
 
 
@@ -130,28 +118,22 @@ function filterCategory(){
     }
 }
 
-// Buscar
-async function searchEvent() {
-    const keyword = document.getElementById('searchInput').value.trim(); // Corrigido para buscar o id correto
-    if (!keyword) {
-        alert('Por favor, insira uma palavra-chave para buscar.');
-        return; // Impede a execução do código abaixo se o campo estiver vazio
-    }
 
-    try {
-        const response = await fetch(`http://localhost:3000/searchEvent/${keyword}`, {
-            method: 'GET',
-        });
-
-        if (!response.ok) {
-            showToast(); // Exibe um aviso em caso de erro
-        } else {
-            window.location.href = "search.html"; // Redireciona para a página de resultados
-        }
-    } catch (error) {
-        console.error('Erro na pesquisa:', error);
-    }
-}
+function showConfirmationPopup(title, message) {
+    const popup = document.getElementById("confirmationPopup");
+    const popupTitle = document.getElementById("popupTitle");
+    const popupMessage = document.getElementById("popupMessage");
+  
+    popupTitle.innerText = title;
+    popupMessage.innerText = message;
+  
+    popup.classList.remove("d-none"); // Mostra o popup
+  }
+  
+  function closeConfirmationPopup() {
+    const popup = document.getElementById("confirmationPopup");
+    popup.classList.add("d-none"); // Esconde o popup
+  }
 
 
 function showToast(){

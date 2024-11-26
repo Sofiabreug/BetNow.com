@@ -96,25 +96,116 @@ function updateImage(category) {
 }
 
 // Estilo CSS para corrigir o hover, clique e a borda em tudo
+async function performSignUp() {
+    // Captura os elementos dos campos e mensagens de erro
+    const nameField = document.getElementById('fieldName');
+    const emailField = document.getElementById('fieldEmailRegister');
+    const birthDateField = document.getElementById('fieldBirthDate');
+    const passwordField = document.getElementById('fieldPasswordRegister');
+    const confirmPasswordField = document.getElementById('fieldConfirmPassword');
+
+    const nameError = document.getElementById('fieldNameError');
+    const emailError = document.getElementById('fieldEmailError');
+    const birthDateError = document.getElementById('fieldBirthDateError');
+    const passwordError = document.getElementById('fieldPasswordError');
+    const confirmPasswordError = document.getElementById('fieldConfirmPasswordError');
+
+    // Limpa mensagens de erro antigas
+    [nameError, emailError, birthDateError, passwordError, confirmPasswordError].forEach((errorField) => {
+        errorField.textContent = '';
+        errorField.classList.add('d-none');
+    });
+
+    // Captura os valores
+    const name = nameField.value.trim();
+    const email = emailField.value.trim();
+    const birthDate = birthDateField.value.trim();
+    const password = passwordField.value.trim();
+    const confirmPassword = confirmPasswordField.value.trim();
+
+    // Validações
+    let valid = true;
+
+    if (!name) {
+        nameError.textContent = 'O nome completo é obrigatório.';
+        nameError.classList.remove('d-none');
+        valid = false;
+    }
+
+    if (!email) {
+        emailError.textContent = 'O e-mail é obrigatório.';
+        emailError.classList.remove('d-none');
+        valid = false;
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        emailError.textContent = 'Por favor, insira um e-mail válido.';
+        emailError.classList.remove('d-none');
+        valid = false;
+    }
+
+    if (!birthDate) {
+        birthDateError.textContent = 'A data de nascimento é obrigatória.';
+        birthDateError.classList.remove('d-none');
+        valid = false;
+    } else {
+        const birth = new Date(birthDate);
+        const age = new Date().getFullYear() - birth.getFullYear();
+        if (age < 18 || birth > new Date()) {
+            birthDateError.textContent = 'Você deve ter pelo menos 18 anos e a data não pode ser futura.';
+            birthDateError.classList.remove('d-none');
+            valid = false;
+        }
+    }
+
+    if (!password) {
+        passwordError.textContent = 'A senha é obrigatória.';
+        passwordError.classList.remove('d-none');
+        valid = false;
+    }
+
+    if (password !== confirmPassword) {
+        confirmPasswordError.textContent = 'As senhas não coincidem.';
+        confirmPasswordError.classList.remove('d-none');
+        valid = false;
+    }
+
+    if (!valid) return;
+
+    // Dados para envio ao backend
+    const userData = {
+        completeName: name,
+        email,
+        birthDate,
+        password,
+        confirmPass: confirmPassword,
+    };
+
+    try {
+        const response = await fetch('http://localhost:3000/SignUp', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(userData),
+        });
+
+        if (response.ok) {
+            // Sucesso
+            document.getElementById('cadastrarModal').querySelector('form').reset();
+            bootstrap.Modal.getInstance(document.getElementById('cadastrarModal')).hide();
+            showConfirmationPopup("Sucesso", "Usuário cadastrado com sucesso!");; // Altere aqui se desejar outro tipo de confirmação.
+        } else {
+            const errorMessage = await response.text();
+            showConfirmationPopup("Erro", errorMessage || "Houve um problema ao cadastrar o usuário. Tente novamente.");
+        }
+    } catch (error) {
+        console.error('Erro ao enviar dados:', error);
+    }
+}
 
 
 
 // Buscar eventos pela barra de pesquisa
-async function searchEvent() {
-    const keyword = document.getElementById('search').value.trim();
-    if (!keyword) return;
 
-    const events = await fetchEvents(`http://localhost/searchEvent/${keyword}`, "Erro ao buscar eventos.");
-    const container = document.querySelector('.cards');
-    container.innerHTML = ''; // Limpa os resultados anteriores.
-
-    if (events.length === 0) {
-        showAlert("Nenhum evento encontrado.");
-        return;
-    }
-
-    events.forEach(event => container.appendChild(createEventCard(event)));
-}
 
 // Exibir alerta
 function showAlert(message) {
@@ -131,7 +222,21 @@ window.onload = function () {
     displayEvents('http://localhost:3000/getEventsFinishing', "eventsFinishing", "Nenhum evento próximo de finalizar.");
     displayEvents('http://localhost:3000/getMostBetEvents', "mostBetEvents", "Nenhum evento popular no momento.");
 };
-
+function showConfirmationPopup(title, message) {
+    const popup = document.getElementById("confirmationPopup");
+    const popupTitle = document.getElementById("popupTitle");
+    const popupMessage = document.getElementById("popupMessage");
+  
+    popupTitle.innerText = title;
+    popupMessage.innerText = message;
+  
+    popup.classList.remove("d-none"); // Mostra o popup
+  }
+  
+  function closeConfirmationPopup() {
+    const popup = document.getElementById("confirmationPopup");
+    popup.classList.add("d-none"); // Esconde o popup
+  }
 
 function isValid(email, password) {
     var valid = false;
