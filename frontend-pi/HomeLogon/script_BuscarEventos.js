@@ -1,5 +1,3 @@
-// script_BuscarEventos.js
-
 // Função para obter parâmetros da URL
 function getUrlParameter(name) {
     const url = new URL(window.location.href);
@@ -11,7 +9,7 @@ async function loadSearchResults() {
     const keyword = getUrlParameter('keyword'); // Obtém a palavra-chave da URL
 
     if (!keyword) {
-        alert('Nenhuma palavra-chave foi fornecida.');
+        showConfirmationPopup('Erro', 'Nenhuma palavra-chave foi fornecida.');
         window.location.href = 'HomeLogon.html'; // Redireciona para a página inicial
         return;
     }
@@ -64,13 +62,31 @@ async function loadSearchResults() {
         });
     } catch (error) {
         console.error('Erro ao carregar eventos:', error);
-        alert('Erro ao carregar eventos. Por favor, tente novamente.');
+        showConfirmationPopup('Erro', 'Erro ao carregar eventos. Por favor, tente novamente.');
     }
 }
 
 // Função para redirecionar para a página de aposta
 function redirectToBet(eventId) {
-    window.location.href = `/frontend-pi/ApostarEvento/ApostarEvento.html?eventId=${eventId}`;
+    window.location.href = `../ApostarEvento/ApostarEvento.html?eventId=${eventId}`;
+}
+
+// Função para exibir o popup de confirmação
+function showConfirmationPopup(title, message) {
+    const popup = document.getElementById("confirmationPopup");
+    const popupTitle = document.getElementById("popupTitle");
+    const popupMessage = document.getElementById("popupMessage");
+
+    popupTitle.innerText = title;
+    popupMessage.innerText = message;
+
+    popup.classList.remove("d-none"); // Mostra o popup
+}
+
+// Função para fechar o popup de confirmação
+function closeConfirmationPopup() {
+    const popup = document.getElementById("confirmationPopup");
+    popup.classList.add("d-none"); // Esconde o popup
 }
 
 // Adiciona evento de submissão no formulário de busca da nova página
@@ -80,7 +96,7 @@ document.getElementById('searchForm').addEventListener('submit', function(event)
     const keyword = document.getElementById('searchInput').value.trim();
 
     if (!keyword) {
-        alert('Por favor, insira uma palavra-chave para buscar.');
+        showConfirmationPopup('Erro', 'Por favor, insira uma palavra-chave para buscar.');
         return;
     }
 

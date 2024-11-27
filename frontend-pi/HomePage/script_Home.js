@@ -264,7 +264,7 @@ async function performSignIn() {
                 localStorage.setItem("authToken", token);
                 console.log("Token armazenado:", localStorage.getItem("authToken"));
               
-                window.location.href = "/frontend-pi/HomeLogon/HomeLogon.html"; // Redirecionar após login
+                window.location.href = "../HomeLogon/HomeLogon.html"; // Redirecionar após login
             } else if (response.status === 401) {
                 showErrorMessage("E-mail ou senha incorretos.");
             } else {

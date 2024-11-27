@@ -34,13 +34,31 @@ async function loadEvents() {
         });
     } catch (error) {
         console.error('Erro ao carregar eventos:', error);
-        alert('Erro ao carregar eventos. Por favor, tente novamente.');
+        showConfirmationPopup('Erro ao carregar eventos', 'Por favor, tente novamente.');
     }
 }
 
 // Função para redirecionar para a página de aposta
 function redirectToBet(eventId) {
-    window.location.href = `/frontend-pi/ApostarEvento/ApostarEvento.html?eventId=${eventId}`;
+    window.location.href = `../ApostarEvento/ApostarEvento.html?eventId=${eventId}`;
+}
+
+// Função para exibir o pop-up de confirmação
+function showConfirmationPopup(title, message) {
+    const popup = document.getElementById("confirmationPopup");
+    const popupTitle = document.getElementById("popupTitle");
+    const popupMessage = document.getElementById("popupMessage");
+
+    popupTitle.innerText = title;
+    popupMessage.innerText = message;
+
+    popup.classList.remove("d-none"); // Exibe o pop-up
+}
+
+// Função para fechar o pop-up de confirmação
+function closeConfirmationPopup() {
+    const popup = document.getElementById("confirmationPopup");
+    popup.classList.add("d-none"); // Esconde o pop-up
 }
 
 // Chama a função ao carregar a página

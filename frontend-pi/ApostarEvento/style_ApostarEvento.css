@@ -48,6 +48,85 @@ body {
   margin-top: 20px;
   gap: 20px;
 }
+.confirmation-popup {
+  
+  z-index: 2000; /* Garante que o popup fique acima do modal */
+  position: fixed;
+  top: 0; /* Ajusta o popup para cobrir a tela inteira */
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.947); /* Fundo escuro, agora sem transparência */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  animation: fadeIn 0.4s ease; /* Animação de entrada */
+  }
+  
+
+/* Animação de entrada */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Conteúdo do pop-up */
+.popup-content {
+  background-color: #444;
+  color: #fff;
+  padding: 30px;
+  border-radius: 15px;
+  text-align: center;
+  max-width: 400px;
+  width: 100%;
+  box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.3); /* Sombra */
+  transform: scale(0.9); /* Tamanho inicial para animação */
+  animation: popUp 0.3s ease forwards; /* Animação de "pop" */
+}
+
+/* Animação de escala (pop) */
+@keyframes popUp {
+  from { transform: scale(0.9); }
+  to { transform: scale(1); }
+}
+
+/* Estilo do título */
+.popup-content h3 {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  color: #ffffff;
+}
+
+/* Botão de ação */
+.popup-content button {
+  padding: 10px 25px;
+  background-color: #b067ff;
+  color: #fff;
+  border: none;
+  font-size: 18px;
+  border-radius: 25px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+/* Hover do botão */
+.popup-content button:hover {
+  background-color: #9e55e8;
+  transform: scale(1.05);
+}
+.d-none {
+  display: none;
+}
+
+.close {
+  color: #fff;
+  font-size: 30px;
+  position: absolute;
+  top: 10px;
+  right: 20px;
+  cursor: pointer;
+}
 
 /* Botões SIM e NÃO */
 .btn-choice {

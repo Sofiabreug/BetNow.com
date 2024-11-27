@@ -1,9 +1,24 @@
 // Obtém o ID do evento da URL
+function showConfirmationPopup(title, message) {
+  const popup = document.getElementById("confirmationPopup");
+  const popupTitle = document.getElementById("popupTitle");
+  const popupMessage = document.getElementById("popupMessage");
+
+  popupTitle.innerText = title;
+  popupMessage.innerText = message;
+
+  popup.classList.remove("d-none"); // Mostra o popup
+}
+
+function closeConfirmationPopup() {
+  const popup = document.getElementById("confirmationPopup");
+  popup.classList.add("d-none"); // Esconde o popup
+}
 const params = new URLSearchParams(window.location.search);
 const eventId = params.get('eventId'); // Pega o eventId
 
 if (!eventId) {
-  alert('Nenhum evento especificado.');
+  showConfirmationPopup('Erro','Nenhum evento especificado.');
   window.location.href = '../HomeLogon/HomeLogon.html'; // Redireciona para a home
 }
 
@@ -49,12 +64,12 @@ async function placeBet() {
   const betValue = document.getElementById('betValue').value;
 
   if (!selectedChoice) {
-    alert('Por favor, escolha entre SIM ou NÃO.');
+    showConfirmationPopup('Erro','Por favor, escolha entre SIM ou NÃO.');
     return;
   }
 
   if (!betValue || betValue <= 0) {
-    alert('Por favor, insira um valor válido para a aposta.');
+    showConfirmationPopup('Erro', 'Por favor, insira um valor válido para a aposta.');
     return;
   }
 
@@ -77,15 +92,15 @@ async function placeBet() {
     });
 
     if (response.ok) {
-      alert('Aposta realizada com sucesso!');
+      showConfirmationPopup('Sucesso!','Aposta realizada com sucesso!');
       window.location.href = '../HomeLogon/HomeLogon.html'; // Redireciona para a home
     } else {
       const error = await response.text();
-      alert(`Erro ao realizar a aposta: ${error}`);
+      showConfirmationPopup('Erro',`Erro ao realizar a aposta: ${error}`);
     }
   } catch (error) {
     console.error('Erro ao realizar aposta:', error);
-    alert('Erro ao realizar a aposta. Tente novamente mais tarde.');
+    showConfirmationPopup('Erro','Erro ao realizar a aposta. Tente novamente mais tarde.');
   }
 }
 
