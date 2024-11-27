@@ -3,21 +3,6 @@ function redirectToCategory(category) {
     window.location.href = `categories.html?category=${encodeURIComponent(category)}`;
 }
 
-// Esconder card 'Nenhum evento ainda...'
-function hideNoneEvent() {
-    const ef = document.getElementById("eventsFinishin");
-    const mbe = document.getElementById("mostBetEvents");
-
-    if(ef.length > 0 || mbe.length > 0){
-        hideNone();
-    }
-}
-
-function hideNone(){
-    var nn = document.getElementById("none");
-    nn.style.display = "none";
-}
-
 // Eventos em destaque (finalizando)
 async function fetchEvents(url, errorMessage) {
     try {
@@ -134,21 +119,6 @@ function showConfirmationPopup(title, message) {
     const popup = document.getElementById("confirmationPopup");
     popup.classList.add("d-none"); // Esconde o popup
   }
-
-
-function showToast(){
-    var toast = new bootstrap.Toast(document.getElementById('myToast'), {
-        delay: 5000 // 5000ms = 5 segundos
-    });
-    toast.show();
-}
-
-
-window.addEventListener("load", () => {
-    hideNoneEvent();
-    displayEventsFinishing();
-    displayMostBetEvents();
-});
 
 src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" 
 integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" 

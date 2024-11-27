@@ -129,15 +129,17 @@ h4{
     height: auto;
     margin: 10px;
     overflow: hidden;
+    border: none; /* Remove a borda padrão do card */
+    transition: transform 0.2s ease, box-shadow 0.2s ease; /* Transições suaves */
+    outline: none; /* Remove o outline do card */
 }
 .card:hover {
     cursor: pointer;
+    transform: scale(1.05); /* Leve aumento no tamanho ao passar o mouse */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Sombra suave */
 }
 .card:active {
     border: none;
-}
-.card-title {
-    color: white;
 }
 .cards{
     display: flex;
@@ -149,12 +151,15 @@ h4{
     margin-top: 30px;
     margin-bottom: 35px;
     color: white;
+    text-decoration: none;
 }
 .category {
     width: 100%;
     background-color: #48008B;
     border-radius: 8px;
+    text-decoration: none;
 }
+
 .category:hover {
     background-color: #191919;
     border: 2px solid white;
@@ -170,46 +175,12 @@ h4{
     height: auto;
     object-fit: cover;
 }
-.cards .none{
-    background-color: #212529;
-    border-radius: 8px;
-    cursor: default;
-    color: rgb(78, 78, 78);
-    border: none;
-    height: 100%;
-}
-.none .card-title{
-    color: rgb(78, 78, 78);
-    font-size: 15px;
-}
-.events:hover{
-    border: 2px solid white;
-}
-.toast-container {
-    z-index: 1050; 
-}
-* {
-    border: none !important;
-    outline: none !important;
-}
-card {
-    border: none; /* Remove a borda padrão do card */
-    transition: transform 0.2s ease, box-shadow 0.2s ease; /* Transições suaves */
-    outline: none; /* Remove o outline do card */
-}
 
 /* Remove a borda do container que envolve todos os cards */
 .card-container {
     border: none; /* Remove a borda ao redor do container */
     padding: 0; /* Certifica-se que o padding não cria borda visível */
     outline: none; /* Remove qualquer borda ou outline do container */
-}
-
-/* Estilo de hover no card */
-.card:hover {
-    cursor: pointer;
-    transform: scale(1.05); /* Leve aumento no tamanho ao passar o mouse */
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Sombra suave */
 }
 
 /* Remove borda ao redor da imagem do card */

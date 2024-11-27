@@ -2,31 +2,6 @@ src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.j
 integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" 
 crossorigin="anonymous"
 
-// Esconder card 'Nenhum evento ainda...'
-function displayNoneEvent() {
-    const ef = document.getElementById("eventsFinishin");
-    const mbe = document.getElementById("mostBetEvents");
-
-    if(!ef || !mbe){
-        showNone();
-    }
-    else{
-        hideNone();
-    }
-}
-
-function hideNone(){
-    const nn = document.getElementById("none");
-    nn.style.display = "none";
-}
-
-function showNone() {
-    const ef = document.getElementById("eventsFinishing");
-    const mbe = document.getElementById("mostBetEvents");
-    ef.style.display = "block";
-    mbe.style.display = "block";
-}
-
 async function fetchEvents(url, errorMessage) {
     try {
         const response = await fetch(url, { method: 'GET' });
@@ -67,7 +42,7 @@ function createEventCard(event) {
     // Adicionar o evento de clique para abrir o modal
     card.addEventListener('click', () => {
         // Aqui você deve abrir seu modal de login. Exemplo:
-        $('#entarModal').modal('show'); // Supondo que o ID do seu modal seja 'loginModal'
+        $('#entrarModal').modal('show'); // Supondo que o ID do seu modal seja 'loginModal'
     });
 
     card.innerHTML = `

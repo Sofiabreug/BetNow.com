@@ -40,7 +40,6 @@ body {
     outline: none; /* Remove o outline do card */
 }
 .confirmation-popup {
-  
     z-index: 2000; /* Garante que o popup fique acima do modal */
     position: fixed;
     top: 0; /* Ajusta o popup para cobrir a tela inteira */
@@ -145,11 +144,6 @@ body {
     border: none;
 }
 
-/* Remove bordas em elementos pais ou elementos próximos */
-* {
-    border: none !important;
-    outline: none !important;
-}
 header, main, footer {
     width: 100%;
     height: 100%;
@@ -321,11 +315,13 @@ h4{
     margin-top: 30px;
     margin-bottom: 35px;
     color: white;
+    text-decoration: none;
 }
 .category {
     width: 100%;
     background-color: #48008B;
     border-radius: 8px;
+    text-decoration: none;
 }
 .category:hover {
     background-color: #191919;
@@ -340,19 +336,4 @@ h4{
     width: 270px;
     height: 120px;
     object-fit: cover;
-}
-.cards .none{
-    background-color: #212529;
-    border-radius: 8px;
-    cursor: default;
-    color: rgb(78, 78, 78);
-    border: none;
-    height: 100%;
-}
-.none .card-title{
-    color: rgb(78, 78, 78);
-    font-size: 15px;
-}
-.events:hover{
-    border: 2px solid white;
 }
