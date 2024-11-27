@@ -620,7 +620,7 @@ export const getEventDetails: RequestHandler = async (req, res) => {
                 SELECT EVENTID, TITLE, DESCRIPTION, CATEGORY, TICKETVALUE 
                 FROM EVENTS 
                 WHERE (TITLE LIKE :keyword OR DESCRIPTION LIKE :keyword) 
-                AND EVENT_STATUS = 'ativo'
+                AND EVENT_STATUS = 'ativo' AND VALIDATION_STATUS = 'aprovado'
             `;
     
             const results = await connection.execute(
@@ -678,7 +678,7 @@ export const getEventDetails: RequestHandler = async (req, res) => {
             const query = `
                 SELECT EVENTID, TITLE, DESCRIPTION, CATEGORY 
                 FROM EVENTS 
-                WHERE CATEGORY = :category AND EVENT_STATUS = 'ativo'
+                WHERE CATEGORY = :category AND EVENT_STATUS = 'ativo' AND VALIDATION_STATUS = 'aprovado'
             `;
     
             const results = await connection.execute(query, { category });
@@ -914,6 +914,7 @@ export const getEventDetails: RequestHandler = async (req, res) => {
             WHERE ENDDATE > SYSDATE 
             AND ENDDATE <= SYSDATE + INTERVAL '24' HOUR
             AND EVENT_STATUS = 'ativo'
+            AND VALIDATION_STATUS = 'aprovado'
         `;
 
         const result = await connection.execute(query, [], { outFormat: OracleDB.OUT_FORMAT_OBJECT });
@@ -953,7 +954,7 @@ export const getEventDetails: RequestHandler = async (req, res) => {
                 SELECT E.EVENTID, E.TITLE, E.CATEGORY, COUNT(B.ID) AS BET_COUNT
                 FROM EVENTS E
                 LEFT JOIN BETS B ON E.EVENTID = B.EVENTID
-                WHERE E.EVENT_STATUS = 'ativo'
+                WHERE E.EVENT_STATUS = 'ativo' AND E.VALIDATION_STATUS = 'aprovado'
                 GROUP BY E.EVENTID, E.TITLE, E.CATEGORY
                 ORDER BY BET_COUNT DESC
                 FETCH FIRST 5 ROWS ONLY
