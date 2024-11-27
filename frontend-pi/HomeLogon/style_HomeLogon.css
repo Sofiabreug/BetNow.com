@@ -53,8 +53,8 @@ h4{
     cursor: default;
 }
 .navbar{
-    background-color: #1d0f2f;
-    padding: 16px;
+    background-color:#1d0f2f;
+    padding: 12px;
   }
   
   .navbar-brand {
@@ -76,7 +76,7 @@ h4{
   
 .buscar{
     border: 1px solid white;
-    background-color: #191919;
+    background-color: #1d0f2f;
     border-radius: 5px;
     padding: 5px 20px;
     margin-left: 15px;
@@ -88,7 +88,7 @@ h4{
 }
 .buscar:active{
     border: 1px solid white;
-    background-color: #191919;
+    background-color: #1d0f2f;
 }
 .criarEvento{
     border: 1px solid white;
@@ -107,7 +107,7 @@ h4{
 }
 .criarEvento:active{
     border: 1px solid white;
-    background-color:#191919;
+    background-color:#1d0f2f;
     color: white;
 }
 .wallet{
@@ -127,7 +127,7 @@ h4{
 }
 .wallet:active{
     border: 1px solid white;
-    background-color:#191919;
+    background-color:#1d0f2f;
     color: white;
 }
 .form-control{
@@ -183,7 +183,7 @@ h4{
 }
 
 .category:hover {
-    background-color: #191919;
+    background-color: #000000;
     border: 2px solid white;
 }
 .category:active {

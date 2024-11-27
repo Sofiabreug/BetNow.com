@@ -27,7 +27,7 @@ html {
     box-sizing: border-box;
 }
 body {
-    background-color: #191919;
+    background-color: #000000;
     margin: 0;
     padding: 0;
     box-sizing: border-box;
@@ -164,7 +164,7 @@ h4{
 }
 .buscar{
     border: 1px solid white;
-    background-color: #191919;
+    background-color: #1d0f2f;
     border-radius: 5px;
     padding: 5px 20px;
     margin-left: 15px;
@@ -176,7 +176,7 @@ h4{
 }
 .buscar:active{
     border: 1px solid white;
-    background-color: #191919;
+    background-color: #1d0f2f;
 }
 .cadastrar{
     border: 1px solid #48008B;
@@ -191,7 +191,7 @@ h4{
 }
 .cadastrar:hover{
     border: 1px solid white;
-    background-color: #191919;
+    background-color: #1d0f2f;
     color: white;
 }
 .cadastrar:active{
@@ -211,7 +211,7 @@ h4{
 }
 .entrar:hover{
     border: 1px solid white;
-    background-color: #191919;
+    background-color: #1d0f2f;
 }
 .entrar:active{
     border: 1px solid white;
@@ -225,42 +225,16 @@ h4{
 }
 .modal-content{
     background-color: #212529;
-    width: 80%;
+    width: 90%;
 } 
 .modal-title{
     color: white;
     font-size: 30px;
-    padding: 0;
+    padding: 0 10px;
 }
 .modal-body{
     color: white;
-    padding: 40px;
-}
-#fieldEmail{
-    border-radius: 5px;
-    border: none;
-    width: 95%;
-}
-#fieldPassword{
-    border-radius: 5px;
-    border: none;
-    width: 95%;
-}
-#messageBox{
-    background-color: rgb(205, 24, 24);
-    color: white;
-    padding: 0;
-    display: none;
-    text-align: center;
-    border-radius: 3px; 
-    cursor: default;
-    width: 85%;
-    margin-top: 15px;
-    margin-bottom: 5px;
-}
-#messageBox p{
-    padding: 5px;
-    margin: 0;                
+    padding: 5% 10%;
 }
 .modal-footer{
     display: block;
@@ -278,6 +252,21 @@ h4{
     background-color:#212529;
 }
 #btnSignIn:active{
+    border: 1px solid white;
+    background-color: #48008B;
+}
+#btnSignUp{
+    border: 1px solid white;
+    background-color: #48008B;
+    border-radius: 5px;
+    padding: 5px 30px;
+    color: white;
+}
+#btnSignUp:hover{
+    border: 1px solid white;
+    background-color:#212529;
+}
+#btnSignUp:active{
     border: 1px solid white;
     background-color: #48008B;
 }
@@ -324,7 +313,7 @@ h4{
     text-decoration: none;
 }
 .category:hover {
-    background-color: #191919;
+    background-color: #000000;
     border: 2px solid white;
 }
 .category:active {
@@ -337,3 +326,25 @@ h4{
     height: 120px;
     object-fit: cover;
 }
+.navbar{
+    background-color: #1d0f2f;
+    padding: 12px;
+  }
+  
+  .navbar-brand {
+    font-size: 30px;
+    font-weight: bold;
+    color: #ffffff;
+    text-shadow: 0px 0px 10px #a443ff;
+  }
+  
+  .navbar-text a {
+    color: #ffffff;
+    text-decoration: none;
+    font-size: 18px;
+  }
+  
+  .navbar-text a:hover {
+    text-shadow: 0px 0px 5px rgba(176, 103, 255, 0.7);
+  }
+  

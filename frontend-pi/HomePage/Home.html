@@ -8,9 +8,9 @@
         <link rel="stylesheet" href="style_Home.css">
 
     <body>
-        <nav class="navbar navbar-expand-lg" data-bs-theme="dark">
+        <nav class="navbar navbar-expand-lg" data-bs-theme="dark" id="navbar">
             <div class="container-fluid">
-                <img class="logo" src="/frontend-pi/images/image-login.png" alt="Logo" width="250" height="45" class="d-inline-block align-text-left">
+                <img class="logo" src="../images/image-login.png" alt="Logo" width="250" height="45" class="d-inline-block align-text-left">
                 <nav class="navbar">
                     <form class="botoes">
                         <button class="cadastrar" type="button" data-bs-toggle="modal" data-bs-target="#cadastrarModal">Cadastrar</button>
@@ -87,7 +87,7 @@
         </div>
 
         <div class="modal fade" id="entrarModal" tabindex="-1" aria-labelledby="entrarModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title" id="entrarModalLabel">Login</h5>
@@ -96,22 +96,21 @@
                     <div class="modal-body">
                         <form>
                             <p>
-                                <label for="fieldEmail">Email:</label><br>
-                                <input type="text" id="fieldEmail" onfocus="hideErrorMessage()">
+                                <label for="fieldEmail" class="form-label">Email:</label><br>
+                                <input type="text" id="fieldEmail" class="form-control">
+                                <small id="emailError" class="text-danger d-none"></small>
                             </p>
                             <p>
-                                <label for="fieldPassword">Password:</label><br>
-                                <input type="password" id="fieldPassword" onfocus="hideErrorMessage()">
+                                <label for="fieldPassword" class="form-label">Password:</label><br>
+                                <input type="password" id="fieldPassword" class="form-control">
+                                <small id="passwordError" class="text-danger d-none"></small>
                             </p>
                         </form>
                     </div>
                     <div class="modal-footer">
                         <form>
-                            <button type="button" id="btnSignIn" onclick="performSignIn()">Sign In</button>
-                        </form>  
-                        <div id="messageBox">
-                            <p id="message">Exemplo de mensagem de erro...</p>
-                        </div>                 
+                            <button type="button" id="btnSignIn" onclick="performSignIn()">Entrar</button>
+                        </form>           
                     </div>
                 </div>
             </div>
@@ -155,7 +154,9 @@
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" id="btnSignUp" class="btn btn-primary" onclick="performSignUp()">Cadastrar</button>
+                <form>
+                    <button type="button" id="btnSignUp" onclick="performSignUp()">Cadastrar</button>
+                </form>           
             </div>
         </div>
     </div>
