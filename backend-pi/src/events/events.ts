@@ -379,10 +379,10 @@ export const getEventDetails: RequestHandler = async (req, res) => {
     };
    
     export const betOnEvent: RequestHandler = async (req: Request, res: Response): Promise<void> => {
-        const { email, eventId, betValue, betChoice } = req.body; // Use req.body para acessar os dados do JSON
+        const { token, eventId, betValue, betChoice } = req.body; // Use req.body para acessar os dados do JSON
     
         // Verificar se os parâmetros necessários estão presentes
-        if (!email || !eventId || !betValue || !betChoice) {
+        if (!token || !eventId || !betValue || !betChoice) {
             res.status(400).send('Email, ID do evento, valor da aposta e escolha da aposta são obrigatórios.');
             return;
         }
@@ -400,7 +400,7 @@ export const getEventDetails: RequestHandler = async (req, res) => {
         }
     
         // Log para depuração
-        console.log('Dados recebidos na aposta:', { email, eventId, betValue, betChoice });
+        console.log('Dados recebidos na aposta:', { token, eventId, betValue, betChoice });
     
         const connection = await connectionOracle();
     
@@ -473,8 +473,8 @@ export const getEventDetails: RequestHandler = async (req, res) => {
     
             // Obter o ID da conta do usuário
             const accountResult = await connection.execute(
-                `SELECT ACCOUNTID AS ACCOUNTID FROM ACCOUNTS WHERE email = :email`,
-                { email }
+                `SELECT ACCOUNTID AS ACCOUNTID FROM ACCOUNTS WHERE token = :token`,
+                { token }
             );
     
             const accountRows = accountResult.rows as Array<{ ACCOUNTID: number }>;
@@ -604,7 +604,7 @@ export const getEventDetails: RequestHandler = async (req, res) => {
    
 
     export const searchEvent: RequestHandler = async (req: Request, res: Response): Promise<void> => {
-        const keyword = req.query.keyword as string; // Obtem a palavra-chave da query string
+        const keyword = req.query.keyword as string; // Obtém a palavra-chave da query string
     
         if (!keyword) {
             res.status(400).send('A palavra-chave é obrigatória.');
@@ -615,18 +615,40 @@ export const getEventDetails: RequestHandler = async (req, res) => {
     
         try {
             connection = await connectionOracle();
+    
+            const query = `
+                SELECT EVENTID, TITLE, DESCRIPTION, CATEGORY, TICKETVALUE 
+                FROM EVENTS 
+                WHERE (TITLE LIKE :keyword OR DESCRIPTION LIKE :keyword) 
+                AND EVENT_STATUS = 'ativo'
+            `;
+    
             const results = await connection.execute(
-                'SELECT * FROM events WHERE title LIKE :keyword OR description LIKE :keyword',
-                { keyword: `%${keyword}%` }
+                query,
+                { keyword: `%${keyword}%` },
+                { outFormat: OracleDB.OUT_FORMAT_OBJECT } // Retorna resultados como objetos
             );
     
-            if (results.rows && results.rows.length > 0) {
-                res.status(200).json(results.rows); // Retorna os eventos
-            } else {
+            console.log('eventos com a palavra:', results);
+    
+            if (!results.rows || results.rows.length === 0) {
                 res.status(404).send('Nenhum evento encontrado com essa palavra-chave.');
+                return;
             }
+    
+            const events = results.rows.map((row: any) => ({
+                eventId: row.EVENTID,
+                title: row.TITLE,
+                description: row.DESCRIPTION,
+                category: row.CATEGORY,
+                ticketValue: row.TICKETVALUE, // Inclui ticketValue
+            }));
+    
+            console.log('Eventos formatados para envio:', events);
+    
+            res.status(200).json(events);
         } catch (error) {
-            console.error("Erro ao buscar eventos:", error);
+            console.error('Erro ao buscar eventos por palavra-chave:', error);
             res.status(500).send('Erro ao buscar eventos.');
         } finally {
             if (connection) {
