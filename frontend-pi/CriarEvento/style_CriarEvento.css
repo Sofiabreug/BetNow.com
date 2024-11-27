@@ -3,18 +3,25 @@ body {
   background-color: #000000;
 }
 .navbar-custom {
-  height: 90px;
-  background-color: #1d0f2f;
-  padding: 0 16px;
+  display: flex; /* Layout flexível */
+  align-items: center; /* Centraliza verticalmente */
+  justify-content: space-between; /* Espaça uniformemente os itens */
+  height: 100px; /* Altura fixa */
+  background-color: #1d0f2f; /* Fundo */
+  padding: 0 16px; /* Espaçamento interno lateral */
+  box-sizing: border-box; /* Inclui padding na altura total */
+  overflow: hidden; /* Evita que elementos maiores "estourem" */
+  padding: 0 1%;
 }
 .navbar-brand {
   color: white;
-  margin-left: 16px;
-  -webkit-text-stroke: 1px #48008B;
   font-weight: bold;
-  text-shadow: 0px 0px 10px #a443ff;
   font-style: italic;
   font-size: 45px;
+  margin: 0 10px; /* Remove margens extras */
+  -webkit-text-stroke: 1px #48008B;
+  text-shadow: 0px 0px 10px #a443ff;
+  line-height: 90px; /* Centraliza texto verticalmente */
 }
 .confirmation-popup {
 
@@ -98,14 +105,15 @@ body {
   cursor: pointer;
 }
 .navbar-text {
-  margin-right: 16px;
-  gap: 40px;
-  margin-left: auto;
+  display: flex;
+  align-items: center; /* Centraliza os textos */
+  gap: 40px; /* Espaçamento fixo entre itens */
+  margin-top: 0; /* Remove margens extras */
+  line-height: 90px; /* Alinha verticalmente com a navbar */
   font-weight: 600;
   font-size: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  margin-right: 100px;
+  margin-left: auto;
 }
 .navbar-text .homepage {
   text-decoration: none;
@@ -115,10 +123,14 @@ body {
   color: #b067ff;
   text-shadow: 0px 0px 5px rgba(176, 103, 255, 0.7);
 }
-.logo{
-  margin-right: 10px;
-  width: 240px;
-  height: 180px;
+
+.logo {
+  width: 100px; /* Largura fixa */
+  height: auto; /* Mantém a proporção */
+  flex-shrink: 0; /* Impede que a imagem encolha */
+  margin-right: 90px; /* Espaçamento lateral */
+  margin-left: 10px;
+  transform: scale(2.5); /* Aumenta o tamanho da imagem */
 }
 .form-container {
   background-color: #3d3d3d;
