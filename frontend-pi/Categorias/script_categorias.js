@@ -40,7 +40,7 @@ async function loadEvents() {
 
 // Função para redirecionar para a página de aposta
 function redirectToBet(eventId) {
-    window.location.href = `../ApostarEvento/ApostarEvento.html?eventId=${eventId}`;
+    window.location.href = `/frontend-pi/ApostarEvento/ApostarEvento.html?eventId=${eventId}`;
 }
 
 // Chama a função ao carregar a página

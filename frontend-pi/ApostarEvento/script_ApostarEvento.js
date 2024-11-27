@@ -45,6 +45,7 @@ function setupChoiceButtons() {
 
 // Função para realizar a aposta
 async function placeBet() {
+  const token = localStorage.getItem("authToken");
   const betValue = document.getElementById('betValue').value;
 
   if (!selectedChoice) {
@@ -61,7 +62,7 @@ async function placeBet() {
     eventId,
     betChoice: selectedChoice,
     betValue,
-    email: 'user@example.com', // Substitua pelo email correto do usuário logado
+    token, // Substitua pelo email correto do usuário logado
   };
 
   console.log('Payload enviado:', payload); // Adicione isso para verificar o que está sendo enviado

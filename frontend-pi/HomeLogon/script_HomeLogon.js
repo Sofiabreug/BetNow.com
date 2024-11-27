@@ -43,8 +43,8 @@ function createEventCard(event) {
 
     // Adicionar o evento de clique para abrir o modal
     card.addEventListener('click', () => {
-        // Aqui você deve abrir seu modal de login. Exemplo:
-        $('#entarModal').modal('show'); // Supondo que o ID do seu modal seja 'loginModal'
+        // Aqui a função `redirectAposta` será chamada com o ID do evento
+        redirectAposta(event.eventId); // Supondo que `event.eventId` seja o identificador do evento
     });
 
     card.innerHTML = `
@@ -119,6 +119,92 @@ function showConfirmationPopup(title, message) {
     const popup = document.getElementById("confirmationPopup");
     popup.classList.add("d-none"); // Esconde o popup
   }
+  function redirectAposta(eventId) {
+   
+    // Use o caminho relativo correto para o redirecionamento
+    window.location.href = `/frontend-pi/ApostarEvento/ApostarEvento.html?eventId=${eventId}`;
+}
+
+document.getElementById('searchButton').addEventListener('click', async (event) => {
+event.preventDefault(); // Impede o recarregamento da página
+
+const keyword = document.getElementById('searchInput').value.trim();
+
+if (!keyword) {
+    alert('Por favor, insira uma palavra-chave para buscar.');
+    return;
+}
+
+try {
+    const response = await fetch(`http://localhost:3000/searchEvent?keyword=${encodeURIComponent(keyword)}`);
+
+    console.log('Status da resposta:', response.status);
+
+    if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Erro na resposta: ${errorText}`);
+    }
+
+    const events = await response.json();
+    console.log('Eventos retornados:', events);
+
+    const eventsContainer = document.getElementById('eventsContainer');
+    eventsContainer.innerHTML = ''; // Limpa os resultados anteriores
+
+    if (events.length === 0) {
+        eventsContainer.innerHTML = '<p>Nenhum evento encontrado.</p>';
+        return;
+    }
+
+    // Renderizando os eventos
+    events.forEach((event) => {
+        const card = document.createElement('div');
+        card.className = 'card';
+
+        card.innerHTML = `
+            <div class="card-body">
+                <h3>${event.title || 'Título não informado'}</h3>
+                <p>${event.description || 'Descrição não disponível'}</p>
+                <p>Categoria: ${event.category || 'Categoria não especificada'}</p>
+            </div>
+            <button onclick="redirectAposta(${event.eventId})">Apostar</button>
+        `;
+        eventsContainer.appendChild(card);
+    });
+} catch (error) {
+    console.error('Erro ao carregar eventos:', error);
+    alert('Erro ao carregar eventos. Por favor, tente novamente.');
+}
+});
+
+
+
+// Função temporária para evitar erros
+
+
+
+document.getElementById('searchButton').addEventListener('click', function(event) {
+event.preventDefault(); // Impede o recarregamento imediato da página
+
+const keyword = document.getElementById('searchInput').value.trim();
+
+if (!keyword) {
+    alert('Por favor, insira uma palavra-chave para buscar.');
+    return;
+}
+
+// Redireciona para a página BuscarEventos.html passando a palavra-chave
+window.location.href = `BuscarEventos.html?keyword=${encodeURIComponent(keyword)}`;
+});
+
+// Função temporária para evitar erros ao clicar em "Apostar"
+
+
+window.addEventListener("load", () => {
+hideNoneEvent();
+displayEventsFinishing();
+displayMostBetEvents();
+});
 
 src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" 
 integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" 
