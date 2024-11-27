@@ -1,4 +1,31 @@
-@media (max-width: 1800px) {
+#fieldEmail{
+    border-radius: 5px;
+    border: none;
+    width: 95%;
+}
+#fieldPassword{
+    border-radius: 5px;
+    border: none;
+    width: 95%;
+}
+#messageBox{
+    background-color: rgb(205, 24, 24);
+    color: white;
+    padding: 0;
+    display: none;
+    text-align: center;
+    border-radius: 3px; 
+    cursor: default;
+    width: 85%;
+    margin-top: 15px;
+    margin-bottom: 5px;
+}
+#messageBox p{
+    padding: 5px;
+    margin: 0;                
+}
+  
+  @media (max-width: 1800px) {
     .card {
         width: 22%; /* Ajusta os cards para caberem 4 na linha */
     }
