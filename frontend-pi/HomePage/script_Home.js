@@ -197,7 +197,6 @@ window.onload = function () {
     displayEvents('http://localhost:3000/getEventsFinishing', "eventsFinishing", "Nenhum evento próximo de finalizar.");
     displayEvents('http://localhost:3000/getMostBetEvents', "mostBetEvents", "Nenhum evento popular no momento.");
 };
-
 function showConfirmationPopup(title, message) {
     const popup = document.getElementById("confirmationPopup");
     const popupTitle = document.getElementById("popupTitle");
@@ -248,40 +247,6 @@ function showErrorMessage(message) {
 async function performSignIn() {
     const email = document.getElementById("fieldEmail").value.trim();
     const password = document.getElementById("fieldPassword").value.trim();
-
-    const emailError = document.getElementById('emailError');
-    const passwordError = document.getElementById('passwordError');
-
-    [emailError, passwordError].forEach((errorField) => {
-        errorField.textContent = '';
-        errorField.classList.add('d-none');
-    });
-
-    let valid = true;
-
-    if (!email) {
-        emailError.textContent = 'O e-mail é obrigatório.';
-        emailError.classList.remove('d-none');
-        valid = false;
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-        emailError.textContent = 'Por favor, insira um e-mail válido.';
-        emailError.classList.remove('d-none');
-        valid = false;
-    }
-
-    if (!password) {
-        passwordError.textContent = 'A senha é obrigatória.';
-        passwordError.classList.remove('d-none');
-        valid = false;
-    }
-
-    if (password !== confirmPassword) {
-        confirmPasswordError.textContent = 'As senhas não coincidem.';
-        confirmPasswordError.classList.remove('d-none');
-        valid = false;
-    }
-
-    if (!valid) return;
 
     if (isValid(email, password)) {
         try {
