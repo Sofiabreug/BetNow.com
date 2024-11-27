@@ -117,6 +117,8 @@ body {
 }
 .logo{
   margin-right: 10px;
+  width: 240px;
+  height: 180px;
 }
 .form-container {
   background-color: #3d3d3d;
