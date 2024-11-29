@@ -554,7 +554,7 @@ export const getEventDetails: RequestHandler = async (req, res) => {
             res.status(400).send('O ID do evento e o token do criador são obrigatórios.');
             return;
         }
-   
+        console.log(eventId, creatorToken);
         const connection = await connectionOracle();
    
         const eventCheckResult = await connection.execute(
@@ -570,14 +570,16 @@ export const getEventDetails: RequestHandler = async (req, res) => {
             await connection.close();
             return;
         }
+        console.log(eventRows);
    
         const validation_status = eventRows[0].validation_status;
    
         if (validation_status === 'aprovado') {
             res.status(400).send('O evento já foi aprovado e não pode ser removido.');
-            await connection.close();
+            
             return;
         }
+        console.log(validation_status);
    // Realiza a soma para saber se o evento ja teve alguma aposta
         const betsCheckResult = await connection.execute(
             'SELECT COUNT(*) AS BETCOUNT FROM BETS WHERE eventId = :eventId',

@@ -26,7 +26,7 @@ routes.post('/login', AccountsHandler.loginHandler);
 routes.post('/AddNewEvent', EventsHandler.AddNewEvent); 
 routes.post('/BetOnEvents', EventsHandler.betOnEvent); 
 routes.put('/evaluateEvent', EventsHandler.evaluateEvent);
-routes.put('/deleteEvent', EventsHandler.deleteEvent);
+routes.post('/deleteEvent', EventsHandler.deleteEvent);
 routes.put('/finishEvent', EventsHandler.finishEvent);
 routes.get('/searchEvent', EventsHandler.searchEvent);
 routes.get('/getEvents', EventsHandler.getEvents);
