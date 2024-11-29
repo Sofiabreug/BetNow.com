@@ -22,12 +22,12 @@
     <form class="row g-3" id="eventForm">
       <div class="col-12">
         <label for="eventTitle" class="form-label">Título</label>
-        <input type="text" class="form-control" id="eventTitle" required>
-        <span id="eventTitleError" class="d-none text-danger"></span> <!-- Campo de erro -->
+        <input type="text" class="form-control" placeholder="Digite o título do evento: " id="eventTitle" required>
+        <span id="eventTitleError"   class="d-none text-danger"></span> <!-- Campo de erro -->
       </div>
       <div class="col-12">
         <label for="eventDescription" class="form-label">Descrição</label>
-        <textarea class="form-control" id="eventDescription" rows="3" required></textarea>
+        <textarea class="form-control" placeholder="Digite a descrição do evento:" id="eventDescription" rows="3" required></textarea>
         <span id="eventDescriptionError" class="d-none text-danger"></span> <!-- Campo de erro -->
       </div>
       <div class="col-md-4">
@@ -38,7 +38,7 @@
           <option value="Esporte">Esporte</option>
           <option value="Tecnologia">Tecnologia</option>
           <option value="Economia">Economia</option>
-          <option value="E-Sports">E-Sports</option>
+        
         </select>
         <span id="categoryError" class="d-none text-danger"></span> <!-- Campo de erro -->
       </div>
@@ -74,7 +74,7 @@
       </div>
       <div class="col-md-4">
         <label for="quotaValue" class="form-label">Valor da cota</label>
-        <input type="number" class="form-control" id="quotaValue" min="1" step="0.01" required>
+        <input type="number" class="form-control" placeholder="Digite o valor do ticket:" id="quotaValue" min="1" step="0.01" required>
         <span id="quotaValueError" class="d-none text-danger"></span> <!-- Campo de erro -->
       </div>
       <div class="col-12">

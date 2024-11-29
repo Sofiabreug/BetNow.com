@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BetNow</title>
     <link rel="stylesheet" href="style_Categorias.css">
+    <link rel="icon" type="image/png" href="../images/image-Photoroom (3) 2.png">
 </head>
 <body>
     <div class="header">
@@ -14,15 +15,12 @@
             </a>
         </div>
         <nav>
-            <a id="c"   href="../CriarEvento/CriarEvento.html">Criar Evento</a>
-            <a id="w"   href="../MyWallet/MyWallet.html">Minha Wallet</a>
+            <a id="c"   href="../CriarEvento/CriarEvento.html">|  Criar Evento  |</a>
+            <a id="w"   href="../MyWallet/MyWallet.html">|  Minha Wallet  |</a>
+            <a id href="../HomeLogon/HomeLogon.html" class="home-button">|  Voltar à Home Page  |</a>
         </nav>
-        <div class="search-bar">
-            <input type="text" placeholder="Buscar eventos por palavra-chave">
-        </div>
-        <nav>
-            <a id href="../HomeLogon/HomeLogon.html" class="home-button">Voltar à Home Page</a>
-        </nav>
+        
+       
     </div>
     
 
@@ -33,6 +31,14 @@
             <!-- Os eventos serão inseridos aqui dinamicamente -->
         </div>
     </div>
+    <div id="confirmationPopup" class="confirmation-popup d-none">
+        <div class="popup-content">
+          <span class="close" onclick="closeConfirmationPopup()">&times;</span>
+          <h3 id="popupTitle">Confirmação</h3>
+          <p id="popupMessage">Mensagem do popup.</p>
+          <button onclick="closeConfirmationPopup()">Fechar</button>
+        </div>
+      </div>
     <script src="script_categorias.js"></script>
 </body>
 </html>

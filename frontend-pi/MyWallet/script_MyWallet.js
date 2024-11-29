@@ -191,7 +191,7 @@ function toggleCardFields() {
         return;
     }
 
-    const token = LocalStorage.getItem("authToken"); // Substitua pelo valor real do token.
+    const token = localStorage.getItem("authToken"); // Substitua pelo valor real do token.
 
     const body = {
         amount: valor.toFixed(2), // Garante o envio como string no formato correto.

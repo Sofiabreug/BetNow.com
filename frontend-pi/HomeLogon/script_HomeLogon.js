@@ -64,7 +64,7 @@ function updateImage(category) {
         culture: "https://www.jornaldotrabalhador.com.br/wp-content/uploads/2019/01/cultura-696x338.png",
         technology: "https://anbc.org.br/wp-content/uploads/2024/02/tecnologia.webp",
         economy: "https://static.portaldaindustria.com.br/portaldaindustria/noticias/media/imagem_plugin/shutterstock_rLcCBI9.jpg",
-        eSport: "https://img.odcdn.com.br/wp-content/uploads/2022/11/esports_competicao.jpg"
+        
     };
     // Imagem padrão caso a categoria não seja encontrada
     const defaultImage = "https://static.vecteezy.com/ti/vetor-gratis/t2/6868934-abstrato-roxo-fluido-onda-fundo-gratis-vetor.jpg";

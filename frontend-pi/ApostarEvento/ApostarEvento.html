@@ -7,44 +7,60 @@
   <title>Apostar em Evento</title>
   <link rel="stylesheet" href="style_ApostarEvento.css">
   <link rel="icon" type="image/png" href="../images/image-Photoroom (3) 2.png">
-
 </head>
 <body>
+  <!-- Navbar -->
   <nav class="navbar navbar-custom">
     <span class="navbar-brand">Betting...</span>
     <div class="navbar-text">
-      <a href="../HomeLogon/HomeLogon.html">| Voltar a Home Page |</a>
+      <a href="../HomeLogon/HomeLogon.html">| Voltar à Home Page |</a>
     </div>
   </nav>
 
+  <!-- Conteúdo principal -->
   <div class="container">
-    <div class="event-title" id="eventTitle">Evento: Corinthians X Palmeiras</div>
-    <div class="event-question" id="eventQuestion">O Corinthians ganhará do Palmeiras?</div>
-
-    <div class="buttons">
-      <div class="buttons">
-        <button class="btn-choice" data-choice="sim" id="btnSim">SIM</button>
-        <button class="btn-choice" data-choice="nao" id="btnNao">NÃO</button>
-      </div>      
+    <h1 class="event-title" id="eventTitle"></h1>
+    <p class="event-question" id="eventQuestion"></p>
+    <div class="ticket-value mt-3 text-center">
+      <p id="ticketValue" class="fw-bold"></p>
     </div>
 
-    <div class="value-input">
-      <label for="betValue">Valor:</label>
-      <input type="number" id="betValue" placeholder="Insira o valor da aposta">
+    <!-- Botões de escolha -->
+    <div class="buttons d-flex justify-content-center gap-3">
+      <button class="btn btn-success btn-choice" data-choice="sim" id="btnSim">SIM</button>
+      <button class="btn btn-danger btn-choice" data-choice="nao" id="btnNao">NÃO</button>
     </div>
-    <!-- Botão para registrar a aposta -->
-    <div class="submit-button">
-      <button id="btnApostar">Apostar</button>
+
+
+    <!-- Input de valor -->
+    <div class="value-input mt-4 text-center">
+  
+      <input type="number" id="betValue" placeholder="Insira a quantidade de tickets:" class="form-control w-25 mx-auto">
     </div>
+
+    <!-- Botão para apostar -->
+    <div class="submit-button mt-3 text-center d-flex justify-content-center gap-3">
+      <button id="btnApostar" class="btn btn-primary">Apostar</button>
+     
+    </div>
+    
+
+    
+
+    
   </div>
+
+  <!-- Popup de confirmação -->
   <div id="confirmationPopup" class="confirmation-popup d-none">
     <div class="popup-content">
       <span class="close" onclick="closeConfirmationPopup()">&times;</span>
       <h3 id="popupTitle">Confirmação</h3>
       <p id="popupMessage">Mensagem do popup.</p>
-      <button onclick="closeConfirmationPopup()">Fechar</button>
+      <button class="btn btn-secondary mt-2" onclick="closeConfirmationPopup()">Fechar</button>
     </div>
   </div>
+
+  <!-- Script -->
   <script src="script_ApostarEvento.js"></script>
 </body>
 </html>

@@ -1,115 +1,108 @@
 // Obtém o ID do evento da URL
-function showConfirmationPopup(title, message) {
-  const popup = document.getElementById("confirmationPopup");
-  const popupTitle = document.getElementById("popupTitle");
-  const popupMessage = document.getElementById("popupMessage");
-
-  popupTitle.innerText = title;
-  popupMessage.innerText = message;
-
-  popup.classList.remove("d-none"); // Mostra o popup
-}
-
-function closeConfirmationPopup() {
-  const popup = document.getElementById("confirmationPopup");
-  popup.classList.add("d-none"); // Esconde o popup
-}
 const params = new URLSearchParams(window.location.search);
-const eventId = params.get('eventId'); // Pega o eventId
+const eventId = params.get('eventId');
 
 if (!eventId) {
-  showConfirmationPopup('Erro','Nenhum evento especificado.');
-  window.location.href = '../HomeLogon/HomeLogon.html'; // Redireciona para a home
+  showConfirmationPopup('Erro', 'Nenhum evento especificado.');
+  setTimeout(() => {
+    window.location.href = '../HomeLogon/HomeLogon.html';
+  }, 2000);
 }
 
-let selectedChoice = null; // Variável para armazenar a escolha do usuário
+let selectedChoice = null;
 
-// Função para carregar os detalhes do evento
+// Carrega detalhes do evento
 async function loadEventDetails() {
   try {
     const response = await fetch(`http://localhost:3000/getEventDetails?eventId=${eventId}`);
     if (!response.ok) throw new Error(await response.text());
 
     const event = await response.json();
-
-    // Atualiza os elementos da página com os dados do evento
     document.getElementById('eventTitle').textContent = `Evento: ${event.title}`;
     document.getElementById('eventQuestion').textContent = event.description;
+    document.getElementById('ticketValue').textContent = `Valor da aposta: R$ ${parseFloat(event.ticketValue).toFixed(2)}`;
   } catch (error) {
-    console.error('Erro ao carregar evento:', error);
-    alert('Erro ao carregar o evento. Tente novamente mais tarde.');
-    window.location.href = '../HomeLogon/HomeLogon.html'; // Redireciona para a home
+    showConfirmationPopup('Erro', 'Não foi possível carregar o evento.');
+    setTimeout(() => {
+      window.location.href = '../HomeLogon/HomeLogon.html';
+    }, 2000);
   }
 }
 
-// Função para alternar entre os botões "SIM" e "NÃO"
+// Configura botões de escolha
 function setupChoiceButtons() {
   document.querySelectorAll('.btn-choice').forEach(button => {
     button.addEventListener('click', () => {
-      // Remove a seleção de todos os botões
       document.querySelectorAll('.btn-choice').forEach(btn => btn.classList.remove('selected'));
-
-      // Adiciona a seleção ao botão clicado
       button.classList.add('selected');
-
-      // Atualiza a escolha selecionada
       selectedChoice = button.dataset.choice;
     });
   });
 }
 
-// Função para realizar a aposta
+// Realiza aposta
 async function placeBet() {
-  const token = localStorage.getItem("authToken");
-  const betValue = document.getElementById('betValue').value;
+  const token = localStorage.getItem('authToken');
+  const betValue = parseFloat(document.getElementById('betValue').value);
 
   if (!selectedChoice) {
-    showConfirmationPopup('Erro','Por favor, escolha entre SIM ou NÃO.');
+    showConfirmationPopup('Erro', 'Escolha SIM ou NÃO antes de apostar.');
     return;
   }
 
-  if (!betValue || betValue <= 0) {
-    showConfirmationPopup('Erro', 'Por favor, insira um valor válido para a aposta.');
+  if (isNaN(betValue) || betValue <= 0) {
+    showConfirmationPopup('Erro', 'Insira um valor válido.');
     return;
   }
 
-  const payload = {
-    eventId,
-    betChoice: selectedChoice,
-    betValue,
-    token, // Substitua pelo email correto do usuário logado
-  };
-
-  console.log('Payload enviado:', payload); // Adicione isso para verificar o que está sendo enviado
+  const payload = { eventId, betChoice: selectedChoice, betValue, token };
 
   try {
     const response = await fetch('http://localhost:3000/BetOnEvents', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
     });
 
     if (response.ok) {
-      showConfirmationPopup('Sucesso!','Aposta realizada com sucesso!');
-      window.location.href = '../HomeLogon/HomeLogon.html'; // Redireciona para a home
+      showConfirmationPopup('Sucesso!', 'Aposta realizada com sucesso!');
+      setTimeout(() => {
+        window.location.href = '../HomeLogon/HomeLogon.html';
+      }, 2000);
     } else {
       const error = await response.text();
-      showConfirmationPopup('Erro',`Erro ao realizar a aposta: ${error}`);
+      showConfirmationPopup('Erro', `Erro: ${error}`);
     }
   } catch (error) {
-    console.error('Erro ao realizar aposta:', error);
-    showConfirmationPopup('Erro','Erro ao realizar a aposta. Tente novamente mais tarde.');
+    showConfirmationPopup('Erro', 'Erro ao se conectar ao servidor.');
   }
 }
 
 
-// Adiciona o evento de clique no botão "Apostar"
-document.getElementById('btnApostar').addEventListener('click', placeBet);
 
-// Chama a função ao carregar a página
+
+
+// Exibe popup de confirmação
+function showConfirmationPopup(title, message) {
+  const popup = document.getElementById('confirmationPopup');
+  document.getElementById('popupTitle').textContent = title;
+  document.getElementById('popupMessage').textContent = message;
+  popup.classList.remove('d-none');
+}
+
+// Fecha popup
+function closeConfirmationPopup() {
+  document.getElementById('confirmationPopup').classList.add('d-none');
+}
+
+// Configurações iniciais
 window.onload = () => {
   loadEventDetails();
   setupChoiceButtons();
+  document.getElementById('btnApostar').addEventListener('click', placeBet);
+  document.getElementById('btnDeletar').addEventListener('click', deleteEvent);
 };
+
+// Função para redirecionar para a página de aposta
+
+

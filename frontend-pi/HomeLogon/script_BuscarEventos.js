@@ -44,7 +44,7 @@ async function loadSearchResults() {
         events.forEach(event => {
             const card = document.createElement('div');
             card.className = 'col-md-4 mb-4';
-
+        
             card.innerHTML = `
                 <div class="card h-100 shadow-sm">
                     <div class="card-body d-flex flex-column">
@@ -52,17 +52,51 @@ async function loadSearchResults() {
                         <p class="card-text">${event.description || 'Descrição não disponível'}</p>
                         <p class="card-text"><strong>Categoria:</strong> ${event.category || 'Categoria não especificada'}</p>
                         <p class="card-text"><strong>Preço da Aposta:</strong> R$ ${parseFloat(event.ticketValue).toFixed(2)}</p>
-                        <div class="mt-auto">
-                            <button class="btn btn-primary w-100" onclick="redirectToBet('${event.eventId}')">Apostar</button>
+                        <div class="mt-auto d-flex justify-content-between">
+                            <button class="btn btn-primary" onclick="redirectToBet('${event.eventId}')">Apostar</button>
+                            <button class="btn btn-danger" onclick="deletarEvento('${event.eventId}')">Deletar</button>
                         </div>
                     </div>
                 </div>
             `;
-            eventsContainer.appendChild(card);
+        
+            document.getElementById('eventsContainer').appendChild(card);
         });
+        
     } catch (error) {
         console.error('Erro ao carregar eventos:', error);
         showConfirmationPopup('Erro', 'Erro ao carregar eventos. Por favor, tente novamente.');
+    }
+}
+async function deletarEvento(eventId) {
+    const token = localStorage.getItem('authToken'); // Assumindo que o token é armazenado no localStorage.
+
+    if (!token) {
+        showConfirmationPopup('Erro','Você precisa estar logado para deletar um evento.');
+        return;
+    }
+
+    try {
+        const response = await fetch('http://localhost:3000/deleteEvent', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'eventId': eventId,
+                'token': token
+            }
+        });
+
+        if (response.ok) {
+            showConfirmationPopup('Sucesso!','Evento deletado com sucesso.');
+            // Remove o evento do DOM
+            
+        } else {
+            const errorMessage = await response.text();
+            showConfirmationPopup('Erro',`Erro ao deletar evento: ${errorMessage}`);
+        }
+    } catch (error) {
+        console.error('Erro ao deletar evento:', error);
+        showConfirmationPopup('Erro','Ocorreu um erro ao tentar deletar o evento. Tente novamente mais tarde.');
     }
 }
 
