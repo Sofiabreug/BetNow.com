@@ -7,69 +7,70 @@ function getUrlParameter(name) {
 // Função para carregar eventos com base na palavra-chave
 async function loadSearchResults() {
     const keyword = getUrlParameter('keyword'); // Obtém a palavra-chave da URL
-
     if (!keyword) {
         showConfirmationPopup('Erro', 'Nenhuma palavra-chave foi fornecida.');
         window.location.href = 'HomeLogon.html'; // Redireciona para a página inicial
         return;
     }
-
-    // Atualiza o título com a palavra-chave
-    document.getElementById('searchKeyword').textContent = keyword;
-
     try {
         // Faz a requisição ao backend para buscar eventos
         const response = await fetch(`http://localhost:3000/searchEvent?keyword=${encodeURIComponent(keyword)}`);
 
-        console.log('Status da resposta:', response.status);
-
-        if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(`Erro na resposta: ${errorText}`);
-        }
-
-        // Recebe os eventos em formato JSON
-        const events = await response.json();
-        console.log('Eventos retornados:', events);
-
+ 
+    if (response.status === 404) {
+        const errorMessage = await response.text(); // Pega a mensagem de erro do servidor
         const eventsContainer = document.getElementById('eventsContainer');
-        eventsContainer.innerHTML = ''; // Limpa os resultados anteriores
+        eventsContainer.innerHTML = `<p class="no-events-message">${errorMessage}</p>`;
+        return; // Retorna para não continuar o processo
+    }
+
+    // Atualiza o título com a palavra-chave
+    document.getElementById('searchKeyword').textContent = keyword;
+
+   
+
+    if (!response.ok) throw new Error(await response.text());
+
+    const events = await response.json(); 
+
+    const eventsContainer = document.getElementById('eventsContainer');
+    eventsContainer.innerHTML = ''; 
+
+
 
         if (events.length === 0) {
             eventsContainer.innerHTML = '<p class="text-muted">Nenhum evento encontrado para essa palavra-chave.</p>';
             return;
-        }
-
-        // Cria os cards dinamicamente para cada evento encontrado
-        events.forEach(event => {
-            const card = document.createElement('div');
-            card.className = 'col-md-4 mb-4';
-        
-            card.innerHTML = `
-                <div class="card h-100 shadow-sm">
-                    <div class="card-body d-flex flex-column">
-                        <h5 class="card-title">${event.title || 'Título não informado'}</h5>
-                        <p class="card-text">${event.description || 'Descrição não disponível'}</p>
-                        <p class="card-text"><strong>Categoria:</strong> ${event.category || 'Categoria não especificada'}</p>
-                        <p class="card-text"><strong>Preço da Aposta:</strong> R$ ${parseFloat(event.ticketValue).toFixed(2)}</p>
-                        <div class="mt-auto d-flex justify-content-between">
-                            <button class="btn btn-primary" onclick="redirectToBet('${event.eventId}')">Apostar</button>
-                            <button class="btn btn-danger" onclick="deletarEvento('${event.eventId}')">Deletar</button>
+        } else{
+            events.forEach(event => {
+                const card = document.createElement('div');
+                card.className = 'col-md-4 mb-4';
+            
+                card.innerHTML = `
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title">${event.title || 'Título não informado'}</h5>
+                            <p class="card-text">${event.description || 'Descrição não disponível'}</p>
+                            <p class="card-text"><strong>Categoria:</strong> ${event.category || 'Categoria não especificada'}</p>
+                            <p class="card-text"><strong>Preço da Aposta:</strong> R$ ${parseFloat(event.ticketValue).toFixed(2)}</p>
+                            <div class="mt-auto d-flex justify-content-between">
+                                <button class="btn btn-primary" onclick="redirectToBet('${event.eventId}')">Apostar</button>
+                                <button class="btn btn-danger" onclick="deletarEvento('${event.eventId}')">Deletar</button>
+                            </div>
                         </div>
                     </div>
-                </div>
-            `;
-        
-            document.getElementById('eventsContainer').appendChild(card);
-        });
-        
+                `;
+            
+                document.getElementById('eventsContainer').appendChild(card);
+            });
+        } 
     } catch (error) {
         console.error('Erro ao carregar eventos:', error);
         showConfirmationPopup('Erro', 'Erro ao carregar eventos. Por favor, tente novamente.');
     }
 }
 async function deletarEvento(eventId) {
-    const token = localStorage.getItem('authToken'); // Assumindo que o token é armazenado no localStorage.
+    const token = localStorage.getItem('authToken'); 
 
     if (!token) {
         showConfirmationPopup('Erro','Você precisa estar logado para deletar um evento.');
@@ -88,7 +89,7 @@ async function deletarEvento(eventId) {
 
         if (response.ok) {
             showConfirmationPopup('Sucesso!','Evento deletado com sucesso.');
-            // Remove o evento do DOM
+           
             
         } else {
             const errorMessage = await response.text();
@@ -100,12 +101,12 @@ async function deletarEvento(eventId) {
     }
 }
 
-// Função para redirecionar para a página de aposta
+
 function redirectToBet(eventId) {
     window.location.href = `../ApostarEvento/ApostarEvento.html?eventId=${eventId}`;
 }
 
-// Função para exibir o popup de confirmação
+
 function showConfirmationPopup(title, message) {
     const popup = document.getElementById("confirmationPopup");
     const popupTitle = document.getElementById("popupTitle");
@@ -114,16 +115,16 @@ function showConfirmationPopup(title, message) {
     popupTitle.innerText = title;
     popupMessage.innerText = message;
 
-    popup.classList.remove("d-none"); // Mostra o popup
+    popup.classList.remove("d-none"); 
 }
 
-// Função para fechar o popup de confirmação
+
 function closeConfirmationPopup() {
     const popup = document.getElementById("confirmationPopup");
     popup.classList.add("d-none"); // Esconde o popup
 }
 
-// Adiciona evento de submissão no formulário de busca da nova página
+
 document.getElementById('searchForm').addEventListener('submit', function(event) {
     event.preventDefault(); // Evita o recarregamento da página
 

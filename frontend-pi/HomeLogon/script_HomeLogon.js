@@ -38,12 +38,12 @@ async function displayEvents(url, containerId, emptyMessage, limit = 5) {
 function createEventCard(event) {
     const card = document.createElement("div");
     card.classList.add("card", "text-center");
-    card.style.width = "17rem"; // Card ainda menor
+    card.style.width = "17rem"; 
 
     // Adicionar o evento de clique para abrir o modal
     card.addEventListener('click', () => {
         // Aqui a função `redirectAposta` será chamada com o ID do evento
-        redirectAposta(event.eventId); // Supondo que `event.eventId` seja o identificador do evento
+        redirectAposta(event.eventId); 
     });
 
     card.innerHTML = `
@@ -57,7 +57,6 @@ function createEventCard(event) {
     return card;
 }
 
-// Atualizar a imagem com base na categoria do evento
 function updateImage(category) {
     const categoryImages = {
         sport: "https://www.institutoclaro.org.br/educacao/wp-content/uploads/sites/2/2013/11/planodeaulaesporte_1840.jpg",
@@ -71,7 +70,7 @@ function updateImage(category) {
     return categoryImages[category] || defaultImage; // Usa a imagem padrão se a categoria não for encontrada
 }
 
-// Exibir alerta (agora usando o popup)
+
 function showAlert(message) {
     showConfirmationPopup('Alerta', message);
 }
@@ -178,7 +177,7 @@ document.getElementById('searchButton').addEventListener('click', function(event
     window.location.href = `BuscarEventos.html?keyword=${encodeURIComponent(keyword)}`;
 });
 
-// Função temporária para evitar erros ao clicar em "Apostar"
+
 window.addEventListener("load", () => {
     hideNoneEvent();
     displayEventsFinishing();

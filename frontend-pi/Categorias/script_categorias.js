@@ -87,9 +87,6 @@ async function deletarEvento(eventId) {
     }
 }
 
-// Função para redirecionar para a página de aposta
-
-
 
 // Função para redirecionar para a página de aposta
 function redirectToBet(eventId) {

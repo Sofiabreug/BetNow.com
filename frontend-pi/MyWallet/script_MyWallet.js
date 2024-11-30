@@ -13,12 +13,8 @@ function toggleCardFields() {
   function toggleWithdrawFields() {
     const accountType = document.getElementById('accountType').value;
     const bankFields = document.getElementById('bankFields');
-   
   
-    
       bankFields.classList.remove('d-none'); // Mostra os campos bancários
-      
-    
   }
   function showConfirmationPopup(title, message) {
     const popup = document.getElementById("confirmationPopup");
@@ -116,9 +112,9 @@ function toggleCardFields() {
         throw new Error(errorText || 'Erro desconhecido.');
       }
   
-      // Tente obter a resposta JSON
+      
       const data = await response.json();
-      console.log("Resposta do servidor:", data);  // Verifique a estrutura da resposta
+      console.log("Resposta do servidor:", data);  
   
       if (data.newBalance !== undefined) {
         showConfirmationPopup(
@@ -135,10 +131,8 @@ function toggleCardFields() {
     }
   }
   
-  
-  // Função para validar e realizar o saque
   async function mandarProBackend() {
-    const valor = parseFloat(document.getElementById('withdrawAmount').value); // Garante que o valor seja numérico.
+    const valor = parseFloat(document.getElementById('withdrawAmount').value); 
     const banco = document.getElementById('bankName').value.trim();
     const agencia = document.getElementById('agencyNumber').value.trim();
     const conta = document.getElementById('accountNumber').value.trim();
@@ -191,10 +185,10 @@ function toggleCardFields() {
         return;
     }
 
-    const token = localStorage.getItem("authToken"); // Substitua pelo valor real do token.
+    const token = localStorage.getItem("authToken"); 
 
     const body = {
-        amount: valor.toFixed(2), // Garante o envio como string no formato correto.
+        amount: valor.toFixed(2), 
         banco: banco,
         agencia: agencia,
         conta: conta
@@ -224,7 +218,7 @@ function toggleCardFields() {
         );
     } catch (error) {
         console.error("Erro capturado:", error.message);
-        showConfirmationPopup("Erro", error.message || "Houve um erro ao realizar o saque. Tente novamente.");
+        showConfirmationPopup('Erro!', `Erro ao realizar o saque: ${error.message}`);
     }
 }
 
@@ -256,7 +250,7 @@ function toggleCardFields() {
   });
   // Função para buscar o saldo e alternar a exibição
   async function toggleBalance() {
-    const token = localStorage.getItem("authToken"); // Substitua pelo token real
+    const token = localStorage.getItem("authToken"); 
     const balanceElement = document.querySelector('.valor');
     const eyeIcon = document.querySelector('.eye-button i');
   
@@ -286,7 +280,7 @@ function toggleCardFields() {
         eyeIcon.classList.add('fa-eye');
       } catch (error) {
         console.error('Erro ao buscar saldo:', error);
-        alert('Erro ao buscar saldo. Tente novamente mais tarde.');
+        showConfirmationPopup('Erro!','Você não tem saldo! Por favor recarregue sua carteira.');
       }
     } else {
       // Oculta o saldo
@@ -299,10 +293,10 @@ function toggleCardFields() {
     // Função para buscar o histórico de compras de crédito
   
   async function getCreditPurchasesHistory() {
-    const token = localStorage.getItem("authToken"); // Token de exemplo
+    const token = localStorage.getItem("authToken"); 
   
     if (!token) {
-        alert('Token não encontrado.');
+        showConfirmationPopup('Erro!','Token não encontrado.');
         return;
     }
   
@@ -317,7 +311,7 @@ function toggleCardFields() {
   
         if (!response.ok) {
             const errorData = await response.json();
-            alert(errorData.error || 'Erro ao buscar histórico de compras.');
+            showConfirmationPopup('Erro!', errorData.error || 'Erro ao buscar histórico de compras.');
             return;
         }
   
@@ -342,8 +336,9 @@ function toggleCardFields() {
             purchaseHistoryContainer.appendChild(purchaseElement);
         });
     } catch (error) {
+      
         console.error('Erro ao buscar histórico de compras de crédito:', error);
-        alert('Erro ao buscar histórico de compras: ' + error.message);
+        showConfirmationPopup('Erro',`Erro ao realizar o saque: ${error.message}`);
     }
   }
   
@@ -352,7 +347,7 @@ function toggleCardFields() {
     const token = localStorage.getItem("authToken"); 
   
     if (!token) {
-        alert('Token não encontrado.');
+      showConfirmationPopup('Erro!','Token não encontrado.');
         return;
     }
   
@@ -367,7 +362,7 @@ function toggleCardFields() {
   
         if (!response.ok) {
             const errorData = await response.json();
-            alert(errorData.error || 'Erro ao buscar histórico de apostas.');
+            showConfirmationPopup('Erro!', errorData.error || 'Erro ao buscar histórico de apostas.');
             return;
         }
   
@@ -393,7 +388,7 @@ function toggleCardFields() {
         });
     } catch (error) {
         console.error('Erro ao buscar histórico de apostas:', error);
-        alert('Erro ao buscar histórico de apostas: ' + error.message);
+        showConfirmationPopup('Erro!','Erro ao buscar histórico de apostas: ' + error.message);
     }
   }
   

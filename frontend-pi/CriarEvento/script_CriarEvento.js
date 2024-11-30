@@ -94,7 +94,7 @@ document.getElementById('eventForm').addEventListener('submit', async (e) => {
   const fullEndDate = `${endDate}T${endTime}`;
   const fullEventDate = `${eventDate}T${eventTime}`;
 
-  // Preparação do corpo da requisição
+  
   const requestBody = {
     title,
     description,
@@ -103,7 +103,7 @@ document.getElementById('eventForm').addEventListener('submit', async (e) => {
     endDate: fullEndDate,
     eventDate: fullEventDate,
     ticketValue,
-    creatorToken: token, // Substitua por um token válido
+    creatorToken: token, 
   };
 
   try {

@@ -78,10 +78,6 @@ async function placeBet() {
   }
 }
 
-
-
-
-
 // Exibe popup de confirmação
 function showConfirmationPopup(title, message) {
   const popup = document.getElementById('confirmationPopup');
@@ -103,6 +99,6 @@ window.onload = () => {
   document.getElementById('btnDeletar').addEventListener('click', deleteEvent);
 };
 
-// Função para redirecionar para a página de aposta
+
 
 

@@ -307,14 +307,14 @@ form.d-flex button:focus {
     transition: background-color 0.3s;
 }
 .no-events-message {
-    font-size: 18px; /* Tamanho da fonte */
-    color: #504f4f; /* Cor escura */
-    font-weight: bold; /* Negrito para dar destaque */
-    text-align: center; /* Centralizar a mensagem */
-    padding: 20px; /* Espaçamento ao redor do texto */
-    background-color: #000000cd; /* Cor de fundo leve */
-    border-radius: 5px; /* Bordas arredondadas */
-    margin-top: 20px; /* Espaço acima da mensagem */
+    font-size: 18px; 
+    color: #504f4f; 
+    font-weight: bold; 
+    text-align: center; 
+    padding: 20px; 
+    background-color: #000000cd;
+    border-radius: 5px; 
+    margin-top: 20px; 
 }
 .card button:hover {
     background-color: #b76aff;

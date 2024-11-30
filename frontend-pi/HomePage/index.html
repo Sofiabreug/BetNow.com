@@ -102,7 +102,7 @@
                             </p>
                             <p>
                                 <label for="fieldPassword">Senha:</label><br>
-                                <input type="password" placeholder="Digite sua senha:" id="fieldPassword" class="form-control" onclick="hideErrorMessage()">
+                                <input type="password" autocomplete="off"placeholder="Digite sua senha:" id="fieldPassword" class="form-control" onclick="hideErrorMessage()">
                             </p>
                         </form>
                     </div>
@@ -111,7 +111,7 @@
                             <button type="button" id="btnSignIn" onclick="performSignIn()">Entrar</button>
                         </form>
                         <div id="messageBox">
-                            <p id="message">Exemplo de mensagem de erro...</p>
+                            <p id="message"></p>
                         </div>            
                     </div>                    
                 </div>
@@ -130,12 +130,12 @@
                 <form>
                     <div class="mb-3">
                         <label for="fieldName" class="form-label">Nome Completo:</label>
-                        <input type="text" id="fieldName" class="form-control">
+                        <input type="text" placeholder="Digite seu nome completo: " id="fieldName" class="form-control">
                         <small id="fieldNameError" class="text-danger d-none"></small>
                     </div>
                     <div class="mb-3">
                         <label for="fieldEmailRegister" class="form-label">Email:</label>
-                        <input type="email" id="fieldEmailRegister" class="form-control">
+                        <input type="email" placeholder="Digite seu e-mail:" id="fieldEmailRegister" class="form-control">
                         <small id="fieldEmailError" class="text-danger d-none"></small>
                     </div>
                     <div class="mb-3">
@@ -145,13 +145,14 @@
                     </div>
                     <div class="mb-3">
                         <label for="fieldPasswordRegister" class="form-label">Senha:</label>
-                        <input type="password" id="fieldPasswordRegister" class="form-control">
+                        <input type="password" placeholder="Digite sua senha:" id="fieldPasswordRegister" class="form-control">
                         <small id="fieldPasswordError" class="text-danger d-none"></small>
                     </div>
                     <div class="mb-3">
                         <label for="fieldConfirmPassword" class="form-label">Confirmar Senha:</label>
-                        <input type="password" id="fieldConfirmPassword" class="form-control">
+                        <input type="password" placeholder="Digite sua senha:" id="fieldConfirmPassword" class="form-control">
                         <small id="fieldConfirmPasswordError" class="text-danger d-none"></small>
+                        
                     </div>
                 </form>
             </div>
@@ -171,6 +172,8 @@
       <button onclick="closeConfirmationPopup()">Fechar</button>
     </div>
   </div>
+        
+
         
         <script src="script_Home.js" defer></script>
         

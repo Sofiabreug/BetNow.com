@@ -41,8 +41,7 @@ function createEventCard(event) {
 
     // Adicionar o evento de clique para abrir o modal
     card.addEventListener('click', () => {
-        // Aqui você deve abrir seu modal de login. Exemplo:
-        $('#entrarModal').modal('show'); // Supondo que o ID do seu modal seja 'loginModal'
+        $('#entrarModal').modal('show'); 
     });
 
     card.innerHTML = `
@@ -67,12 +66,11 @@ function updateImage(category) {
     };
     // Imagem padrão caso a categoria não seja encontrada
     const defaultImage = "https://static.vecteezy.com/ti/vetor-gratis/t2/6868934-abstrato-roxo-fluido-onda-fundo-gratis-vetor.jpg";
-    return categoryImages[category] || defaultImage; // Usa a imagem padrão se a categoria não for encontrada
+    return categoryImages[category] || defaultImage; 
 }
 
-// Estilo CSS para corrigir o hover, clique e a borda em tudo
+
 async function performSignUp() {
-    // Captura os elementos dos campos e mensagens de erro
     const nameField = document.getElementById('fieldName');
     const emailField = document.getElementById('fieldEmailRegister');
     const birthDateField = document.getElementById('fieldBirthDate');
@@ -164,25 +162,64 @@ async function performSignUp() {
         });
 
         if (response.ok) {
-            // Sucesso
+            // Limpa o formulário e fecha o modal de cadastro
             document.getElementById('cadastrarModal').querySelector('form').reset();
             bootstrap.Modal.getInstance(document.getElementById('cadastrarModal')).hide();
-            showConfirmationPopup("Sucesso", "Usuário cadastrado com sucesso!");; // Altere aqui se desejar outro tipo de confirmação.
+            showConfirmationPopup('Usuário cadastrado com sucesso!','Faça Login para carregar sua carteira!');
+            
         } else {
             const errorMessage = await response.text();
-            showConfirmationPopup("Erro", errorMessage || "Houve um problema ao cadastrar o usuário. Tente novamente.");
+            showConfirmationPopup('Erro!',"Erro: " + (errorMessage || "Houve um problema ao cadastrar o usuário. Tente novamente."));
         }
     } catch (error) {
         console.error('Erro ao enviar dados:', error);
     }
 }
 
+// Pop-up de confirmação com opções
+function showConfirmationPopupwallet(title, message, onYes, onNo) {
+    const popup = document.getElementById("confirmationPopupwallet");
+    const popupTitle = document.getElementById("popupTitle");
+    const popupMessage = document.getElementById("popupMessage");
+
+    popupTitle.innerText = title;
+    popupMessage.innerText = message;
+
+    document.getElementById("popupYes").onclick = () => {
+        popup.classList.add("d-none");
+        if (onYes) onYes();
+    };
+    document.getElementById("popupNo").onclick = () => {
+        popup.classList.add("d-none");
+        if (onNo) onNo();
+    };
+
+    popup.classList.remove("d-none");
+}
+
+function showConfirmationPopup(title, message) {
+    const popup = document.getElementById("confirmationPopupwallet");
+    const popupTitle = document.getElementById("popupTitle");
+    const popupMessage = document.getElementById("popupMessage");
+
+    popupTitle.innerText = title;
+    popupMessage.innerText = message;
+
+    // Fechar o pop-up após a confirmação
+    document.getElementById("popupYes").onclick = () => {
+        popup.classList.add("d-none");
+    };
+
+    popup.classList.remove("d-none");
+}
+
+// Fecha o pop-up de confirmação
+function closeConfirmationPopupwallet() {
+    const popup = document.getElementById("confirmationPopupwallet");
+    popup.classList.add("d-none");
+}
 
 
-// Buscar eventos pela barra de pesquisa
-
-
-// Exibir alerta
 function showAlert(message) {
     const alertContainer = document.getElementById('alert-container');
     alertContainer.innerHTML = `
@@ -263,8 +300,14 @@ async function performSignIn() {
                 const token = await response.text();
                 localStorage.setItem("authToken", token);
                 console.log("Token armazenado:", localStorage.getItem("authToken"));
-              
-                window.location.href = "../HomeLogon/HomeLogon.html"; // Redirecionar após login
+
+                // Exibe o popup de confirmação
+                showConfirmationPopup("Sucesso!", 'Login feito com sucesso, para comprar créditos clique em "Wallet"');
+
+                // Aguarda 3 segundos e redireciona
+                setTimeout(() => {
+                    window.location.href = "../HomeLogon/HomeLogon.html";
+                }, 3000); // 3000 milissegundos = 3 segundos
             } else if (response.status === 401) {
                 showErrorMessage("E-mail ou senha incorretos.");
             } else {

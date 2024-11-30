@@ -1,14 +1,21 @@
-/* style_BuscarEventos.css */
 
-/* Fundo e fonte geral */
 body {
-    background-color: #000000f7 ; /* Cinza escuro */
+    background-color: #000000f7 ; 
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     color: #f1f1f1;
     margin: 0;
 }
 
-/* Navbar */
+.no-events-message {
+  font-size: 18px; 
+  color: #504f4f; 
+  font-weight: bold; 
+  text-align: center; 
+  padding: 20px; 
+ 
+  border-radius: 5px; 
+  margin-top: 20px; 
+}
 
 .navbar {
     height: 90px;
@@ -75,7 +82,7 @@ body {
 
 /* Títulos das categorias */
 h2 {
-    color: #000000; /* Branco */
+    color: #000000; 
     font-size: 24px;
     margin-bottom: 20px;
 }
@@ -84,7 +91,7 @@ h2 {
 .card {
     border: none;
     border-radius: 10px;
-    background-color:#151515; /* Preto escuro */
+    background-color:#151515; 
     transition: transform 0.2s, box-shadow 0.2s;
     margin-bottom: 20px;
 }
@@ -94,28 +101,28 @@ strong{
 
 .card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3); /* Sombra suave no hover */
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3); 
 }
 
 .card-title {
-    color: #b067ff; /* Roxo */
+    color: #b067ff; 
     font-size: 20px;
     margin-bottom: 10px;
 }
 
 .card-text {
-    color: #ffffff; /* Cinza claro */
+    color: #ffffff; 
     font-size: 16px;
 }
 .confirmation-popup {
   
     z-index: 2000; /* Garante que o popup fique acima do modal */
     position: fixed;
-    top: 0; /* Ajusta o popup para cobrir a tela inteira */
+    top: 0; 
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.947); /* Fundo escuro, agora sem transparência */
+    background-color: rgba(0, 0, 0, 0.947); 
     display: flex;
     justify-content: center;
     align-items: center;
@@ -138,7 +145,7 @@ strong{
     text-align: center;
     max-width: 400px;
     width: 100%;
-    box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.3); /* Sombra */
+    box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.3); 
     transform: scale(0.9); /* Tamanho inicial para animação */
     animation: popUp 0.3s ease forwards; /* Animação de "pop" */
   }
@@ -190,7 +197,7 @@ strong{
 
 /* Botões */
 .btn-primary {
-    background-color: #48008B; /* Roxo escuro */
+    background-color: #48008B; 
     border: none;
     padding: 10px 20px;
     font-size: 16px;
@@ -199,11 +206,11 @@ strong{
 }
 
 .btn-primary:hover {
-    background-color: #7027b4; /* Roxo mais claro */
+    background-color: #7027b4; 
 }
 
 .btn-secondary {
-    background-color: #5A5858; /* Cinza escuro */
+    background-color: #5A5858; 
     border: none;
     padding: 10px 20px;
     font-size: 16px;
@@ -212,7 +219,7 @@ strong{
 }
 
 .btn-secondary:hover {
-    background-color: #9e55e8; /* Roxo claro */
+    background-color: #9e55e8; 
 }
 
 /* Ajustes de layout */
@@ -229,7 +236,7 @@ strong{
 
 /* Botão de voltar para a home */
 .btn-home {
-    background-color: #343a40; /* Cinza escuro */
+    background-color: #343a40; 
     border: none;
     color: white;
     padding: 12px 20px;
@@ -243,5 +250,5 @@ strong{
 }
 
 .btn-home:hover {
-    background-color: #7027b4; /* Roxo mais claro */
+    background-color: #7027b4; 
 }

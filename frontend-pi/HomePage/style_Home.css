@@ -8,6 +8,37 @@
     border: none;
     width: 95%;
 }
+/* Estilo para os botões */
+.btn {
+    padding: 10px 20px;
+    margin: 5px;
+    font-size: 16px;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+}
+
+#simBtn {
+    background-color: #4CAF50; /* Verde */
+    color: white;
+}
+
+#simBtn:hover {
+    background-color: #45a049;
+}
+
+#naoBtn {
+    background-color: #f44336; /* Vermelho */
+    color: white;
+}
+
+#naoBtn:hover {
+    background-color: #e53935;
+}
+
+
+
 #messageBox{
     background-color: rgb(205, 24, 24);
     color: white;
@@ -60,6 +91,43 @@ body {
     box-sizing: border-box;
     width: 100%;
     height: 100%;
+}
+.confirmatioPopupwallet {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1050;
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+#confirmatioPopupwallet {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1050;
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.popup-content {
+    text-align: center;
+}
+
+.popup-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.d-none {
+    display: none !important;
 }
 .card {
     border: none; /* Remove a borda padrão do card */

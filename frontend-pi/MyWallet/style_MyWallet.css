@@ -125,7 +125,7 @@ body {
   margin-left: auto;
 }
 
-/* Estilo para ajustar a posição da div credit-history */
+
 .credit-history {
   display: flex;
   justify-content: space-between;
@@ -133,11 +133,11 @@ body {
   margin-top: 40px;
   width: 80%;
   max-width: 798px;
-  margin-left: 16%; /* Ajuste para mover mais à esquerda */
+  margin-left: 16%; 
   position: relative;
 }
 
-/* Estilo para o botão de olho, removendo a borda */
+
 .eye-button {
   background: none;
   border: none;
@@ -145,11 +145,11 @@ body {
   color: #ffffff;
   opacity: 0.8;
   font-size: 20px;
-  outline: none; /* Remove a borda */
+  outline: none; 
 }
 
 .eye-button:focus {
-  outline: none; /* Remove o foco */
+  outline: none; 
 }
 
 .eye-button:hover {
@@ -173,91 +173,88 @@ body {
 }
 
 .history-box {
-  background-color: #1a1a1a; /* Fundo escuro para o container */
-  padding: 30px; /* Espaçamento interno para o container */
-  border-radius: 15px; /* Bordas arredondadas para o container */
-  box-shadow: 0px 6px 20px rgba(0, 0, 0, 0.5); /* Sombra ao redor do container */
-  margin: 20px auto; /* Margem automática para centralizar */
-  width: 100%; /* Largura ajustada para a tela, um pouco mais larga */
-  transition: transform 0.3s ease, box-shadow 0.3s ease; /* Transição suave para hover */
+  background-color: #1a1a1a; 
+  padding: 30px; 
+  border-radius: 15px; 
+  box-shadow: 0px 6px 20px rgba(0, 0, 0, 0.5); 
+  margin: 20px auto; 
+  width: 100%; 
+  transition: transform 0.3s ease, box-shadow 0.3s ease; 
   display: flex;
   flex-direction: column;
   align-items: center;
-  max-height: 380px; /* Altura máxima para ativar o scroll */
-  overflow-y: auto; /* Ativa a rolagem vertical */
-  padding-right: 10px; /* Espaçamento à direita para o scroll */
+  max-height: 380px; 
+  overflow-y: auto; 
+  padding-right: 10px; 
 }
 .history-box::-webkit-scrollbar {
-  width: 10px; /* Largura da barra de rolagem */
+  width: 10px; 
 }
 
 
 .history-box::-webkit-scrollbar-thumb {
-  background-color: #9b5ae8; /* Cor do "polegar" da barra (a parte que você arrasta) */
-  border-radius: 10px; /* Bordas arredondadas para o "polegar" */
-  border: 2px solid #30005c; /* Cor da borda ao redor do "polegar" */
+  background-color: #9b5ae8; 
+  border-radius: 10px; 
+  border: 2px solid #30005c; 
 }
 
 .history-box::-webkit-scrollbar-track {
-  background-color:  #000000a0; /* Cor de fundo da barra de rolagem */
+  background-color:  #000000a0; 
   border-radius: 10px;
 }
 
-/* Efeito de hover no container */
 
-/* Estilo para as divs internas dentro de .history-box */
 .history-box div {
-  background-color: #000000; /* Cor de fundo preta */
-  border-radius: 10px; /* Bordas arredondadas */
-  padding: 20px; /* Maior espaçamento interno */
-  margin: 15px 0; /* Espaço superior e inferior entre as divs */
-  width: 100%; /* Largura 100% para garantir que ocupe toda a largura disponível */
-  box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.4); /* Sombra suave para destacar a div */
-  transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out; /* Efeito de hover suave */
+  background-color: #000000;
+  border-radius: 10px; 
+  padding: 20px;
+  margin: 15px 0; 
+  width: 100%; 
+  box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.4); 
+  transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out; 
 }
 
-/* Efeito de hover nas divs internas */
+
 .history-box div:hover {
-  transform: translateY(-5px); /* Efeito de elevação no hover */
-  box-shadow: 0px 12px 25px rgba(0, 0, 0, 0.5); /* Sombra mais intensa no hover */
+  transform: translateY(-5px); 
+  box-shadow: 0px 12px 25px rgba(0, 0, 0, 0.5); 
 }
 
-/* Estilo para o texto dentro das divs */
+
 .history-box div p {
-  color: #fff; /* Cor de texto branca */
+  color: #fff; 
   font-size: 16px;
   line-height: 1.5;
-  margin-bottom: 10px; /* Espaço entre os parágrafos */
+  margin-bottom: 10px; 
 }
 
 .history-box div p strong {
-  color: #b067ff; /* Cor roxa para destaque */
-  font-weight: 700; /* Texto em negrito para destaque */
-  text-shadow: 0px 0px 6px rgba(176, 103, 255, 0.8); /* Sombra roxa sutil */
+  color: #b067ff; 
+  font-weight: 700; 
+  text-shadow: 0px 0px 6px rgba(176, 103, 255, 0.8); 
 }
 
-/* Estilo para o elemento span */
+
 .history-box div span {
   display: block;
   font-size: 1.1rem;
-  color: #ffcc00; /* Cor amarela suave para o span */
+  color: #ffcc00; 
   font-style: italic;
   text-align: center;
   margin-top: 15px;
   padding: 10px;
-  background-color: #333333; /* Fundo cinza para contraste */
+  background-color: #333333; 
   border-radius: 8px;
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2); /* Sombra suave para o span */
-  transition: background-color 0.3s ease, box-shadow 0.3s ease; /* Efeito de hover suave */
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2); 
+  transition: background-color 0.3s ease, box-shadow 0.3s ease; 
 }
 
-/* Efeito de hover no span */
+
 .history-box div span:hover {
-  background-color: #444444; /* Fundo mais claro no hover */
-  box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.3); /* Sombra mais intensa no hover */
+  background-color: #444444; 
+  box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.3); 
 }
 
-/* Ajustes para o "Nenhuma compra" */
 .no-purchase {
   font-size: 18px;
   color: #6f00ff;
@@ -270,20 +267,20 @@ body {
   transition: background-color 0.3s ease, box-shadow 0.3s ease;
 }
 
-/* Efeito de hover para o "Nenhuma compra" */
+
 .no-purchase:hover {
   background-color: #555555;
   box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.4);
 }
 
-/* Ajustando o botão de carregar compra */
+
 .load-purchase-btn {
   display: block;
   width: 200px;
   margin: 20px auto;
   padding: 12px;
   font-size: 16px;
-  background-color: #b067ff; /* Cor roxa */
+  background-color: #b067ff; 
   color: #fff;
   border: none;
   border-radius: 5px;
@@ -293,13 +290,12 @@ body {
   transition: background-color 0.3s ease, box-shadow 0.3s ease;
 }
 
-/* Efeito de hover no botão de carregar compra */
+
 .load-purchase-btn:hover {
-  background-color: #9b5ae8; /* Cor roxa mais escura no hover */
+  background-color: #9b5ae8; 
   box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.4);
 }
 
-/* Ajuste para deixar o botão carregando mais bonito e destacado */
 #verComprasBtn, #verApostasBtn {
   background-color: #48008B;
   color: white;
@@ -328,26 +324,18 @@ body {
   margin-bottom: 15px;
 }
 
-
-
-
-
-
-
-
-/* Adiciona espaçamento entre transações e melhora a aparência */
 .history-box .history-item:last-child {
   margin-bottom: 40px;
 }
 
-/* Botões posicionados corretamente */
+
 .botoes {
   position: absolute;
   margin-left: 110%;
   display: flex;
   flex-direction: column;
   gap: 20px;
-  top: 20px; /* Ajustado para a posição correta dos botões */
+  top: 20px; 
 }
 
 .btn-wallet {
@@ -370,7 +358,7 @@ body {
   background-color: #9e55e8;
 }
 
-/* Modal do Bootstrap */
+
 .modal-content {
   background-color: #333;
   color: #fff;
@@ -412,20 +400,20 @@ body {
   font-size: 20px;
 }
 
-/* Estilos para o contêiner do pop-up */
+
 .confirmation-popup {
   
-  z-index: 2000; /* Garante que o popup fique acima do modal */
+  z-index: 2000; 
   position: fixed;
-  top: 0; /* Ajusta o popup para cobrir a tela inteira */
+  top: 0; 
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.947); /* Fundo escuro, agora sem transparência */
+  background-color: rgba(0, 0, 0, 0.947); 
   display: flex;
   justify-content: center;
   align-items: center;
-  animation: fadeIn 0.4s ease; /* Animação de entrada */
+  animation: fadeIn 0.4s ease; 
   }
   
 
@@ -444,18 +432,18 @@ body {
   text-align: center;
   max-width: 400px;
   width: 100%;
-  box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.3); /* Sombra */
-  transform: scale(0.9); /* Tamanho inicial para animação */
-  animation: popUp 0.3s ease forwards; /* Animação de "pop" */
+  box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.3); 
+  transform: scale(0.9); 
+  animation: popUp 0.3s ease forwards; 
 }
 
-/* Animação de escala (pop) */
+
 @keyframes popUp {
   from { transform: scale(0.9); }
   to { transform: scale(1); }
 }
 
-/* Estilo do título */
+
 .popup-content h3 {
   font-size: 24px;
   font-weight: bold;
@@ -463,7 +451,7 @@ body {
   color: #ffffff;
 }
 
-/* Botão de ação */
+
 .popup-content button {
   padding: 10px 25px;
   background-color: #b067ff;
@@ -475,13 +463,12 @@ body {
   transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
-/* Hover do botão */
+
 .popup-content button:hover {
   background-color: #9e55e8;
   transform: scale(1.05);
 }
 
-/* Classe oculta */
 .d-none {
   display: none;
 }
@@ -495,9 +482,7 @@ body {
   cursor: pointer;
 }
 
-/* Classe oculta */
 
-/* Modal Responsivo */
 @media (max-width: 768px) {
   .navbar-custom {
     padding: 0 8px;
