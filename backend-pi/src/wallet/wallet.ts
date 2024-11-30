@@ -129,7 +129,7 @@ export namespace WalletHandler {
         const token = req.get('token');
 
         if (!token) {
-            res.status(400).json({ error: 'Token da conta é obrigatório.' });
+            res.status(400).send( 'Token da conta é obrigatório.' );
             return;
         }
     
@@ -145,7 +145,7 @@ export namespace WalletHandler {
             const accountRows = accountResult.rows as Array<{ ACCOUNTID: number }>;
     
             if (!accountRows || accountRows.length === 0) {
-                res.status(404).json({ error: 'Conta não encontrada.' });
+                res.status(404).send('Conta não encontrada.' );
                 return;
             }
     
@@ -160,7 +160,7 @@ export namespace WalletHandler {
             const walletRows = walletResult.rows as Array<{ BALANCE: number }>;
     
             if (!walletRows || walletRows.length === 0) {
-                res.status(404).json({ error: 'Carteira não encontrada.' });
+                res.status(404).send('Carteira não encontrada.' );
                 return;
             }
     
@@ -168,7 +168,7 @@ export namespace WalletHandler {
             res.status(200).json({ balance });
         } catch (error) {
             console.error('Erro ao verificar o saldo:', error);
-            res.status(500).json({ error: 'Erro ao verificar o saldo.' });
+            res.status(500).send( 'Erro ao verificar o saldo.' );
         } finally {
             await connection.close();
         }
@@ -186,7 +186,7 @@ export namespace WalletHandler {
       
     
         if (!token || isNaN(amount) || amount <= 0) {
-            res.status(400).json({ error: 'Token e valor de saque válidos são obrigatórios.' });
+            res.status(400).send('Token e valor de saque válidos são obrigatórios.' );
             return;
         }
     
@@ -204,7 +204,7 @@ export namespace WalletHandler {
     
             const accountRows = accountResult.rows as Array<{ ACCOUNTID: number }>;
             if (accountRows.length === 0) {
-                res.status(404).json({ error: 'Conta não encontrada.' });
+                res.status(404).send('Conta não encontrada.' );
                 return;
             }
     
@@ -218,7 +218,7 @@ export namespace WalletHandler {
     
             const walletRows = walletResult.rows as Array<{ WALLETID: number, BALANCE: number }>;
             if (walletRows.length === 0) {
-                res.status(404).json({ error: 'Saldo não encontrado.' });
+                res.status(404).send( 'Saldo não encontrado.' );
                 return;
             }
     
@@ -226,7 +226,7 @@ export namespace WalletHandler {
             const walletId = walletRows[0].WALLETID;
     
             if (currentBalance < amount) {
-                res.status(400).json({ error: 'Saldo insuficiente para realizar o saque.' });
+                res.status(400).send('Saldo insuficiente para realizar o saque.' );
                 return;
             }
             let feePercentage = 0;
@@ -245,7 +245,7 @@ export namespace WalletHandler {
             const netAmount = amount + fee;
     
             if (netAmount > currentBalance) {
-                res.status(400).json({ error: 'Saldo insuficiente após aplicar a taxa.' });
+                res.status(400).send('Saldo insuficiente após aplicar a taxa.' );
                 return;
             }
     
@@ -286,7 +286,7 @@ export namespace WalletHandler {
         
         if (!token) {
             console.log("Token não fornecido");
-            res.status(400).json({ error: 'Token é obrigatório.' });
+            res.status(400).send('Token é obrigatório.' );
             return;
         }
     
@@ -304,7 +304,7 @@ export namespace WalletHandler {
             const accountRows = accountResult.rows as Array<{ ACCOUNTID: number }>;
             if (accountRows.length === 0) {
                 console.log("Conta não encontrada para o token:", token);
-                res.status(404).json({ error: 'Conta não encontrada.' });
+                res.status(404).send('Conta não encontrada.' );
                 return;
             }
     
@@ -326,7 +326,7 @@ export namespace WalletHandler {
     
             if (!purchaseHistory || purchaseHistory.length === 0) {
                 console.log("Nenhuma compra de crédito encontrada para AccountId:", accountId);
-                res.status(404).json({ error: 'Nenhuma compra de crédito encontrada.' });
+                res.status(404).send( 'Nenhuma compra de crédito encontrada.' );
                 return;
             }
     
@@ -334,7 +334,7 @@ export namespace WalletHandler {
             res.status(200).json({ purchases: purchaseHistory });
         } catch (error) {
             console.error('Erro ao buscar histórico de compras de créditos:', error);
-            res.status(500).json({ error: 'Erro ao buscar histórico. Tente novamente mais tarde.' });
+            res.status(500).send('Erro ao buscar histórico. Tente novamente mais tarde.' );
         }
     };
     
@@ -343,7 +343,7 @@ export namespace WalletHandler {
         
         if (!token) {
             console.log("Token não fornecido");
-            res.status(400).json({ error: 'Token é obrigatório.' });
+            res.status(400).send('Token é obrigatório.' );
             return;
         }
     
@@ -361,7 +361,7 @@ export namespace WalletHandler {
             const accountRows = accountResult.rows as Array<{ ACCOUNTID: number }>;
             if (accountRows.length === 0) {
                 console.log("Conta não encontrada para o token:", token);
-                res.status(404).json({ error: 'Conta não encontrada.' });
+                res.status(404).send('Conta não encontrada.' );
                 return;
             }
     
