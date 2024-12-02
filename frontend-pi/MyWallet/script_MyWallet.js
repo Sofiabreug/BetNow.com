@@ -11,7 +11,7 @@ function toggleCardFields() {
   }
   // Função para alternar os campos do saque entre banco e Pix
   function toggleWithdrawFields() {
-    const accountType = document.getElementById('accountType').value;
+   
     const bankFields = document.getElementById('bankFields');
   
       bankFields.classList.remove('d-none'); // Mostra os campos bancários
@@ -310,8 +310,8 @@ function toggleCardFields() {
         });
   
         if (!response.ok) {
-            const errorData = await response.json();
-            showConfirmationPopup('Erro!', errorData.error || 'Erro ao buscar histórico de compras.');
+            
+            showConfirmationPopup('Erro!','Erro ao buscar histórico de compras.');
             return;
         }
   
@@ -381,7 +381,7 @@ function toggleCardFields() {
             const betElement = document.createElement('div');
             betElement.innerHTML = `
                 <p><strong>Transaction ID:</strong> ${bet.TRANSACTIONID}</p>
-                <p><strong>Amount:</strong> R$ ${bet.AMOUNT}</p>
+                <p><strong>Amount:</strong> R$ ${bet.AMOUNT.toFixed(2)}</p>
                 <p><strong>Date:</strong> ${new Date(bet.TRANSACTION_DATE).toLocaleDateString()}</p>
             `;
             bettingHistoryContainer.appendChild(betElement);
