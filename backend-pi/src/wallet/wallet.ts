@@ -275,12 +275,7 @@ export namespace WalletHandler {
         }
     };
     
- 
-    
 
-    
- 
-    
     export const getCreditPurchasesHistory: RequestHandler = async (req: Request, res: Response): Promise<void> => {
         const token = req.get('token');
         
