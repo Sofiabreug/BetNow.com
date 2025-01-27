@@ -100,7 +100,7 @@ h4{
     border: 1px solid white;
     background-color: #1d0f2f;
 }
-.criarEvento{
+.criarEvento, .sair{
     border: 1px solid white;
     background-color:#1d0f2f;
     border-radius: 7px;
@@ -191,12 +191,12 @@ h4{
     cursor: pointer;
   }
   
-.criarEvento:hover{
+.criarEvento:hover, .sair:hover{
     border: 1px solid white;
     background-color:#48008B;
     color: white;
 }
-.criarEvento:active{
+.criarEvento:active, .sair:active{
     border: 1px solid white;
     background-color:#1d0f2f;
     color: white;
